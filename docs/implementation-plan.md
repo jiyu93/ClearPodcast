@@ -529,69 +529,171 @@ Completion state as of June 2, 2026:
 - Milestone 3 has no deferred exit criteria. See
   `docs/milestone-3-desktop-mvp.md`.
 
-### Milestone 4: Portable Release
+### Milestone 4: macOS Portable Release And Packaging Contract
 
 Objective:
 
-Produce self-contained portable release artifacts for the first supported
-platform matrix and prove they run without network or system Python setup.
+Produce a self-contained macOS arm64 CPU release artifact and establish the
+portable packaging contract that the later Windows release milestone can reuse.
+Milestone 4 should be fully verifiable from the macOS development machine.
 
 Scope:
 
-- Build macOS arm64 CPU `.app`, wrapped in DMG or zip.
-- Make an explicit macOS wrapper choice. The `.app` bundle already builds after
-  Milestone 3, but the local DMG script timed out in Finder AppleScript with
-  AppleEvent `-1712`; fix that path or choose zip for the first wrapper.
-- Build Windows x64 CPU portable archive, validated first on Windows 11.
-- Build Windows x64 NVIDIA CUDA portable archive, validated first on Windows 11
-  with the RTX 5070 Ti machine.
+- Build the macOS arm64 CPU `.app` from a clean checkout.
+- Choose the first macOS wrapper format: either fix the DMG path or use zip.
+  The `.app` bundle already builds after Milestone 3, but the local DMG script
+  timed out in Finder AppleScript with AppleEvent `-1712`.
+- Produce a self-contained macOS arm64 CPU portable artifact that includes the
+  Tauri app, Python runtime, minimal PyTorch inference environment, Resemble
+  Enhance sidecar, model weights, resources, and third-party license notices.
 - Add committed packaging manifests and staging scripts so a clean checkout can
-  assemble the runtime, sidecar, model, resource layout, and license notices
-  before invoking Tauri build.
+  assemble the macOS runtime, sidecar, model, resource layout, and license
+  notices before invoking Tauri build.
+- Add cross-platform model/runtime manifest structure with source, expected
+  artifact path, version, platform, and SHA256 metadata. Keep large runtime and
+  model artifacts out of git unless a later ADR explicitly chooses Git LFS or
+  release-asset storage.
 - Replace the development-only `localfiles/` runtime/model defaults in the
-  desktop workflow with packaged resource lookup while preserving developer
+  desktop workflow with packaged resource lookup, while preserving developer
   overrides for local smoke testing.
-- Add model/runtime manifests with source, expected local artifact path, version,
-  platform, and SHA256 metadata. Keep large runtime and model artifacts out of
-  git unless a later ADR explicitly chooses Git LFS or release-asset storage.
-- Bundle Python runtime, PyTorch, sidecar, model weights, resources, and license
-  notices.
-- Verify portable folder/resource lookup for sidecar and model paths.
+- Define the resource layout contract that Windows packaging should follow in
+  Milestone 5, including where platform runtimes, sidecars, model files, and
+  license notices live relative to the app executable.
+- Verify portable folder/resource lookup for the macOS sidecar and model paths.
 - Verify that the job-managed preview/export workflow works from packaged
   resource paths, not only from repository-relative development paths.
 - Review the asset protocol scope for arbitrary user-selected audio and
   temporary enhanced previews in packaged builds.
-- Document archive size, extracted size, runtime expectations, and known
-  platform limitations.
+- Document macOS archive size, extracted size, runtime expectations, no-network
+  behavior, artifact layout, and known platform limitations.
+- Document the Windows handoff requirements for Milestone 5: required local
+  artifacts, expected staging commands, expected output archive shape, and smoke
+  test checklist.
 
 Exit criteria:
 
-- Freshly extracted macOS and Windows CPU artifacts run without user-installed
-  Python, Conda, FFmpeg, CUDA Toolkit, or model downloads.
-- Windows CUDA artifact uses the NVIDIA GPU when available and falls back or
-  fails clearly when CUDA is unavailable.
-- The RTX 5070 Ti machine completes an end-to-end WAV/MP3/M4A input to WAV output
-  CUDA smoke test.
-- Third-party license notices are present in the artifact.
-- A fresh developer checkout has documented commands for staging the required
-  runtime and model artifacts into the Tauri resource layout without relying on
-  hidden `localfiles/` state.
-- Documentation explains the artifact layout and platform support status.
+- A freshly extracted macOS arm64 CPU artifact runs without user-installed
+  Python, Conda, FFmpeg, CUDA Toolkit, network access, or model downloads.
+- The macOS artifact can complete the one-file desktop workflow for WAV, MP3,
+  and M4A input: import, metadata display, preset selection, enhancement,
+  before/after playback, and WAV export.
+- The app resolves the bundled Python runtime, sidecar, and model files from the
+  packaged resource layout by default.
+- Developer overrides still allow local smoke testing from `localfiles/` or an
+  explicit runtime/model path.
+- Third-party license notices are present in the macOS artifact.
+- A fresh macOS developer checkout has documented commands for staging the
+  required runtime and model artifacts into the Tauri resource layout without
+  relying on hidden `localfiles/` state.
+- Documentation explains the macOS artifact layout, archive size, extracted
+  size, runtime expectations, no-network behavior, and platform support status.
+- Documentation gives the Windows machine enough packaging-contract detail to
+  start Milestone 5 after cloning the repository.
 
 Out of scope:
 
+- Windows CPU artifact creation or validation.
+- Windows CUDA artifact creation or validation.
 - Auto-update.
-- Start Menu shortcuts, file associations, MSI, NSIS, or `.pkg` installers.
+- Start Menu shortcuts, file associations, MSI, NSIS, `.pkg`, or traditional
+  installer flows.
 - Windows 10 support guarantee.
 - macOS MPS acceleration guarantee.
 
 Verification:
 
-- No-network smoke test after extraction.
 - macOS CPU artifact smoke test.
-- Windows 11 CPU artifact smoke test.
-- Windows 11 CUDA artifact smoke test on the RTX 5070 Ti machine.
+- No-network smoke test after extracting the macOS artifact.
+- WAV, MP3, and M4A input to WAV export smoke tests from the packaged macOS
+  resource layout.
+- Packaged-resource lookup test for runtime, sidecar, model files, and license
+  notices.
+- Developer override smoke test that still uses explicit local paths.
 - License notice review.
+- `npm run check`.
+- `cargo test --manifest-path src-tauri/Cargo.toml`.
+- `npm run tauri build` or the documented macOS artifact build command.
+- Run `git diff --check`.
+
+### Milestone 5: Windows Portable Release And CUDA Validation
+
+Objective:
+
+Produce self-contained Windows 11 x64 portable release artifacts and validate
+both the CPU compatibility build and the NVIDIA CUDA acceleration build on the
+Windows RTX 5070 Ti machine. Milestone 5 is intended to run from a fresh clone on
+the Windows validation computer.
+
+Scope:
+
+- Clone the repository onto the Windows 11 x64 validation machine after
+  Milestone 4 is complete.
+- Build a Windows x64 CPU portable archive using the packaging contract,
+  manifests, and staging scripts established in Milestone 4.
+- Build a Windows x64 NVIDIA CUDA portable archive using the same resource
+  layout with a CUDA-capable Python/PyTorch runtime.
+- Select the Windows CUDA PyTorch wheel at packaging time based on the latest
+  stable PyTorch support for the target GPU generation. Do not require users to
+  install the CUDA Toolkit.
+- Stage Windows runtime artifacts, sidecar files, model weights, app resources,
+  and third-party license notices into the documented portable folder layout.
+- Verify that packaged Windows resource lookup finds the bundled runtime,
+  sidecar, and model files without relying on repository-relative paths or
+  hidden `localfiles/` state.
+- Verify the desktop job-managed workflow on Windows: import, metadata display,
+  preset selection, enhancement, cancellation behavior, before/after playback,
+  and WAV export.
+- Validate CPU fallback behavior when CUDA is unavailable or disabled.
+- Validate CUDA startup, model load, and end-to-end inference on the RTX 5070 Ti
+  machine.
+- Document Windows archive size, extracted size, runtime expectations, GPU
+  driver expectations, no-network behavior, artifact layout, and known platform
+  limitations.
+
+Exit criteria:
+
+- A freshly extracted Windows x64 CPU portable archive runs on Windows 11 without
+  user-installed Python, Conda, FFmpeg, CUDA Toolkit, network access, or model
+  downloads.
+- The Windows CPU artifact completes end-to-end WAV, MP3, and M4A input to WAV
+  export smoke tests.
+- A freshly extracted Windows x64 NVIDIA CUDA portable archive runs on the RTX
+  5070 Ti Windows 11 machine without user-installed Python, Conda, FFmpeg, CUDA
+  Toolkit, network access, or model downloads.
+- The Windows CUDA artifact uses the NVIDIA GPU when CUDA is available.
+- CUDA unavailable or disabled states either fall back to CPU or fail with a
+  clear actionable error, according to the documented product behavior.
+- The RTX 5070 Ti machine completes end-to-end WAV, MP3, and M4A input to WAV
+  output CUDA smoke tests.
+- Third-party license notices are present in both Windows artifacts.
+- Documentation explains Windows CPU and CUDA artifact layout, archive sizes,
+  extracted sizes, runtime expectations, GPU driver expectations, and platform
+  support status.
+
+Out of scope:
+
+- macOS packaging changes except documentation updates needed to keep the
+  packaging contract aligned.
+- Auto-update.
+- Start Menu shortcuts, file associations, MSI, NSIS, or mandatory installers.
+- Windows 10 support guarantee.
+- Multi-GPU optimization or support for non-NVIDIA GPU acceleration.
+
+Verification:
+
+- Windows 11 CPU portable archive no-network smoke test after extraction.
+- Windows 11 CUDA portable archive no-network smoke test after extraction.
+- Windows 11 CPU WAV, MP3, and M4A input to WAV export smoke tests.
+- Windows 11 CUDA WAV, MP3, and M4A input to WAV export smoke tests on the RTX
+  5070 Ti machine.
+- CUDA enabled-device check and captured evidence that inference ran on NVIDIA
+  GPU.
+- CPU fallback or clear-failure test with CUDA disabled or unavailable.
+- Cancellation smoke test on Windows while a sidecar job is running.
+- License notice review for both Windows artifacts.
+- `npm run check`.
+- `cargo test --manifest-path src-tauri/Cargo.toml`.
+- Windows artifact build commands documented by Milestone 4.
 - Run `git diff --check`.
 
 ## Open Questions

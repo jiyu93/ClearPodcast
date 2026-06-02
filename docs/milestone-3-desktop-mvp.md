@@ -72,9 +72,9 @@ The first preset names are represented in both UI and backend request types:
 - Phone recording.
 
 For Milestone 3, all presets still map to the same Resemble Enhance defaults.
-They are now part of the pipeline request so Milestone 4+ can preserve them in
-packaged builds and later tuning work can specialize them without changing the
-desktop workflow contract.
+They are now part of the pipeline request so later packaged builds can preserve
+them and tuning work can specialize them without changing the desktop workflow
+contract.
 
 ## Local Preview Access
 
@@ -132,7 +132,7 @@ cargo test --manifest-path src-tauri/Cargo.toml
 - The default Tauri bundle target is currently `app`. A DMG wrapper attempt
   reached the generated `.app` but timed out in Finder AppleScript with
   AppleEvent `-1712`; Milestone 4 should either make DMG creation reliable in
-  the local build environment or choose zip as the first macOS wrapper.
+  the local macOS build environment or choose zip as the first macOS wrapper.
 
 Milestone 3 has no deferred exit criteria.
 
@@ -144,4 +144,5 @@ lookup. Packaging work should also review whether the current asset protocol
 scope should remain broad for arbitrary user-selected audio or be paired with a
 narrower allowlist strategy after file selection. The first packaging task
 should also resolve the DMG wrapper timeout or intentionally use a zip wrapper
-for the macOS arm64 CPU artifact.
+for the macOS arm64 CPU artifact. Windows CPU and CUDA artifacts are now a
+separate Milestone 5 handoff for the Windows validation machine.
