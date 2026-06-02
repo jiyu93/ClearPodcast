@@ -33,7 +33,7 @@ Positive:
 
 Negative:
 
-- The installer will be large because Python, PyTorch, and model weights must be
+- Release artifacts will be large because Python, PyTorch, and model weights must be
   bundled.
 - CPU processing may be slow.
 - Model improvements depend on the Resemble Enhance path unless the ADR is

@@ -42,9 +42,14 @@ further publishing or distribution.
 ## Product Constraints
 
 - The app must run as a desktop app and be usable offline.
+- The first supported platforms are Windows and macOS.
+- macOS arm64 is the daily development baseline.
+- Windows 11 x64 is the primary NVIDIA CUDA validation and acceleration target.
+- Distribution is portable-first. Prefer self-contained app folders or app
+  bundles over mandatory system installers.
 - Resemble Enhance is the single AI model family for the first implementation.
 - Runtime, Python environment, PyTorch dependencies, and model weights are
-  bundled into the installer.
+  bundled into the app distribution.
 - FFmpeg must not be introduced.
 - First release supports WAV and MP3 input.
 - First release exports WAV only.
@@ -75,6 +80,7 @@ speech, and harsh high-frequency hallucination.
 - `src/`: TypeScript/React desktop UI.
 - `sidecars/resemble/`: Minimal Python inference sidecar.
 - `models/resemble-enhance/`: Bundled model weights in release artifacts.
+- `packaging/`: Platform-specific runtime, model, release, and license notes.
 - `crates/audio-io/`: Rust WAV/MP3 decode and WAV encode code if split into a
   workspace crate.
 - `docs/`: implementation docs, packaging docs, ADRs, and agent setup docs.

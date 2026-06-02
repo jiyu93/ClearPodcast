@@ -42,3 +42,7 @@ Current accepted decisions:
 - Resemble Enhance is the only first AI model.
 - FFmpeg is excluded; first release supports WAV/MP3 input and WAV output.
 - AI inference runs through a bundled Python sidecar.
+- Windows and macOS are the first supported platforms; Windows 11 x64 is the
+  primary NVIDIA CUDA validation target.
+- Distribution is portable-first; installers are optional future artifacts, not
+  the default first release surface.

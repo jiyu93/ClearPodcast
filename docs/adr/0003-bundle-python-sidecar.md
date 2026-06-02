@@ -8,8 +8,8 @@ Accepted.
 
 Resemble Enhance is a Python + PyTorch project. Rewriting the model runtime in
 Rust or converting the model before the first product build would add risk and
-delay. The project still needs a desktop-native shell and a clean offline
-installer.
+delay. The project still needs a desktop-native shell and clean offline release
+artifacts.
 
 ## Decision
 
@@ -29,7 +29,7 @@ Positive:
 
 Negative:
 
-- Larger installer.
+- Larger release artifacts.
 - More complex packaging than a pure Rust app.
 - Need robust sidecar process management and error reporting.
 

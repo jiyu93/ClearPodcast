@@ -18,7 +18,11 @@ normalization, and export a WAV file.
 - AI model: Resemble Enhance only.
 - AI runtime: bundled Python sidecar with a minimal PyTorch inference
   environment.
-- Runtime mode: fully offline after installation.
+- Runtime mode: fully offline after extraction and first launch.
+- Supported platforms: Windows and macOS.
+- Development baseline: macOS arm64.
+- GPU validation target: Windows 11 x64 with NVIDIA CUDA.
+- Distribution mode: portable-first.
 - Input formats: WAV and MP3.
 - Output format: WAV only.
 - FFmpeg: explicitly excluded.
@@ -124,9 +128,9 @@ Expected responsibilities:
 The sidecar should fail clearly if model files are missing, if the Python
 environment is incomplete, or if GPU initialization fails.
 
-## Runtime And Packaging
+## Runtime And Release Artifacts
 
-Bundle these into the installer:
+Bundle these into each release artifact:
 
 - Tauri app binary.
 - Python runtime.
@@ -142,16 +146,62 @@ Do not require the user to install:
 - Conda.
 - FFmpeg.
 - CUDA Toolkit.
-- Model weights at first launch.
+- Model downloads at first launch.
 
-Product packaging variants can be:
+First release artifacts:
 
-- Windows x64 CPU.
-- Windows x64 NVIDIA CUDA.
-- macOS Apple Silicon CPU first, with MPS only after validation.
+- macOS arm64 CPU `.app`, wrapped in DMG or zip.
+- Windows x64 CPU portable archive, validated first on Windows 11.
+- Windows x64 NVIDIA CUDA portable archive, validated first on Windows 11.
 
-The CPU package is the compatibility baseline. CUDA is an acceleration package,
+The CPU artifact is the compatibility baseline. CUDA is an acceleration artifact,
 not the only supported path.
+
+Portable-first means the Windows build should be usable after extracting a
+folder, without administrator privileges, registry writes, or mandatory system
+installation. The extracted folder should contain the app executable, Python
+runtime, sidecar, model weights, resources, and license notices.
+
+On macOS, a `.app` bundle inside a DMG or zip is the equivalent first
+artifact. Users may drag it to Applications, but the app should not depend on a
+package installer.
+
+Traditional installers can be added later only if they solve a concrete problem,
+such as auto-updates, file associations, enterprise deployment, or WebView2
+runtime provisioning.
+
+## Platform Support
+
+First-class target platforms:
+
+- macOS arm64 for day-to-day development, UI work, Rust audio I/O, CPU sidecar
+  integration, and baseline release work.
+- Windows 11 x64 CPU for general Windows compatibility.
+- Windows 11 x64 NVIDIA CUDA for accelerated inference and high-performance
+  validation on the local RTX 5070 Ti machine.
+
+The Windows NVIDIA artifact should use the latest stable PyTorch CUDA wheel that
+supports the target GPU generation at packaging time. Do not pin the first CUDA
+artifact to an older CUDA build before validating it against the target Windows
+GPU.
+
+Windows 10 x64 can be evaluated after the Windows 11 path is stable, but it is
+not the first validation target. For portable Windows builds, assume WebView2 is
+available on supported machines; revisit bundling or prompting for WebView2 only
+if validation shows it is a real support issue.
+
+The current high-performance local test machine is expected to be a Windows PC
+with an NVIDIA GeForce RTX 5070 Ti. Treat it as the primary CUDA validation
+machine. It should test:
+
+- Sidecar startup and model load on CUDA.
+- Fallback to CPU when CUDA is disabled or unavailable.
+- Long-file processing stability.
+- Portable folder layout and bundled runtime lookup on Windows.
+- End-to-end WAV/MP3 input to WAV output.
+
+macOS GPU acceleration through MPS is not part of the first guaranteed product
+surface. It can be explored after the CPU sidecar path is stable.
 
 ## Hardware Expectations
 
@@ -159,7 +209,7 @@ Minimum:
 
 - 64-bit CPU.
 - 8 GB RAM.
-- 4 GB free disk after installation.
+- 8 GB free disk after extraction.
 - Slow but functional processing is acceptable.
 
 Recommended:
@@ -167,10 +217,12 @@ Recommended:
 - 8-core CPU.
 - 16 GB RAM.
 - NVIDIA GPU with at least 6 GB VRAM for the CUDA build.
+- RTX 5070 Ti-class GPU is more than enough for local CUDA validation.
 
-Installation size is expected to be large because PyTorch and model weights are
-bundled. A 1.5 GB to 3 GB installed footprint is acceptable for the product
-promise of offline restoration.
+Release artifacts are expected to be large because PyTorch and model weights are
+bundled. A 1.5 GB to 3 GB extracted app footprint is acceptable for the product
+promise of offline restoration. The disk minimum is higher because long inputs,
+temporary WAV handoff files, and exported WAVs need working space.
 
 ## First MVP
 
@@ -222,10 +274,13 @@ Build this before broader features:
 
 ### Milestone 5: Packaging
 
-- Build a CPU installer with bundled runtime and model.
-- Verify no network access is required after install.
+- Build a portable CPU artifact with bundled runtime and model.
+- Build macOS arm64 and Windows 11 x64 CPU portable artifacts.
+- Build and validate a Windows 11 x64 NVIDIA CUDA portable artifact on the RTX
+  5070 Ti machine.
+- Verify no network access is required after extraction.
 - Generate third-party license notices.
-- Document package size and hardware expectations.
+- Document archive size, extracted size, and hardware expectations.
 
 ## Testing Strategy
 
@@ -244,6 +299,7 @@ Integration tests:
 - Missing model files.
 - Missing Python runtime.
 - CPU fallback when CUDA is unavailable.
+- Windows 11 CUDA sidecar startup and inference on the RTX 5070 Ti machine.
 
 Manual QA:
 
@@ -256,9 +312,8 @@ Manual QA:
 ## Open Questions
 
 - Whether to store model weights in the repository, Git LFS, release artifacts,
-  or installer build cache.
+  or a release build cache.
 - Whether the sidecar boundary should initially be temp WAV or direct PCM IPC.
-- Whether first macOS build should include only CPU or attempt MPS support.
 - Final loudness target for exported podcast WAV.
 - Whether to add optional deterministic post-processing before the first public
   build or defer it until after the model path is stable.
