@@ -15,6 +15,25 @@ use thiserror::Error;
 
 const EXPECTED_LATEST_FILE: &str = "default";
 const SIDE_CAR_POLL_INTERVAL: Duration = Duration::from_millis(100);
+const DEVICE_DETECTION_SCRIPT: &str = r#"
+import json
+import torch
+
+cuda_available = bool(torch.cuda.is_available())
+cuda_device_name = None
+if cuda_available:
+    try:
+        cuda_device_name = torch.cuda.get_device_name(0)
+    except Exception:
+        cuda_device_name = None
+
+print(json.dumps({
+    "device": "cuda" if cuda_available else "cpu",
+    "cuda_available": cuda_available,
+    "torch_cuda_version": getattr(torch.version, "cuda", None),
+    "cuda_device_name": cuda_device_name,
+}))
+"#;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct EnhanceRequest {
@@ -49,6 +68,11 @@ pub struct EnhancementDeviceInfo {
     pub cuda_available: Option<bool>,
     pub torch_cuda_version: Option<String>,
     pub cuda_device_name: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct DeviceDetectionRequest {
+    pub python: Option<PathBuf>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -95,6 +119,14 @@ pub enum RuntimeError {
         stdout: String,
         stderr: String,
     },
+    #[error("processing device detection failed with exit code {exit_code}; stderr: {stderr}; stdout: {stdout}")]
+    DeviceDetectionFailed {
+        exit_code: i32,
+        stdout: String,
+        stderr: String,
+    },
+    #[error("processing device detection did not return device metadata; stderr: {stderr}; stdout: {stdout}")]
+    DeviceDetectionOutput { stdout: String, stderr: String },
     #[error("enhancement job was cancelled")]
     Cancelled,
 }
@@ -147,6 +179,43 @@ pub fn enhance_audio(request: EnhanceRequest) -> Result<EnhancementResult, Runti
 
 pub fn enhance_wav(request: EnhanceRequest) -> Result<EnhancementResult, RuntimeError> {
     enhance_audio(request)
+}
+
+pub fn detect_processing_device(
+    python: impl Into<PathBuf>,
+) -> Result<EnhancementDeviceInfo, RuntimeError> {
+    let python = resolve_repo_relative_path(python.into());
+    if !python.is_file() {
+        return Err(RuntimeError::MissingRuntime(python));
+    }
+
+    let mut command = Command::new(&python);
+    command
+        .arg("-c")
+        .arg(DEVICE_DETECTION_SCRIPT)
+        .env("PYTHONNOUSERSITE", "1")
+        .env("PYTHONUNBUFFERED", "1")
+        .env("HF_HUB_OFFLINE", "1")
+        .env("TRANSFORMERS_OFFLINE", "1");
+    prepare_child_command(&mut command);
+
+    let output = command.output().map_err(|source| RuntimeError::Launch {
+        runtime: python.clone(),
+        source,
+    })?;
+    let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
+    let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+
+    if !output.status.success() {
+        return Err(RuntimeError::DeviceDetectionFailed {
+            exit_code: output.status.code().unwrap_or(-1),
+            stdout,
+            stderr,
+        });
+    }
+
+    parse_device_info_from_logs(&format!("{stdout}\n{stderr}"))
+        .ok_or(RuntimeError::DeviceDetectionOutput { stdout, stderr })
 }
 
 pub fn enhance_audio_with_runner<R: SidecarRunner>(
@@ -340,6 +409,7 @@ fn run_blocking_sidecar(
     mut command: Command,
     request: &EnhanceRequest,
 ) -> Result<SidecarRunResult, RuntimeError> {
+    prepare_child_command(&mut command);
     let output = command.output().map_err(|source| RuntimeError::Launch {
         runtime: request.python.clone(),
         source,
@@ -371,6 +441,7 @@ fn run_cancellable_sidecar(
     command
         .stdout(Stdio::from(stdout))
         .stderr(Stdio::from(stderr));
+    prepare_child_command(&mut command);
 
     let child = command.spawn().map_err(|source| RuntimeError::Launch {
         runtime: request.python.clone(),
@@ -444,8 +515,18 @@ fn sidecar_result_from_parts(
 }
 
 fn parse_sidecar_device_info(stderr: &str) -> Option<EnhancementDeviceInfo> {
-    stderr
-        .lines()
+    parse_device_info_from_logs(stderr)
+}
+
+fn parse_device_info_from_logs(logs: &str) -> Option<EnhancementDeviceInfo> {
+    parse_device_info_from_json_lines(logs.lines())
+}
+
+fn parse_device_info_from_json_lines<'a>(
+    lines: impl IntoIterator<Item = &'a str>,
+) -> Option<EnhancementDeviceInfo> {
+    lines
+        .into_iter()
         .filter_map(|line| serde_json::from_str::<serde_json::Value>(line).ok())
         .find_map(|event| {
             let selected_device = event.get("device")?.as_str()?.to_string();
@@ -465,6 +546,17 @@ fn parse_sidecar_device_info(stderr: &str) -> Option<EnhancementDeviceInfo> {
             })
         })
 }
+
+#[cfg(windows)]
+fn prepare_child_command(command: &mut Command) {
+    use std::os::windows::process::CommandExt;
+
+    const CREATE_NO_WINDOW: u32 = 0x08000000;
+    command.creation_flags(CREATE_NO_WINDOW);
+}
+
+#[cfg(not(windows))]
+fn prepare_child_command(_command: &mut Command) {}
 
 fn fail_if_cancelled(cancellation: Option<&CancellationToken>) -> Result<(), RuntimeError> {
     if cancellation
@@ -524,6 +616,24 @@ mod tests {
                 cuda_available: Some(true),
                 torch_cuda_version: Some("13.0".to_string()),
                 cuda_device_name: Some("NVIDIA GeForce RTX 5070 Ti".to_string()),
+            })
+        );
+    }
+
+    #[test]
+    fn parses_selected_device_from_probe_stdout() {
+        let stdout = concat!(
+            "{\"cuda_available\":false,\"cuda_device_name\":null,",
+            "\"device\":\"cpu\",\"torch_cuda_version\":\"13.0\"}\n"
+        );
+
+        assert_eq!(
+            parse_device_info_from_logs(stdout),
+            Some(EnhancementDeviceInfo {
+                selected_device: "cpu".to_string(),
+                cuda_available: Some(false),
+                torch_cuda_version: Some("13.0".to_string()),
+                cuda_device_name: None,
             })
         );
     }

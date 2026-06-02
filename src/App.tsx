@@ -39,6 +39,8 @@ type EnhancementDeviceInfo = {
   cuda_device_name?: string;
 };
 
+type DeviceDetectionStatus = "checking" | "ready" | "error" | "unavailable";
+
 type ExportResult = {
   exported_wav: string;
   output_metadata: AudioMetadata;
@@ -104,6 +106,11 @@ export default function App() {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [notice, setNotice] = useState("Ready");
   const [exportMessage, setExportMessage] = useState("");
+  const [detectedDeviceInfo, setDetectedDeviceInfo] =
+    useState<EnhancementDeviceInfo>();
+  const [deviceStatus, setDeviceStatus] =
+    useState<DeviceDetectionStatus>("checking");
+  const [deviceError, setDeviceError] = useState("");
 
   const selectedFileName = useMemo(
     () => (selectedPath ? fileNameFromPath(selectedPath) : "No file"),
@@ -118,6 +125,8 @@ export default function App() {
   const canCancel = job?.state === "queued" || job?.state === "running";
   const canExport = job?.state === "completed" && Boolean(job.preview_wav);
   const settingsLocked = isActiveJob(job);
+  const displayedDeviceInfo = job?.device_info ?? detectedDeviceInfo;
+  const deviceInfoIsActual = Boolean(job?.device_info);
 
   const refreshJob = useCallback(async (jobId: string) => {
     const snapshot = await invoke<EnhancementJobSnapshot>(
@@ -125,6 +134,11 @@ export default function App() {
       { jobId },
     );
     setJob(snapshot);
+    if (snapshot.device_info) {
+      setDetectedDeviceInfo(snapshot.device_info);
+      setDeviceStatus("ready");
+      setDeviceError("");
+    }
     if (snapshot.state === "failed" && snapshot.error) {
       setNotice(snapshot.error);
     } else {
@@ -190,6 +204,43 @@ export default function App() {
       cleanup?.();
     };
   }, [selectAudioPath]);
+
+  useEffect(() => {
+    if (!tauriAvailable()) {
+      setDeviceStatus("unavailable");
+      return;
+    }
+
+    let cancelled = false;
+    const python = runtimeSettings.python.trim();
+    setDeviceStatus("checking");
+    setDeviceError("");
+
+    const timeout = window.setTimeout(async () => {
+      try {
+        const request = python ? { python } : {};
+        const info = await invoke<EnhancementDeviceInfo>(
+          "detect_processing_device_command",
+          { request },
+        );
+        if (!cancelled) {
+          setDetectedDeviceInfo(info);
+          setDeviceStatus("ready");
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setDetectedDeviceInfo(undefined);
+          setDeviceStatus("error");
+          setDeviceError(String(error));
+        }
+      }
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+    };
+  }, [runtimeSettings.python]);
 
   useEffect(() => {
     if (!job || TERMINAL_STATES.includes(job.state)) {
@@ -516,9 +567,15 @@ export default function App() {
                 )}
               </ol>
 
+              <DeviceNotice
+                deviceInfo={displayedDeviceInfo}
+                status={deviceStatus}
+                error={deviceError}
+                actual={deviceInfoIsActual}
+              />
+
               <div className="message-panel">
                 <strong>{job?.message ?? notice}</strong>
-                <DeviceNotice deviceInfo={job?.device_info} state={job?.state} />
                 {job?.error ? <span>{job.error}</span> : <span>{notice}</span>}
                 {exportMessage ? <span>{exportMessage}</span> : null}
               </div>
@@ -627,17 +684,32 @@ function StatusPill({ state }: { state: EnhancementJobState | "idle" }) {
 
 function DeviceNotice({
   deviceInfo,
-  state,
+  status,
+  error,
+  actual,
 }: {
   deviceInfo?: EnhancementDeviceInfo;
-  state?: EnhancementJobState;
+  status: DeviceDetectionStatus;
+  error?: string;
+  actual: boolean;
 }) {
   if (!deviceInfo) {
-    if (state === "running") {
+    if (status === "checking") {
       return (
         <div className="device-notice pending">
           <span>Processing device</span>
           <strong>Detecting</strong>
+          <small>Checking runtime</small>
+        </div>
+      );
+    }
+
+    if (status === "error") {
+      return (
+        <div className="device-notice error">
+          <span>Processing device</span>
+          <strong>Detection failed</strong>
+          <small>{error}</small>
         </div>
       );
     }
@@ -649,11 +721,18 @@ function DeviceNotice({
   const detail = isCuda
     ? (deviceInfo.cuda_device_name ?? cudaVersionLabel(deviceInfo))
     : cpuDeviceDetail(deviceInfo);
+  const label = actual
+    ? isCuda
+      ? "Using NVIDIA GPU"
+      : "Using CPU"
+    : isCuda
+      ? "NVIDIA GPU ready"
+      : "CPU fallback ready";
 
   return (
     <div className={`device-notice ${isCuda ? "cuda" : "cpu"}`}>
       <span>Processing device</span>
-      <strong>{isCuda ? "Using NVIDIA GPU" : "Using CPU"}</strong>
+      <strong>{label}</strong>
       <small>{detail}</small>
     </div>
   );

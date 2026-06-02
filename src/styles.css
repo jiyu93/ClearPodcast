@@ -196,7 +196,7 @@ h1 {
 
 .status-panel {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
 }
 
 .section-heading {
@@ -529,6 +529,10 @@ h1 {
   background: #ffffff;
 }
 
+.status-panel > .device-notice {
+  margin-top: 14px;
+}
+
 .device-notice span {
   color: #65736f;
   font-size: 0.74rem;
@@ -563,6 +567,15 @@ h1 {
 .device-notice.pending {
   border-color: #c6922e;
   background: #fff7df;
+}
+
+.device-notice.error {
+  border-color: #d07a7a;
+  background: #fff0f0;
+}
+
+.device-notice.error strong {
+  color: #9b2f2f;
 }
 
 .export-action {

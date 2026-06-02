@@ -9,7 +9,7 @@ use jobs::{
     EnhancementJobManager, EnhancementJobSnapshot, ExportResult, StartEnhancementJobRequest,
 };
 use packaging::PackagedResourcePaths;
-use runtime::{EnhanceRequest, EnhancementResult};
+use runtime::{DeviceDetectionRequest, EnhanceRequest, EnhancementDeviceInfo, EnhancementResult};
 use std::path::PathBuf;
 use tauri::{Manager, State};
 
@@ -44,6 +44,22 @@ fn packaged_resource_paths_command(
     packaged_resources: State<PackagedResourcePaths>,
 ) -> PackagedResourcePaths {
     packaged_resources.inner().clone()
+}
+
+#[tauri::command]
+async fn detect_processing_device_command(
+    packaged_resources: State<'_, PackagedResourcePaths>,
+    request: DeviceDetectionRequest,
+) -> Result<EnhancementDeviceInfo, String> {
+    let python = request
+        .python
+        .map(runtime::resolve_repo_relative_path)
+        .unwrap_or_else(|| packaged_resources.python.clone());
+
+    tauri::async_runtime::spawn_blocking(move || runtime::detect_processing_device(python))
+        .await
+        .map_err(|error| format!("processing device detection task failed: {error}"))?
+        .map_err(|error| error.to_string())
 }
 
 #[tauri::command]
@@ -103,6 +119,7 @@ pub fn run() {
             cancel_enhancement_job_command,
             export_enhanced_wav_command,
             packaged_resource_paths_command,
+            detect_processing_device_command,
             pick_audio_file_command,
             pick_export_wav_command
         ])

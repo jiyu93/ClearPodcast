@@ -790,7 +790,12 @@ Completion state as of June 3, 2026:
 - The desktop UI sends `device=auto` by default. The sidecar chooses CUDA when
   `torch.cuda.is_available()` is true and otherwise falls back to CPU.
 - The sidecar emits structured device metadata, and the desktop job panel shows
-  whether a completed enhancement used NVIDIA GPU or CPU.
+  whether a completed enhancement used NVIDIA GPU or CPU. A lightweight startup
+  preflight also populates the standalone device card before the first
+  enhancement run. That preflight runs in a background blocking task so PyTorch
+  import and CUDA probing do not freeze the window.
+- Windows Python sidecar and device-preflight child processes are launched
+  without a visible console window.
 - Observed local artifact sizes: 3.86 GiB portable folder and 2.58 GiB zip
   archive.
 - Fresh-extracted CUDA WAV, MP3, and M4A smoke tests all pass on the RTX 5070

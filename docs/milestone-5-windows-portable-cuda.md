@@ -95,6 +95,18 @@ selected device, CUDA availability, PyTorch CUDA version, and CUDA device name.
 The desktop job snapshot carries that data to the UI, where the job panel shows
 whether the completed enhancement used NVIDIA GPU or CPU.
 
+The desktop also runs a lightweight processing-device preflight against the
+packaged Python runtime on app startup and whenever the Python override changes.
+That preflight populates a standalone device card in the Job panel before the
+first enhancement run; completed jobs replace it with the actual sidecar-reported
+device for that run. The preflight runs on a background blocking task because
+importing PyTorch can take long enough to make the window appear unresponsive if
+it runs on the Tauri IPC path directly.
+
+On Windows, Python sidecar and device-preflight child processes are launched
+with `CREATE_NO_WINDOW` so the portable GUI app does not open a separate console
+window during detection or enhancement.
+
 ## Artifact Sizes
 
 Observed local Milestone 5 sizes:
@@ -143,6 +155,8 @@ Completed local checks:
 - packaged resource lookup tests for Windows runtime paths and macOS path
   preservation
 - UI layout smoke for the device indicator surface in the Vite app
+- device indicator is a standalone Job panel card populated before the first
+  enhancement run and refreshed from completed job device metadata
 - license notice review for the staged Windows artifact
 
 The CUDA smokes reported:

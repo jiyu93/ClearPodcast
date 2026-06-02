@@ -29,6 +29,10 @@ run("cmd.exe", ["/d", "/s", "/c", "npm run tauri build -- --no-bundle"]);
 if (!fs.existsSync(sourceExe)) {
   throw new Error(`Tauri release executable was not found after build: ${sourceExe}`);
 }
+run(process.execPath, [
+  path.join(repoRoot, "scripts", "check-windows-gui-subsystem.mjs"),
+  sourceExe,
+]);
 
 fs.mkdirSync(releaseDir, { recursive: true });
 fs.rmSync(portableDir, { recursive: true, force: true });

@@ -152,6 +152,11 @@ Review the emitted sidecar device JSON or the desktop job panel after each run.
 CUDA runs should report `selected_device: cuda` and the NVIDIA device name; CPU
 fallback runs should report `selected_device: cpu`.
 
+When validating the Windows GUI artifact, also confirm that app startup, device
+preflight, and enhancement do not open a separate console window, and that the
+window stays responsive while the startup device preflight is detecting the
+runtime.
+
 ## Release Hygiene
 
 - Keep large generated artifacts under `localfiles/` or the ignored staged
