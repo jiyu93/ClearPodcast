@@ -302,261 +302,263 @@ export default function App() {
           <StatusPill state={job?.state ?? "idle"} />
         </header>
 
-        <div className="mvp-grid">
-          <section
-            className={`import-panel ${isDragActive ? "drag-active" : ""}`}
-          >
-            <div className="section-heading">
-              <span>Input</span>
-              <button type="button" className="secondary-action" onClick={chooseAudio}>
-                Choose audio
-              </button>
-            </div>
+        <div className="app-content">
+          <div className="mvp-grid">
+            <section
+              className={`import-panel ${isDragActive ? "drag-active" : ""}`}
+            >
+              <div className="section-heading">
+                <span>Input</span>
+                <button type="button" className="secondary-action" onClick={chooseAudio}>
+                  Choose audio
+                </button>
+              </div>
 
-            <div className="drop-zone">
-              <strong>{selectedFileName}</strong>
-              <span>WAV, MP3, M4A</span>
-            </div>
+              <div className="drop-zone">
+                <strong>{selectedFileName}</strong>
+                <span>WAV, MP3, M4A</span>
+              </div>
 
-            <MetadataGrid metadata={metadata} />
+              <MetadataGrid metadata={metadata} />
 
-            <div className="advanced-settings">
-              <button
-                type="button"
-                className="advanced-toggle secondary-action"
-                onClick={() => setAdvancedOpen((open) => !open)}
-                aria-expanded={advancedOpen}
-                aria-controls="enhancement-settings"
-              >
-                <span>Advanced settings</span>
-                <span className="advanced-toggle-state">
-                  {advancedOpen ? "Hide" : "Show"}
-                </span>
-              </button>
+              <div className="advanced-settings">
+                <button
+                  type="button"
+                  className="advanced-toggle secondary-action"
+                  onClick={() => setAdvancedOpen((open) => !open)}
+                  aria-expanded={advancedOpen}
+                  aria-controls="enhancement-settings"
+                >
+                  <span>Advanced settings</span>
+                  <span className="advanced-toggle-state">
+                    {advancedOpen ? "Hide" : "Show"}
+                  </span>
+                </button>
 
-              {advancedOpen ? (
-                <div id="enhancement-settings" className="enhancement-controls">
-                  <div className="section-heading compact-heading">
-                    <span>Enhancement</span>
-                    <button
-                      type="button"
-                      className="secondary-action reset-action"
-                      onClick={resetEnhancementSettings}
-                      disabled={settingsLocked}
-                    >
-                      Reset defaults
-                    </button>
-                  </div>
-
-                  <div className="solver-panel">
-                    <label
-                      className="solver-select"
-                      title={ENHANCEMENT_HELP.solver}
-                    >
-                      <span>Solver</span>
-                      <select
-                        value={enhancementSettings.solver}
-                        onChange={(event) =>
-                          updateEnhancementField(
-                            "solver",
-                            event.target.value as EnhancementSolver,
-                          )
-                        }
+                {advancedOpen ? (
+                  <div id="enhancement-settings" className="enhancement-controls">
+                    <div className="section-heading compact-heading">
+                      <span>Enhancement</span>
+                      <button
+                        type="button"
+                        className="secondary-action reset-action"
+                        onClick={resetEnhancementSettings}
                         disabled={settingsLocked}
                       >
-                        <option value="midpoint">Midpoint</option>
-                        <option value="rk4">RK4</option>
-                        <option value="euler">Euler</option>
-                      </select>
-                    </label>
-                    <div className="solver-guide">
-                      <span className="solver-guide-title">Solver guide</span>
-                      <dl className="solver-notes" aria-label="Solver differences">
-                        <div>
-                          <dt>Midpoint</dt>
-                          <dd>{SOLVER_HELP.midpoint}</dd>
-                        </div>
-                        <div>
-                          <dt>RK4</dt>
-                          <dd>{SOLVER_HELP.rk4}</dd>
-                        </div>
-                        <div>
-                          <dt>Euler</dt>
-                          <dd>{SOLVER_HELP.euler}</dd>
-                        </div>
-                      </dl>
-                    </div>
-                  </div>
-
-                  <div className="slider-grid">
-                    <div className="slider-card">
-                      <label className="slider-control" title={ENHANCEMENT_HELP.nfe}>
-                        <span>
-                          <span>CFM steps</span>
-                          <strong>{enhancementSettings.nfe}</strong>
-                        </span>
-                        <input
-                          type="range"
-                          min="1"
-                          max="128"
-                          step="1"
-                          value={enhancementSettings.nfe}
-                          onChange={(event) =>
-                            updateEnhancementField(
-                              "nfe",
-                              Number(event.target.value),
-                            )
-                          }
-                          disabled={settingsLocked}
-                        />
-                      </label>
-                      <p className="field-hint">{ENHANCEMENT_HELP.nfe}</p>
+                        Reset defaults
+                      </button>
                     </div>
 
-                    <div className="slider-card">
-                      <label className="slider-control" title={ENHANCEMENT_HELP.tau}>
-                        <span>
-                          <span>Prior temperature</span>
-                          <strong>{enhancementSettings.tau.toFixed(2)}</strong>
-                        </span>
-                        <input
-                          type="range"
-                          min="0"
-                          max="1"
-                          step="0.01"
-                          value={enhancementSettings.tau}
-                          onChange={(event) =>
-                            updateEnhancementField(
-                              "tau",
-                              Number(event.target.value),
-                            )
-                          }
-                          disabled={settingsLocked}
-                        />
-                      </label>
-                      <p className="field-hint">{ENHANCEMENT_HELP.tau}</p>
-                    </div>
-
-                    <div className="slider-card">
+                    <div className="solver-panel">
                       <label
-                        className="slider-control"
-                        title={ENHANCEMENT_HELP.lambd}
+                        className="solver-select"
+                        title={ENHANCEMENT_HELP.solver}
                       >
-                        <span>
-                          <span>Denoising</span>
-                          <strong>{enhancementSettings.lambd.toFixed(2)}</strong>
-                        </span>
-                        <input
-                          type="range"
-                          min="0"
-                          max="1"
-                          step="0.01"
-                          value={enhancementSettings.lambd}
+                        <span>Solver</span>
+                        <select
+                          value={enhancementSettings.solver}
                           onChange={(event) =>
                             updateEnhancementField(
-                              "lambd",
-                              Number(event.target.value),
+                              "solver",
+                              event.target.value as EnhancementSolver,
                             )
                           }
                           disabled={settingsLocked}
-                        />
+                        >
+                          <option value="midpoint">Midpoint</option>
+                          <option value="rk4">RK4</option>
+                          <option value="euler">Euler</option>
+                        </select>
                       </label>
-                      <p className="field-hint">{ENHANCEMENT_HELP.lambd}</p>
+                      <div className="solver-guide">
+                        <span className="solver-guide-title">Solver guide</span>
+                        <dl className="solver-notes" aria-label="Solver differences">
+                          <div>
+                            <dt>Midpoint</dt>
+                            <dd>{SOLVER_HELP.midpoint}</dd>
+                          </div>
+                          <div>
+                            <dt>RK4</dt>
+                            <dd>{SOLVER_HELP.rk4}</dd>
+                          </div>
+                          <div>
+                            <dt>Euler</dt>
+                            <dd>{SOLVER_HELP.euler}</dd>
+                          </div>
+                        </dl>
+                      </div>
+                    </div>
+
+                    <div className="slider-grid">
+                      <div className="slider-card">
+                        <label className="slider-control" title={ENHANCEMENT_HELP.nfe}>
+                          <span>
+                            <span>CFM steps</span>
+                            <strong>{enhancementSettings.nfe}</strong>
+                          </span>
+                          <input
+                            type="range"
+                            min="1"
+                            max="128"
+                            step="1"
+                            value={enhancementSettings.nfe}
+                            onChange={(event) =>
+                              updateEnhancementField(
+                                "nfe",
+                                Number(event.target.value),
+                              )
+                            }
+                            disabled={settingsLocked}
+                          />
+                        </label>
+                        <p className="field-hint">{ENHANCEMENT_HELP.nfe}</p>
+                      </div>
+
+                      <div className="slider-card">
+                        <label className="slider-control" title={ENHANCEMENT_HELP.tau}>
+                          <span>
+                            <span>Prior temperature</span>
+                            <strong>{enhancementSettings.tau.toFixed(2)}</strong>
+                          </span>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value={enhancementSettings.tau}
+                            onChange={(event) =>
+                              updateEnhancementField(
+                                "tau",
+                                Number(event.target.value),
+                              )
+                            }
+                            disabled={settingsLocked}
+                          />
+                        </label>
+                        <p className="field-hint">{ENHANCEMENT_HELP.tau}</p>
+                      </div>
+
+                      <div className="slider-card">
+                        <label
+                          className="slider-control"
+                          title={ENHANCEMENT_HELP.lambd}
+                        >
+                          <span>
+                            <span>Denoising</span>
+                            <strong>{enhancementSettings.lambd.toFixed(2)}</strong>
+                          </span>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value={enhancementSettings.lambd}
+                            onChange={(event) =>
+                              updateEnhancementField(
+                                "lambd",
+                                Number(event.target.value),
+                              )
+                            }
+                            disabled={settingsLocked}
+                          />
+                        </label>
+                        <p className="field-hint">{ENHANCEMENT_HELP.lambd}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : null}
-            </div>
+                ) : null}
+              </div>
 
-            <div className="action-row">
+              <div className="action-row">
+                <button
+                  type="button"
+                  className="primary-action"
+                  onClick={runEnhancement}
+                  disabled={!canRun}
+                >
+                  Restore speech
+                </button>
+                <button
+                  type="button"
+                  className="secondary-action"
+                  onClick={cancelJob}
+                  disabled={!canCancel}
+                >
+                  Cancel
+                </button>
+              </div>
+            </section>
+
+            <section className="status-panel">
+              <div className="section-heading">
+                <span>Job</span>
+                <span className="job-id">{job?.job_id ?? "Not started"}</span>
+              </div>
+
+              <ol className="state-list">
+                {(["queued", "running", "completed"] as EnhancementJobState[]).map(
+                  (state) => (
+                    <li
+                      key={state}
+                      className={stateClassName(state, job?.state)}
+                    >
+                      {labelForState(state)}
+                    </li>
+                  ),
+                )}
+              </ol>
+
+              <div className="message-panel">
+                <strong>{job?.message ?? notice}</strong>
+                {job?.error ? <span>{job.error}</span> : <span>{notice}</span>}
+                {exportMessage ? <span>{exportMessage}</span> : null}
+              </div>
+
               <button
                 type="button"
-                className="primary-action"
-                onClick={runEnhancement}
-                disabled={!canRun}
+                className="primary-action export-action"
+                onClick={exportEnhancedWav}
+                disabled={!canExport}
               >
-                Restore speech
+                Export WAV
               </button>
-              <button
-                type="button"
-                className="secondary-action"
-                onClick={cancelJob}
-                disabled={!canCancel}
-              >
-                Cancel
-              </button>
-            </div>
+            </section>
+          </div>
+
+          <section className="playback-panel">
+            <PlaybackColumn
+              title="Original"
+              src={originalAudioSrc}
+              metadata={metadata}
+            />
+            <PlaybackColumn
+              title="Enhanced"
+              src={enhancedAudioSrc}
+              metadata={job?.output_metadata}
+            />
           </section>
 
-          <section className="status-panel">
-            <div className="section-heading">
-              <span>Job</span>
-              <span className="job-id">{job?.job_id ?? "Not started"}</span>
-            </div>
-
-            <ol className="state-list">
-              {(["queued", "running", "completed"] as EnhancementJobState[]).map(
-                (state) => (
-                  <li
-                    key={state}
-                    className={stateClassName(state, job?.state)}
-                  >
-                    {labelForState(state)}
-                  </li>
-                ),
-              )}
-            </ol>
-
-            <div className="message-panel">
-              <strong>{job?.message ?? notice}</strong>
-              {job?.error ? <span>{job.error}</span> : <span>{notice}</span>}
-              {exportMessage ? <span>{exportMessage}</span> : null}
-            </div>
-
-            <button
-              type="button"
-              className="primary-action export-action"
-              onClick={exportEnhancedWav}
-              disabled={!canExport}
-            >
-              Export WAV
-            </button>
+          <section className="runtime-panel">
+            <label>
+              Python runtime
+              <input
+                value={runtimeSettings.python}
+                onChange={(event) => updateRuntimeField("python", event.target.value)}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              Model directory
+              <input
+                value={runtimeSettings.model_dir}
+                onChange={(event) =>
+                  updateRuntimeField("model_dir", event.target.value)
+                }
+                spellCheck={false}
+              />
+            </label>
           </section>
         </div>
-
-        <section className="playback-panel">
-          <PlaybackColumn
-            title="Original"
-            src={originalAudioSrc}
-            metadata={metadata}
-          />
-          <PlaybackColumn
-            title="Enhanced"
-            src={enhancedAudioSrc}
-            metadata={job?.output_metadata}
-          />
-        </section>
-
-        <section className="runtime-panel">
-          <label>
-            Python runtime
-            <input
-              value={runtimeSettings.python}
-              onChange={(event) => updateRuntimeField("python", event.target.value)}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            Model directory
-            <input
-              value={runtimeSettings.model_dir}
-              onChange={(event) =>
-                updateRuntimeField("model_dir", event.target.value)
-              }
-              spellCheck={false}
-            />
-          </label>
-        </section>
       </section>
     </main>
   );
