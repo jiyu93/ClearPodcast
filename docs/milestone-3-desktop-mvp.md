@@ -6,6 +6,7 @@ workflow:
 ```text
 Choose or drop WAV/MP3/M4A
 -> Rust probe metadata
+-> review enhancement settings
 -> start a cancellable enhancement job
 -> preview original and enhanced audio
 -> export enhanced WAV
@@ -19,6 +20,8 @@ The React app in `src/App.tsx` now presents the first usable desktop surface:
 - Tauri file drag/drop for supported audio files.
 - Source metadata display from `probe_audio_command`.
 - One clear restore action for supported one-file spoken-word input.
+- Collapsed advanced settings for official-demo-aligned Resemble Enhance
+  solver, CFM steps, prior temperature, and denoising strength.
 - Job state display for queued, running, completed, failed, and cancelled.
 - Honest indeterminate processing state while Resemble Enhance runs.
 - Before/after playback with local asset URLs.
@@ -66,6 +69,23 @@ Bluetooth headset, meeting software, phone recording, remote-call, and laptop
 microphone recordings remain the product's target source examples. The desktop
 workflow turns those real-world inputs into a single restore path: import,
 enhance, compare, and export.
+
+## Enhancement Settings
+
+The desktop UI exposes Resemble Enhance model parameters in a collapsed advanced
+settings panel for the single restore path:
+
+- Solver selection: `midpoint` by default, with `rk4` and `euler` available.
+- CFM steps slider: 1 to 128, default 64.
+- Prior temperature slider: 0.00 to 1.00, default 0.50.
+- Denoising strength slider: 0.00 to 1.00, default 0.10.
+- Reset defaults action for returning the panel to the public demo defaults.
+- Short hover and inline explanations for each adjustable value, plus separate
+  explanations for the three solver choices.
+
+The defaults match the public Resemble Enhance demo's initial enhancement path:
+Midpoint solver, 64 CFM evaluations, 0.50 prior temperature, and denoising off,
+which maps to `lambd=0.1` for enhancement.
 
 ## Local Preview Access
 

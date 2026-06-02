@@ -60,5 +60,5 @@ npm run tauri dev
 ```
 
 Milestone 3 adds the desktop MVP workflow: choose or drop a WAV/MP3/M4A file,
-run a cancellable enhancement job through the default offline restoration path,
-compare original/enhanced audio, and export the enhanced WAV.
+use official-demo-aligned enhancement defaults, run a cancellable enhancement
+job, compare original/enhanced audio, and export the enhanced WAV.

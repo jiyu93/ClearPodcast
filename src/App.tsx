@@ -41,9 +41,38 @@ type RuntimeSettings = {
   model_dir: string;
 };
 
+type EnhancementSolver = "midpoint" | "rk4" | "euler";
+
+type EnhancementSettings = {
+  solver: EnhancementSolver;
+  nfe: number;
+  lambd: number;
+  tau: number;
+};
+
 const DEFAULT_RUNTIME: RuntimeSettings = {
   python: "localfiles/runtime/macos-arm64/bin/python3",
   model_dir: "localfiles/models/resemble-enhance/enhancer_stage2",
+};
+
+const DEFAULT_ENHANCEMENT_SETTINGS: EnhancementSettings = {
+  solver: "midpoint",
+  nfe: 64,
+  lambd: 0.1,
+  tau: 0.5,
+};
+
+const ENHANCEMENT_HELP = {
+  solver: "Chooses the numerical solver used inside Resemble Enhance.",
+  nfe: "Higher values can improve quality and usually take longer to run.",
+  tau: "Higher values can add more variation and fullness, with less stability.",
+  lambd: "Higher values apply stronger denoising before enhancement.",
+};
+
+const SOLVER_HELP: Record<EnhancementSolver, string> = {
+  midpoint: "Recommended balance for most files.",
+  rk4: "More cautious solver; can be slower on CPU.",
+  euler: "Simpler and often faster; less refinement.",
 };
 
 const EXPECTED_CHECKPOINT_SHA256 =
@@ -60,8 +89,11 @@ export default function App() {
   const [metadata, setMetadata] = useState<AudioMetadata | undefined>();
   const [runtimeSettings, setRuntimeSettings] =
     useState<RuntimeSettings>(DEFAULT_RUNTIME);
+  const [enhancementSettings, setEnhancementSettings] =
+    useState<EnhancementSettings>(DEFAULT_ENHANCEMENT_SETTINGS);
   const [job, setJob] = useState<EnhancementJobSnapshot | undefined>();
   const [isDragActive, setIsDragActive] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [notice, setNotice] = useState("Ready");
   const [exportMessage, setExportMessage] = useState("");
 
@@ -77,6 +109,7 @@ export default function App() {
   const canRun = Boolean(selectedPath) && !isActiveJob(job);
   const canCancel = job?.state === "queued" || job?.state === "running";
   const canExport = job?.state === "completed" && Boolean(job.preview_wav);
+  const settingsLocked = isActiveJob(job);
 
   const refreshJob = useCallback(async (jobId: string) => {
     const snapshot = await invoke<EnhancementJobSnapshot>(
@@ -189,6 +222,7 @@ export default function App() {
         {
           request: {
             ...runtimeSettings,
+            ...enhancementSettings,
             input_audio: selectedPath,
             device: "cpu",
             expected_checkpoint_sha256: EXPECTED_CHECKPOINT_SHA256,
@@ -246,6 +280,17 @@ export default function App() {
     setRuntimeSettings((current) => ({ ...current, [field]: value }));
   }
 
+  function updateEnhancementField<K extends keyof EnhancementSettings>(
+    field: K,
+    value: EnhancementSettings[K],
+  ) {
+    setEnhancementSettings((current) => ({ ...current, [field]: value }));
+  }
+
+  function resetEnhancementSettings() {
+    setEnhancementSettings(DEFAULT_ENHANCEMENT_SETTINGS);
+  }
+
   return (
     <main className="app-shell">
       <section className="workspace">
@@ -274,6 +319,154 @@ export default function App() {
             </div>
 
             <MetadataGrid metadata={metadata} />
+
+            <div className="advanced-settings">
+              <button
+                type="button"
+                className="advanced-toggle secondary-action"
+                onClick={() => setAdvancedOpen((open) => !open)}
+                aria-expanded={advancedOpen}
+                aria-controls="enhancement-settings"
+              >
+                <span>Advanced settings</span>
+                <span className="advanced-toggle-state">
+                  {advancedOpen ? "Hide" : "Show"}
+                </span>
+              </button>
+
+              {advancedOpen ? (
+                <div id="enhancement-settings" className="enhancement-controls">
+                  <div className="section-heading compact-heading">
+                    <span>Enhancement</span>
+                    <button
+                      type="button"
+                      className="secondary-action reset-action"
+                      onClick={resetEnhancementSettings}
+                      disabled={settingsLocked}
+                    >
+                      Reset defaults
+                    </button>
+                  </div>
+
+                  <div className="solver-panel">
+                    <label
+                      className="solver-select"
+                      title={ENHANCEMENT_HELP.solver}
+                    >
+                      <span>Solver</span>
+                      <select
+                        value={enhancementSettings.solver}
+                        onChange={(event) =>
+                          updateEnhancementField(
+                            "solver",
+                            event.target.value as EnhancementSolver,
+                          )
+                        }
+                        disabled={settingsLocked}
+                      >
+                        <option value="midpoint">Midpoint</option>
+                        <option value="rk4">RK4</option>
+                        <option value="euler">Euler</option>
+                      </select>
+                    </label>
+                    <div className="solver-guide">
+                      <span className="solver-guide-title">Solver guide</span>
+                      <dl className="solver-notes" aria-label="Solver differences">
+                        <div>
+                          <dt>Midpoint</dt>
+                          <dd>{SOLVER_HELP.midpoint}</dd>
+                        </div>
+                        <div>
+                          <dt>RK4</dt>
+                          <dd>{SOLVER_HELP.rk4}</dd>
+                        </div>
+                        <div>
+                          <dt>Euler</dt>
+                          <dd>{SOLVER_HELP.euler}</dd>
+                        </div>
+                      </dl>
+                    </div>
+                  </div>
+
+                  <div className="slider-grid">
+                    <div className="slider-card">
+                      <label className="slider-control" title={ENHANCEMENT_HELP.nfe}>
+                        <span>
+                          <span>CFM steps</span>
+                          <strong>{enhancementSettings.nfe}</strong>
+                        </span>
+                        <input
+                          type="range"
+                          min="1"
+                          max="128"
+                          step="1"
+                          value={enhancementSettings.nfe}
+                          onChange={(event) =>
+                            updateEnhancementField(
+                              "nfe",
+                              Number(event.target.value),
+                            )
+                          }
+                          disabled={settingsLocked}
+                        />
+                      </label>
+                      <p className="field-hint">{ENHANCEMENT_HELP.nfe}</p>
+                    </div>
+
+                    <div className="slider-card">
+                      <label className="slider-control" title={ENHANCEMENT_HELP.tau}>
+                        <span>
+                          <span>Prior temperature</span>
+                          <strong>{enhancementSettings.tau.toFixed(2)}</strong>
+                        </span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.01"
+                          value={enhancementSettings.tau}
+                          onChange={(event) =>
+                            updateEnhancementField(
+                              "tau",
+                              Number(event.target.value),
+                            )
+                          }
+                          disabled={settingsLocked}
+                        />
+                      </label>
+                      <p className="field-hint">{ENHANCEMENT_HELP.tau}</p>
+                    </div>
+
+                    <div className="slider-card">
+                      <label
+                        className="slider-control"
+                        title={ENHANCEMENT_HELP.lambd}
+                      >
+                        <span>
+                          <span>Denoising</span>
+                          <strong>{enhancementSettings.lambd.toFixed(2)}</strong>
+                        </span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.01"
+                          value={enhancementSettings.lambd}
+                          onChange={(event) =>
+                            updateEnhancementField(
+                              "lambd",
+                              Number(event.target.value),
+                            )
+                          }
+                          disabled={settingsLocked}
+                        />
+                      </label>
+                      <p className="field-hint">{ENHANCEMENT_HELP.lambd}</p>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
 
             <div className="action-row">
               <button

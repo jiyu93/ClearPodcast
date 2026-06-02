@@ -287,6 +287,9 @@ order; use the goal-mode milestones below for implementation order.
 9. One clear restore action for supported one-file spoken-word input, with
    Bluetooth, meeting, laptop-microphone, phone, and remote-call recordings
    represented as target source scenarios in product context and QA planning.
+10. Resemble Enhance model settings exposed in a collapsed advanced panel with
+    public demo-aligned defaults: Midpoint solver, 64 CFM steps, 0.50 prior
+    temperature, and 0.10 denoising strength.
 
 ## Goal-Mode Milestones
 
@@ -452,6 +455,8 @@ Scope:
 - Support cancellation and safe cleanup.
 - Add before/after playback.
 - Add export flow for the enhanced WAV.
+- Expose Resemble Enhance model settings in a collapsed advanced panel with
+  public demo-aligned defaults, reset defaults, and concise inline help.
 - Keep the import-to-export flow as one clear restore path for all supported
   first-release inputs.
 
@@ -463,6 +468,9 @@ Exit criteria:
 - Cancellation does not leave a successful-looking partial output.
 - The workflow keeps one clear enhancement path from import to export for all
   supported first-release inputs.
+- Enhancement settings start from public demo-aligned defaults and are passed
+  into the job-managed backend request.
+- Advanced settings can return to the public demo defaults from the UI.
 - The app still works offline after local runtime/model setup.
 
 Out of scope:
@@ -490,11 +498,16 @@ Starting state after Milestone 2:
 - Add cancellation in the job manager and keep temporary handoff cleanup tied to
   the job lifecycle.
 
-Completion state as of June 2, 2026:
+Completion state as of June 3, 2026:
 
 - The React desktop surface in `src/App.tsx` now supports native file picking,
   Tauri drag/drop, source metadata display, a single restore action,
   cancellable job state, before/after playback, and WAV export.
+- The desktop surface exposes Resemble Enhance model settings for solver, CFM
+  steps, prior temperature, and denoising strength in a collapsed advanced
+  panel. Defaults align with the public demo's initial enhancement path:
+  `midpoint`, `nfe=64`, `tau=0.5`, and `lambd=0.1`; the panel includes reset
+  defaults and concise help text.
 - Rust exposes a job-managed command surface:
   `start_enhancement_job_command`, `get_enhancement_job_command`,
   `cancel_enhancement_job_command`, and `export_enhanced_wav_command`.

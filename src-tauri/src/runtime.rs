@@ -222,7 +222,7 @@ impl SidecarRunner for PythonSidecarRunner {
             .arg("--solver")
             .arg(request.solver.as_deref().unwrap_or("midpoint"))
             .arg("--lambd")
-            .arg(request.lambd.unwrap_or(1.0).to_string())
+            .arg(request.lambd.unwrap_or(0.1).to_string())
             .arg("--tau")
             .arg(request.tau.unwrap_or(0.5).to_string())
             .env("PYTHONNOUSERSITE", "1")

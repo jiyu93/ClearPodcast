@@ -34,7 +34,7 @@ def main() -> int:
     parser.add_argument("--device", default="cpu", choices=("auto", "cpu", "cuda"))
     parser.add_argument("--nfe", default=64, type=int)
     parser.add_argument("--solver", default="midpoint", choices=("midpoint", "rk4", "euler"))
-    parser.add_argument("--lambd", default=1.0, type=float)
+    parser.add_argument("--lambd", default=0.1, type=float)
     parser.add_argument("--tau", default=0.5, type=float)
     parser.add_argument("--expected-checkpoint-sha256")
     args = parser.parse_args()
