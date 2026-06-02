@@ -1,0 +1,1592 @@
+ClearPodcast third-party notices
+=================================
+
+Platform: windows-x64
+ClearPodcast version: 0.1.0
+
+This file lists third-party software included in, or compiled into, the
+ClearPodcast Windows x64 portable artifact. It is generated from the
+Windows Python runtime metadata, package-lock.json, and Cargo metadata.
+
+Packaged Python wheel metadata and license files are preserved under:
+
+  clearpodcast/runtimes/windows-x64/Lib/site-packages/*.dist-info/
+
+The CPython runtime license is preserved at:
+
+  clearpodcast/runtimes/windows-x64/LICENSE.txt
+
+CPython runtime
+---------------
+
+- CPython 3.12.11
+- License: Python Software Foundation License
+- Packaged license file: clearpodcast/runtimes/windows-x64/LICENSE.txt
+- Source license file present: yes
+
+Python packages (61)
+--------------------
+
+These packages are installed in the bundled Windows Python runtime. The
+listed license files and METADATA files are preserved in the artifact.
+
+- antlr4-python3-runtime 4.9.3
+  License: BSD
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/antlr4_python3_runtime-4.9.3.dist-info/METADATA
+  License files:
+    - see METADATA
+
+- audioread 3.1.0
+  License: MIT; OSI Approved :: MIT License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/audioread-3.1.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/audioread-3.1.0.dist-info/licenses/LICENSE
+
+- certifi 2026.5.20
+  License: MPL-2.0; OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/certifi-2026.5.20.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/certifi-2026.5.20.dist-info/licenses/LICENSE
+
+- cffi 2.0.0
+  License: MIT
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/cffi-2.0.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/cffi-2.0.0.dist-info/licenses/LICENSE
+
+- charset-normalizer 3.4.7
+  License: MIT
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/charset_normalizer-3.4.7.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/charset_normalizer-3.4.7.dist-info/licenses/LICENSE
+
+- colorama 0.4.6
+  License: OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/colorama-0.4.6.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/colorama-0.4.6.dist-info/licenses/LICENSE.txt
+
+- contourpy 1.3.3
+  License: OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/contourpy-1.3.3.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/contourpy-1.3.3.dist-info/LICENSE
+
+- cycler 0.12.1
+  License: OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/cycler-0.12.1.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/cycler-0.12.1.dist-info/LICENSE
+
+- decorator 5.3.1
+  License: BSD-2-Clause
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/decorator-5.3.1.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/decorator-5.3.1.dist-info/licenses/LICENSE.txt
+
+- filelock 3.29.0
+  License: MIT; OSI Approved :: MIT License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/filelock-3.29.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/filelock-3.29.0.dist-info/licenses/LICENSE
+
+- fonttools 4.63.0
+  License: MIT
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/fonttools-4.63.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/fonttools-4.63.0.dist-info/licenses/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/fonttools-4.63.0.dist-info/licenses/LICENSE.external
+
+- fsspec 2026.4.0
+  License: BSD-3-Clause
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/fsspec-2026.4.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/fsspec-2026.4.0.dist-info/licenses/LICENSE
+
+- idna 3.18
+  License: BSD-3-Clause
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/idna-3.18.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/idna-3.18.dist-info/licenses/LICENSE.md
+
+- Jinja2 3.1.6
+  License: OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/jinja2-3.1.6.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/jinja2-3.1.6.dist-info/licenses/LICENSE.txt
+
+- joblib 1.5.3
+  License: BSD-3-Clause
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/joblib-1.5.3.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/joblib-1.5.3.dist-info/licenses/LICENSE.txt
+
+- kiwisolver 1.5.0
+  License: OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/kiwisolver-1.5.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/kiwisolver-1.5.0.dist-info/licenses/LICENSE
+
+- lazy-loader 0.5
+  License: BSD-3-Clause
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/lazy_loader-0.5.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/lazy_loader-0.5.dist-info/licenses/LICENSE.md
+
+- librosa 0.10.1
+  License: ISC; OSI Approved :: ISC License (ISCL)
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/librosa-0.10.1.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/librosa-0.10.1.dist-info/LICENSE.md
+
+- llvmlite 0.47.0
+  License: BSD-2-Clause AND Apache-2.0 WITH LLVM-exception
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/llvmlite-0.47.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/llvmlite-0.47.0.dist-info/licenses/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/llvmlite-0.47.0.dist-info/licenses/LICENSE.thirdparty
+
+- markdown-it-py 4.2.0
+  License: OSI Approved :: MIT License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/markdown_it_py-4.2.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/markdown_it_py-4.2.0.dist-info/licenses/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/markdown_it_py-4.2.0.dist-info/licenses/LICENSE.markdown-it
+
+- MarkupSafe 3.0.3
+  License: BSD-3-Clause
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/markupsafe-3.0.3.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/markupsafe-3.0.3.dist-info/licenses/LICENSE.txt
+
+- matplotlib 3.8.1
+  License: PSF; OSI Approved :: Python Software Foundation License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/matplotlib-3.8.1.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/matplotlib-3.8.1.dist-info/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/matplotlib-3.8.1.dist-info/LICENSE_AMSFONTS
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/matplotlib-3.8.1.dist-info/LICENSE_BAKOMA
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/matplotlib-3.8.1.dist-info/LICENSE_CARLOGO
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/matplotlib-3.8.1.dist-info/LICENSE_COLORBREWER
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/matplotlib-3.8.1.dist-info/LICENSE_COURIERTEN
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/matplotlib-3.8.1.dist-info/LICENSE_JSXTOOLS_RESIZE_OBSERVER
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/matplotlib-3.8.1.dist-info/LICENSE_QHULL
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/matplotlib-3.8.1.dist-info/LICENSE_QT4_EDITOR
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/matplotlib-3.8.1.dist-info/LICENSE_SOLARIZED
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/matplotlib-3.8.1.dist-info/LICENSE_STIX
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/matplotlib-3.8.1.dist-info/LICENSE_YORICK
+
+- mdurl 0.1.2
+  License: OSI Approved :: MIT License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/mdurl-0.1.2.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/mdurl-0.1.2.dist-info/LICENSE
+
+- mpmath 1.3.0
+  License: BSD; OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/mpmath-1.3.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/mpmath-1.3.0.dist-info/LICENSE
+
+- msgpack 1.1.2
+  License: Apache-2.0
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/msgpack-1.1.2.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/msgpack-1.1.2.dist-info/licenses/COPYING
+
+- narwhals 2.22.0
+  License: MIT
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/narwhals-2.22.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/narwhals-2.22.0.dist-info/licenses/LICENSE.md
+
+- networkx 3.6.1
+  License: BSD-3-Clause
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/networkx-3.6.1.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/networkx-3.6.1.dist-info/licenses/LICENSE.txt
+
+- numba 0.65.1
+  License: BSD; OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/numba-0.65.1.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/numba-0.65.1.dist-info/licenses/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/numba-0.65.1.dist-info/licenses/LICENSES.third-party
+
+- numpy 1.26.2
+  License: OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/numpy-1.26.2.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/numpy-1.26.2.dist-info/LICENSE.txt
+
+- omegaconf 2.3.0
+  License: OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/omegaconf-2.3.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/omegaconf-2.3.0.dist-info/LICENSE
+
+- packaging 26.2
+  License: Apache-2.0 OR BSD-2-Clause
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/packaging-26.2.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/packaging-26.2.dist-info/licenses/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/packaging-26.2.dist-info/licenses/LICENSE.APACHE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/packaging-26.2.dist-info/licenses/LICENSE.BSD
+
+- pandas 2.1.3
+  License: OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/pandas-2.1.3.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pandas-2.1.3.dist-info/LICENSE
+
+- pillow 12.2.0
+  License: MIT-CMU
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/pillow-12.2.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pillow-12.2.0.dist-info/licenses/LICENSE
+
+- pip 26.1.2
+  License: MIT
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/LICENSE.txt
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/cachecontrol/LICENSE.txt
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/certifi/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/distlib/LICENSE.txt
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/distro/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/idna/LICENSE.md
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/msgpack/COPYING
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/packaging/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.APACHE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.BSD
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/pkg_resources/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/platformdirs/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/pygments/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/pyproject_hooks/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/requests/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/resolvelib/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/rich/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/tomli_w/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/tomli/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/truststore/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pip-26.1.2.dist-info/licenses/src/pip/_vendor/urllib3/LICENSE.txt
+
+- platformdirs 4.10.0
+  License: MIT; OSI Approved :: MIT License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/platformdirs-4.10.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/platformdirs-4.10.0.dist-info/licenses/LICENSE
+
+- pooch 1.9.0
+  License: BSD-3-Clause
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/pooch-1.9.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pooch-1.9.0.dist-info/licenses/LICENSE.txt
+
+- pycparser 3.0
+  License: BSD-3-Clause
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/pycparser-3.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pycparser-3.0.dist-info/licenses/LICENSE
+
+- Pygments 2.20.0
+  License: BSD-2-Clause
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/pygments-2.20.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pygments-2.20.0.dist-info/licenses/LICENSE
+
+- pyparsing 3.3.2
+  License: MIT
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/pyparsing-3.3.2.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pyparsing-3.3.2.dist-info/licenses/LICENSE
+
+- python-dateutil 2.9.0.post0
+  License: Dual License; OSI Approved :: BSD License; OSI Approved :: Apache Software License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/python_dateutil-2.9.0.post0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/python_dateutil-2.9.0.post0.dist-info/LICENSE
+
+- pytz 2026.2
+  License: MIT; OSI Approved :: MIT License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/pytz-2026.2.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pytz-2026.2.dist-info/LICENSE.txt
+
+- PyYAML 6.0.3
+  License: MIT; OSI Approved :: MIT License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/pyyaml-6.0.3.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/pyyaml-6.0.3.dist-info/licenses/LICENSE
+
+- requests 2.34.2
+  License: Apache-2.0; OSI Approved :: Apache Software License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/requests-2.34.2.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/requests-2.34.2.dist-info/licenses/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/requests-2.34.2.dist-info/licenses/NOTICE
+
+- resampy 0.4.2
+  License: ISC; OSI Approved :: ISC License (ISCL)
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/resampy-0.4.2.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/resampy-0.4.2.dist-info/LICENSE.md
+
+- resemble-enhance 0.0.1
+  License: see package metadata
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/resemble_enhance-0.0.1.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/resemble_enhance-0.0.1.dist-info/LICENSE
+
+- rich 13.7.0
+  License: MIT; OSI Approved :: MIT License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/rich-13.7.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/rich-13.7.0.dist-info/LICENSE
+
+- scikit-learn 1.9.0
+  License: BSD-3-Clause
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/scikit_learn-1.9.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/scikit_learn-1.9.0.dist-info/licenses/COPYING
+
+- scipy 1.11.4
+  License: OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/scipy-1.11.4.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/scipy-1.11.4.dist-info/LICENSE.txt
+
+- setuptools 81.0.0
+  License: MIT
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/setuptools-81.0.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/setuptools-81.0.0.dist-info/licenses/LICENSE
+
+- six 1.17.0
+  License: MIT; OSI Approved :: MIT License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/six-1.17.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/six-1.17.0.dist-info/LICENSE
+
+- soundfile 0.12.1
+  License: BSD 3-Clause License; OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/soundfile-0.12.1.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/soundfile-0.12.1.dist-info/LICENSE
+
+- soxr 1.1.0
+  License: LGPL-2.1-or-later
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/soxr-1.1.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/soxr-1.1.0.dist-info/licenses/COPYING.LGPL
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/soxr-1.1.0.dist-info/licenses/LICENSE-libsoxr.txt
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/soxr-1.1.0.dist-info/licenses/LICENSE-PFFFT.txt
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/soxr-1.1.0.dist-info/licenses/LICENSE.txt
+
+- sympy 1.14.0
+  License: BSD; OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/sympy-1.14.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/sympy-1.14.0.dist-info/licenses/LICENSE
+
+- tabulate 0.8.10
+  License: MIT; OSI Approved :: MIT License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/tabulate-0.8.10.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/tabulate-0.8.10.dist-info/LICENSE
+
+- threadpoolctl 3.6.0
+  License: BSD-3-Clause; OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/threadpoolctl-3.6.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/threadpoolctl-3.6.0.dist-info/licenses/LICENSE
+
+- torch 2.12.0+cu130
+  License: BSD-3-Clause
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/torch-2.12.0+cu130.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/torch-2.12.0+cu130.dist-info/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/torch-2.12.0+cu130.dist-info/NOTICE
+
+- torchaudio 2.11.0
+  License: OSI Approved :: BSD License
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/torchaudio-2.11.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/torchaudio-2.11.0.dist-info/licenses/LICENSE
+
+- tqdm 4.66.1
+  License: MPL-2.0 AND MIT; OSI Approved :: MIT License; OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/tqdm-4.66.1.dist-info/METADATA
+  License files:
+    - see METADATA
+
+- typing_extensions 4.15.0
+  License: PSF-2.0
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/typing_extensions-4.15.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/typing_extensions-4.15.0.dist-info/licenses/LICENSE
+
+- tzdata 2026.2
+  License: Apache-2.0
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/tzdata-2026.2.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/tzdata-2026.2.dist-info/licenses/LICENSE
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/tzdata-2026.2.dist-info/licenses/licenses/LICENSE_APACHE
+
+- urllib3 2.7.0
+  License: MIT
+  Metadata: clearpodcast/runtimes/windows-x64/Lib/site-packages/urllib3-2.7.0.dist-info/METADATA
+  License files:
+    - clearpodcast/runtimes/windows-x64/Lib/site-packages/urllib3-2.7.0.dist-info/licenses/LICENSE.txt
+
+CUDA and native runtime libraries (36)
+--------------------------------------
+
+The Windows PyTorch CUDA wheel includes native runtime DLLs in:
+
+  clearpodcast/runtimes/windows-x64/Lib/site-packages/torch/lib/
+
+The corresponding PyTorch package metadata and license/notice files are
+listed in the Python package section above. Detected DLLs:
+
+- c10_cuda.dll
+- c10.dll
+- cublas64_13.dll
+- cublasLt64_13.dll
+- cudart64_13.dll
+- cudnn_adv64_9.dll
+- cudnn_cnn64_9.dll
+- cudnn_engines_precompiled64_9.dll
+- cudnn_engines_runtime_compiled64_9.dll
+- cudnn_graph64_9.dll
+- cudnn_heuristic64_9.dll
+- cudnn_ops64_9.dll
+- cudnn64_9.dll
+- cufft64_12.dll
+- cufftw64_12.dll
+- cupti64_2025.3.0.dll
+- curand64_10.dll
+- cusolver64_12.dll
+- cusolverMg64_12.dll
+- cusparse64_12.dll
+- libiomp5md.dll
+- libiompstubs5md.dll
+- nvJitLink_130_0.dll
+- nvperf_host.dll
+- nvrtc-builtins64_130.dll
+- nvrtc64_130_0.alt.dll
+- nvrtc64_130_0.dll
+- nvToolsExt64_1.dll
+- shm.dll
+- torch_cpu.dll
+- torch_cuda.dll
+- torch_global_deps.dll
+- torch_python.dll
+- torch.dll
+- uv.dll
+- zlibwapi.dll
+
+Bundled npm runtime packages (4)
+--------------------------------
+
+The desktop web assets are built from these runtime npm packages. Build-only
+devDependencies are not listed here because node_modules is not shipped in
+the portable artifact.
+
+- @tauri-apps/api 2.11.0
+  License: Apache-2.0 OR MIT
+  Resolved package: https://registry.npmjs.org/@tauri-apps/api/-/api-2.11.0.tgz
+
+- react 19.2.7
+  License: MIT
+  Resolved package: https://registry.npmjs.org/react/-/react-19.2.7.tgz
+
+- react-dom 19.2.7
+  License: MIT
+  Resolved package: https://registry.npmjs.org/react-dom/-/react-dom-19.2.7.tgz
+
+- scheduler 0.27.0
+  License: MIT
+  Resolved package: https://registry.npmjs.org/scheduler/-/scheduler-0.27.0.tgz
+
+Rust crates compiled into the Windows app (269)
+----------------------------------------------
+
+This list is generated from Cargo metadata filtered for
+x86_64-pc-windows-msvc.
+
+- adler2 2.0.1
+  License: 0BSD OR MIT OR Apache-2.0
+  Repository/homepage: https://github.com/oyvindln/adler2
+
+- aho-corasick 1.1.4
+  License: Unlicense OR MIT
+  Repository/homepage: https://github.com/BurntSushi/aho-corasick
+
+- alloc-no-stdlib 2.0.4
+  License: BSD-3-Clause
+  Repository/homepage: https://github.com/dropbox/rust-alloc-no-stdlib
+
+- alloc-stdlib 0.2.2
+  License: BSD-3-Clause
+  Repository/homepage: https://github.com/dropbox/rust-alloc-no-stdlib
+
+- anyhow 1.0.102
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/anyhow
+
+- arrayvec 0.7.6
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/bluss/arrayvec
+
+- autocfg 1.5.1
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/cuviper/autocfg
+
+- base64 0.22.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/marshallpierce/rust-base64
+
+- bit-set 0.8.0
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/contain-rs/bit-set
+
+- bit-vec 0.8.0
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/contain-rs/bit-vec
+
+- bitflags 1.3.2
+  License: MIT/Apache-2.0
+  Repository/homepage: https://github.com/bitflags/bitflags
+
+- bitflags 2.12.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/bitflags/bitflags
+
+- block-buffer 0.10.4
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/RustCrypto/utils
+
+- brotli 8.0.3
+  License: BSD-3-Clause AND MIT
+  Repository/homepage: https://github.com/dropbox/rust-brotli
+
+- brotli-decompressor 5.0.1
+  License: BSD-3-Clause/MIT
+  Repository/homepage: https://github.com/dropbox/rust-brotli-decompressor
+
+- bs58 0.5.1
+  License: MIT/Apache-2.0
+  Repository/homepage: https://github.com/Nullus157/bs58-rs
+
+- bytemuck 1.25.0
+  License: Zlib OR Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/Lokathor/bytemuck
+
+- byteorder 1.5.0
+  License: Unlicense OR MIT
+  Repository/homepage: https://github.com/BurntSushi/byteorder
+
+- bytes 1.11.1
+  License: MIT
+  Repository/homepage: https://github.com/tokio-rs/bytes
+
+- camino 1.2.2
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/camino-rs/camino
+
+- cargo_metadata 0.19.2
+  License: MIT
+  Repository/homepage: https://github.com/oli-obk/cargo_metadata
+
+- cargo_toml 0.22.3
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://gitlab.com/lib.rs/cargo_toml
+
+- cargo-platform 0.1.9
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/cargo
+
+- cc 1.2.63
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/cc-rs
+
+- cfb 0.7.3
+  License: MIT
+  Repository/homepage: https://github.com/mdsteele/rust-cfb
+
+- cfg-if 1.0.4
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/cfg-if
+
+- chrono 0.4.44
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/chronotope/chrono
+
+- cookie 0.18.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/SergioBenitez/cookie-rs
+
+- cpufeatures 0.2.17
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/RustCrypto/utils
+
+- crc32fast 1.5.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/srijs/rust-crc32fast
+
+- crossbeam-channel 0.5.15
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/crossbeam-rs/crossbeam
+
+- crossbeam-utils 0.8.21
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/crossbeam-rs/crossbeam
+
+- crypto-common 0.1.7
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/RustCrypto/traits
+
+- cssparser 0.36.0
+  License: MPL-2.0
+  Repository/homepage: https://github.com/servo/rust-cssparser
+
+- cssparser-macros 0.6.1
+  License: MPL-2.0
+  Repository/homepage: https://github.com/servo/rust-cssparser
+
+- ctor 0.8.0
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/mmastrac/rust-ctor
+
+- ctor-proc-macro 0.0.7
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/mmastrac/rust-ctor
+
+- darling 0.23.0
+  License: MIT
+  Repository/homepage: https://github.com/TedDriggs/darling
+
+- darling_core 0.23.0
+  License: MIT
+  Repository/homepage: https://github.com/TedDriggs/darling
+
+- darling_macro 0.23.0
+  License: MIT
+  Repository/homepage: https://github.com/TedDriggs/darling
+
+- deranged 0.5.8
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/jhpratt/deranged
+
+- derive_more 2.1.1
+  License: MIT
+  Repository/homepage: https://github.com/JelteF/derive_more
+
+- derive_more-impl 2.1.1
+  License: MIT
+  Repository/homepage: https://github.com/JelteF/derive_more
+
+- digest 0.10.7
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/RustCrypto/traits
+
+- dirs 6.0.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/soc/dirs-rs
+
+- dirs-sys 0.5.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dirs-dev/dirs-sys-rs
+
+- displaydoc 0.2.6
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/yaahc/displaydoc
+
+- dom_query 0.27.0
+  License: MIT
+  Repository/homepage: https://github.com/niklak/dom_query
+
+- dpi 0.1.2
+  License: Apache-2.0 AND MIT
+  Repository/homepage: https://github.com/rust-windowing/winit
+
+- dtoa 1.0.11
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/dtoa
+
+- dtoa-short 0.3.5
+  License: MPL-2.0
+  Repository/homepage: https://github.com/upsuper/dtoa-short
+
+- dtor 0.3.0
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/mmastrac/rust-ctor
+
+- dtor-proc-macro 0.0.6
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/mmastrac/rust-ctor
+
+- dunce 1.0.5
+  License: CC0-1.0 OR MIT-0 OR Apache-2.0
+  Repository/homepage: https://gitlab.com/kornelski/dunce
+
+- dyn-clone 1.0.20
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/dyn-clone
+
+- embed-resource 3.0.9
+  License: MIT
+  Repository/homepage: https://github.com/nabijaczleweli/rust-embed-resource
+
+- encoding_rs 0.8.35
+  License: (Apache-2.0 OR MIT) AND BSD-3-Clause
+  Repository/homepage: https://github.com/hsivonen/encoding_rs
+
+- equivalent 1.0.2
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/indexmap-rs/equivalent
+
+- erased-serde 0.4.10
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/erased-serde
+
+- extended 0.1.0
+  License: MIT
+  Repository/homepage: https://github.com/depp/extended-rs
+
+- fastrand 2.4.1
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/smol-rs/fastrand
+
+- fdeflate 0.3.7
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/image-rs/fdeflate
+
+- find-msvc-tools 0.1.9
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/cc-rs
+
+- flate2 1.1.9
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/flate2-rs
+
+- fnv 1.0.7
+  License: Apache-2.0 / MIT
+  Repository/homepage: https://github.com/servo/rust-fnv
+
+- foldhash 0.2.0
+  License: Zlib
+  Repository/homepage: https://github.com/orlp/foldhash
+
+- form_urlencoded 1.2.2
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/servo/rust-url
+
+- generic-array 0.14.7
+  License: MIT
+  Repository/homepage: https://github.com/fizyk20/generic-array.git
+
+- getrandom 0.3.4
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-random/getrandom
+
+- getrandom 0.4.2
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-random/getrandom
+
+- glob 0.3.3
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/glob
+
+- hashbrown 0.12.3
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/hashbrown
+
+- hashbrown 0.17.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/hashbrown
+
+- heck 0.5.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/withoutboats/heck
+
+- hex 0.4.3
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/KokaKiwi/rust-hex
+
+- hound 3.5.1
+  License: Apache-2.0
+  Repository/homepage: https://github.com/ruuda/hound
+
+- html5ever 0.38.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/servo/html5ever
+
+- http 1.4.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/hyperium/http
+
+- http-range 0.1.5
+  License: MIT
+  Repository/homepage: https://github.com/bancek/rust-http-range.git
+
+- ico 0.5.0
+  License: MIT
+  Repository/homepage: https://github.com/mdsteele/rust-ico
+
+- icu_collections 2.2.0
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- icu_locale_core 2.2.0
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- icu_normalizer 2.2.0
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- icu_normalizer_data 2.2.0
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- icu_properties 2.2.0
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- icu_properties_data 2.2.0
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- icu_provider 2.2.0
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- ident_case 1.0.1
+  License: MIT/Apache-2.0
+  Repository/homepage: https://github.com/TedDriggs/ident_case
+
+- idna 1.1.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/servo/rust-url/
+
+- idna_adapter 1.2.2
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/hsivonen/idna_adapter
+
+- indexmap 1.9.3
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/bluss/indexmap
+
+- indexmap 2.14.0
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/indexmap-rs/indexmap
+
+- infer 0.19.0
+  License: MIT
+  Repository/homepage: https://github.com/bojand/infer
+
+- itoa 1.0.18
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/itoa
+
+- json-patch 3.0.1
+  License: MIT/Apache-2.0
+  Repository/homepage: https://github.com/idubrov/json-patch
+
+- jsonptr 0.6.3
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/chanced/jsonptr
+
+- keyboard-types 0.7.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/pyfisch/keyboard-types
+
+- lazy_static 1.5.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang-nursery/lazy-static.rs
+
+- libc 0.2.186
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/libc
+
+- litemap 0.8.2
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- lock_api 0.4.14
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/Amanieu/parking_lot
+
+- log 0.4.31
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/log
+
+- markup5ever 0.38.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/servo/html5ever
+
+- memchr 2.8.1
+  License: Unlicense OR MIT
+  Repository/homepage: https://github.com/BurntSushi/memchr
+
+- mime 0.3.17
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/hyperium/mime
+
+- miniz_oxide 0.8.9
+  License: MIT OR Zlib OR Apache-2.0
+  Repository/homepage: https://github.com/Frommi/miniz_oxide/tree/master/miniz_oxide
+
+- mio 1.2.1
+  License: MIT
+  Repository/homepage: https://github.com/tokio-rs/mio
+
+- muda 0.19.2
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/tauri-apps/muda
+
+- new_debug_unreachable 1.0.6
+  License: MIT
+  Repository/homepage: https://github.com/mbrubeck/rust-debug-unreachable
+
+- num-conv 0.2.2
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/jhpratt/num-conv
+
+- num-traits 0.2.19
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-num/num-traits
+
+- once_cell 1.21.4
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/matklad/once_cell
+
+- option-ext 0.2.0
+  License: MPL-2.0
+  Repository/homepage: https://github.com/soc/option-ext.git
+
+- parking_lot 0.12.5
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/Amanieu/parking_lot
+
+- parking_lot_core 0.9.12
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/Amanieu/parking_lot
+
+- percent-encoding 2.3.2
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/servo/rust-url/
+
+- phf 0.13.1
+  License: MIT
+  Repository/homepage: https://github.com/rust-phf/rust-phf
+
+- phf_codegen 0.13.1
+  License: MIT
+  Repository/homepage: https://github.com/rust-phf/rust-phf
+
+- phf_generator 0.13.1
+  License: MIT
+  Repository/homepage: https://github.com/rust-phf/rust-phf
+
+- phf_macros 0.13.1
+  License: MIT
+  Repository/homepage: https://github.com/rust-phf/rust-phf
+
+- phf_shared 0.13.1
+  License: MIT
+  Repository/homepage: https://github.com/rust-phf/rust-phf
+
+- pin-project-lite 0.2.17
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/taiki-e/pin-project-lite
+
+- plist 1.9.0
+  License: MIT
+  Repository/homepage: https://github.com/ebarnard/rust-plist/
+
+- png 0.17.16
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/image-rs/image-png
+
+- potential_utf 0.1.5
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- powerfmt 0.2.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/jhpratt/powerfmt
+
+- precomputed-hash 0.1.1
+  License: MIT
+  Repository/homepage: https://github.com/emilio/precomputed-hash
+
+- proc-macro2 1.0.106
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/proc-macro2
+
+- quick-xml 0.39.4
+  License: MIT
+  Repository/homepage: https://github.com/tafia/quick-xml
+
+- quote 1.0.45
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/quote
+
+- raw-window-handle 0.6.2
+  License: MIT OR Apache-2.0 OR Zlib
+  Repository/homepage: https://github.com/rust-windowing/raw-window-handle
+
+- ref-cast 1.0.25
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/ref-cast
+
+- ref-cast-impl 1.0.25
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/ref-cast
+
+- regex 1.12.3
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/regex
+
+- regex-automata 0.4.14
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/regex
+
+- regex-syntax 0.8.10
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/regex
+
+- rfd 0.15.4
+  License: MIT
+  Repository/homepage: https://github.com/PolyMeilex/rfd
+
+- rustc_version 0.4.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/djc/rustc-version-rs
+
+- rustc-hash 2.1.2
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/rust-lang/rustc-hash
+
+- same-file 1.0.6
+  License: Unlicense/MIT
+  Repository/homepage: https://github.com/BurntSushi/same-file
+
+- schemars 0.8.22
+  License: MIT
+  Repository/homepage: https://github.com/GREsau/schemars
+
+- schemars 0.9.0
+  License: MIT
+  Repository/homepage: https://github.com/GREsau/schemars
+
+- schemars 1.2.1
+  License: MIT
+  Repository/homepage: https://github.com/GREsau/schemars
+
+- schemars_derive 0.8.22
+  License: MIT
+  Repository/homepage: https://github.com/GREsau/schemars
+
+- scopeguard 1.2.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/bluss/scopeguard
+
+- selectors 0.36.1
+  License: MPL-2.0
+  Repository/homepage: https://github.com/servo/stylo
+
+- semver 1.0.28
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/semver
+
+- serde 1.0.228
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/serde-rs/serde
+
+- serde_core 1.0.228
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/serde-rs/serde
+
+- serde_derive 1.0.228
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/serde-rs/serde
+
+- serde_derive_internals 0.29.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/serde-rs/serde
+
+- serde_json 1.0.150
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/serde-rs/json
+
+- serde_repr 0.1.20
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/serde-repr
+
+- serde_spanned 1.1.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/toml-rs/toml
+
+- serde_with 3.20.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/jonasbb/serde_with/
+
+- serde_with_macros 3.20.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/jonasbb/serde_with/
+
+- serde-untagged 0.1.9
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/serde-untagged
+
+- serialize-to-javascript 0.1.2
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/chippers/serialize-to-javascript
+
+- serialize-to-javascript-impl 0.1.2
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/chippers/serialize-to-javascript
+
+- servo_arc 0.4.3
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/servo/stylo
+
+- sha2 0.10.9
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/RustCrypto/hashes
+
+- shlex 2.0.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/comex/rust-shlex
+
+- simd-adler32 0.3.9
+  License: MIT
+  Repository/homepage: https://github.com/mcountryman/simd-adler32
+
+- siphasher 1.0.3
+  License: MIT/Apache-2.0
+  Repository/homepage: https://github.com/jedisct1/rust-siphash
+
+- smallvec 1.15.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/servo/rust-smallvec
+
+- socket2 0.6.4
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-lang/socket2
+
+- softbuffer 0.4.8
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/rust-windowing/softbuffer
+
+- stable_deref_trait 1.2.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/storyyeller/stable_deref_trait
+
+- string_cache 0.9.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/servo/string-cache
+
+- string_cache_codegen 0.6.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/servo/string-cache
+
+- strsim 0.11.1
+  License: MIT
+  Repository/homepage: https://github.com/rapidfuzz/strsim-rs
+
+- symphonia 0.5.5
+  License: MPL-2.0
+  Repository/homepage: https://github.com/pdeljanov/Symphonia
+
+- symphonia-bundle-mp3 0.5.5
+  License: MPL-2.0
+  Repository/homepage: https://github.com/pdeljanov/Symphonia
+
+- symphonia-codec-aac 0.5.5
+  License: MPL-2.0
+  Repository/homepage: https://github.com/pdeljanov/Symphonia
+
+- symphonia-codec-alac 0.5.5
+  License: MPL-2.0
+  Repository/homepage: https://github.com/pdeljanov/Symphonia
+
+- symphonia-codec-pcm 0.5.5
+  License: MPL-2.0
+  Repository/homepage: https://github.com/pdeljanov/Symphonia
+
+- symphonia-core 0.5.5
+  License: MPL-2.0
+  Repository/homepage: https://github.com/pdeljanov/Symphonia
+
+- symphonia-format-isomp4 0.5.5
+  License: MPL-2.0
+  Repository/homepage: https://github.com/pdeljanov/Symphonia
+
+- symphonia-format-riff 0.5.5
+  License: MPL-2.0
+  Repository/homepage: https://github.com/pdeljanov/Symphonia
+
+- symphonia-metadata 0.5.5
+  License: MPL-2.0
+  Repository/homepage: https://github.com/pdeljanov/Symphonia
+
+- symphonia-utils-xiph 0.5.5
+  License: MPL-2.0
+  Repository/homepage: https://github.com/pdeljanov/Symphonia
+
+- syn 2.0.117
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/syn
+
+- synstructure 0.13.2
+  License: MIT
+  Repository/homepage: https://github.com/mystor/synstructure
+
+- tao 0.35.3
+  License: Apache-2.0
+  Repository/homepage: https://github.com/tauri-apps/tao
+
+- tauri 2.11.2
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/tauri-apps/tauri
+
+- tauri-build 2.6.2
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/tauri-apps/tauri
+
+- tauri-codegen 2.6.2
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/tauri-apps/tauri
+
+- tauri-macros 2.6.2
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/tauri-apps/tauri
+
+- tauri-runtime 2.11.2
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/tauri-apps/tauri
+
+- tauri-runtime-wry 2.11.2
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/tauri-apps/tauri
+
+- tauri-utils 2.9.2
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/tauri-apps/tauri
+
+- tauri-winres 0.3.6
+  License: MIT
+  Repository/homepage: https://github.com/tauri-apps/winres
+
+- tempfile 3.27.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/Stebalien/tempfile
+
+- tendril 0.5.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/servo/html5ever
+
+- thiserror 1.0.69
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/thiserror
+
+- thiserror 2.0.18
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/thiserror
+
+- thiserror-impl 1.0.69
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/thiserror
+
+- thiserror-impl 2.0.18
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/thiserror
+
+- time 0.3.47
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/time-rs/time
+
+- time-core 0.1.8
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/time-rs/time
+
+- time-macros 0.2.27
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/time-rs/time
+
+- tinystr 0.8.3
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- tinyvec 1.11.0
+  License: Zlib OR Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/Lokathor/tinyvec
+
+- tinyvec_macros 0.1.1
+  License: MIT OR Apache-2.0 OR Zlib
+  Repository/homepage: https://github.com/Soveu/tinyvec_macros
+
+- tokio 1.52.3
+  License: MIT
+  Repository/homepage: https://github.com/tokio-rs/tokio
+
+- toml 0.9.12+spec-1.1.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/toml-rs/toml
+
+- toml 1.1.2+spec-1.1.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/toml-rs/toml
+
+- toml_datetime 0.7.5+spec-1.1.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/toml-rs/toml
+
+- toml_datetime 1.1.1+spec-1.1.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/toml-rs/toml
+
+- toml_parser 1.1.2+spec-1.1.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/toml-rs/toml
+
+- toml_writer 1.1.1+spec-1.1.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/toml-rs/toml
+
+- tracing 0.1.44
+  License: MIT
+  Repository/homepage: https://github.com/tokio-rs/tracing
+
+- tracing-attributes 0.1.31
+  License: MIT
+  Repository/homepage: https://github.com/tokio-rs/tracing
+
+- tracing-core 0.1.36
+  License: MIT
+  Repository/homepage: https://github.com/tokio-rs/tracing
+
+- tray-icon 0.23.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/tauri-apps/tray-icon
+
+- typeid 1.0.3
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/dtolnay/typeid
+
+- typenum 1.20.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/paholg/typenum
+
+- unic-char-property 0.9.0
+  License: MIT/Apache-2.0
+  Repository/homepage: https://github.com/open-i18n/rust-unic/
+
+- unic-char-range 0.9.0
+  License: MIT/Apache-2.0
+  Repository/homepage: https://github.com/open-i18n/rust-unic/
+
+- unic-common 0.9.0
+  License: MIT/Apache-2.0
+  Repository/homepage: https://github.com/open-i18n/rust-unic/
+
+- unic-ucd-ident 0.9.0
+  License: MIT/Apache-2.0
+  Repository/homepage: https://github.com/open-i18n/rust-unic/
+
+- unic-ucd-version 0.9.0
+  License: MIT/Apache-2.0
+  Repository/homepage: https://github.com/open-i18n/rust-unic/
+
+- unicode-ident 1.0.24
+  License: (MIT OR Apache-2.0) AND Unicode-3.0
+  Repository/homepage: https://github.com/dtolnay/unicode-ident
+
+- unicode-segmentation 1.13.3
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/unicode-rs/unicode-segmentation
+
+- url 2.5.8
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/servo/rust-url
+
+- urlpattern 0.3.0
+  License: MIT
+  Repository/homepage: https://github.com/denoland/rust-urlpattern
+
+- utf-8 0.7.6
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/SimonSapin/rust-utf8
+
+- utf8_iter 1.0.4
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/hsivonen/utf8_iter
+
+- uuid 1.23.2
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/uuid-rs/uuid
+
+- version_check 0.9.5
+  License: MIT/Apache-2.0
+  Repository/homepage: https://github.com/SergioBenitez/version_check
+
+- vswhom 0.1.0
+  License: MIT
+  Repository/homepage: https://github.com/nabijaczleweli/vswhom.rs
+
+- vswhom-sys 0.1.3
+  License: MIT
+  Repository/homepage: https://github.com/nabijaczleweli/vswhom-sys.rs
+
+- walkdir 2.5.0
+  License: Unlicense/MIT
+  Repository/homepage: https://github.com/BurntSushi/walkdir
+
+- web_atoms 0.2.4
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/servo/html5ever
+
+- webview2-com 0.38.2
+  License: MIT
+  Repository/homepage: https://github.com/wravery/webview2-rs
+
+- webview2-com-macros 0.8.1
+  License: MIT
+  Repository/homepage: https://github.com/wravery/webview2-rs
+
+- webview2-com-sys 0.38.2
+  License: MIT
+  Repository/homepage: https://github.com/wravery/webview2-rs
+
+- winapi-util 0.1.11
+  License: Unlicense OR MIT
+  Repository/homepage: https://github.com/BurntSushi/winapi-util
+
+- window-vibrancy 0.6.0
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/tauri-apps/tauri-plugin-vibrancy
+
+- windows 0.61.3
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows_x86_64_msvc 0.52.6
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-collections 0.2.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-core 0.61.2
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-future 0.2.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-implement 0.60.2
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-interface 0.59.3
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-link 0.1.3
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-link 0.2.1
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-numerics 0.2.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-result 0.3.4
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-strings 0.4.2
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-sys 0.59.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-sys 0.61.2
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-targets 0.52.6
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-threading 0.1.0
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- windows-version 0.1.7
+  License: MIT OR Apache-2.0
+  Repository/homepage: https://github.com/microsoft/windows-rs
+
+- winnow 0.7.15
+  License: MIT
+  Repository/homepage: https://github.com/winnow-rs/winnow
+
+- winnow 1.0.3
+  License: MIT
+  Repository/homepage: https://github.com/winnow-rs/winnow
+
+- winreg 0.55.0
+  License: MIT
+  Repository/homepage: https://github.com/gentoo90/winreg-rs
+
+- writeable 0.6.3
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- wry 0.55.1
+  License: Apache-2.0 OR MIT
+  Repository/homepage: https://github.com/tauri-apps/wry
+
+- yoke 0.8.2
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- yoke-derive 0.8.2
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- zerofrom 0.1.8
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- zerofrom-derive 0.1.7
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- zerotrie 0.2.4
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- zerovec 0.11.6
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- zerovec-derive 0.11.3
+  License: Unicode-3.0
+  Repository/homepage: https://github.com/unicode-org/icu4x
+
+- zmij 1.0.21
+  License: MIT
+  Repository/homepage: https://github.com/dtolnay/zmij

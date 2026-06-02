@@ -110,6 +110,11 @@ git diff --check
 npm run package:windows-x64
 ```
 
+The Windows staging step generates
+`packaging/licenses/windows-x64/THIRD_PARTY_NOTICES.txt` from the current
+Windows Python runtime metadata, `package-lock.json`, and Cargo metadata before
+copying it into the portable artifact.
+
 The zip is written to:
 
 ```text

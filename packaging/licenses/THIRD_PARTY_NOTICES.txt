@@ -1,40 +1,18 @@
-ClearPodcast third-party notices
-=================================
+ClearPodcast license notice sources
+===================================
 
-ClearPodcast bundles third-party software to provide an offline desktop speech
-restoration workflow. This notice file is included in packaged artifacts at:
+Platform release artifacts should copy a platform-specific generated notice
+directory from this folder, not this compatibility note.
 
-  clearpodcast/licenses/THIRD_PARTY_NOTICES.txt
+Current platform notice sources:
 
-The packaged Python runtime also preserves installed Python package metadata
-under:
+- `packaging/licenses/windows-x64/THIRD_PARTY_NOTICES.txt`
 
-  clearpodcast/runtimes/<platform>/lib/python3.12/site-packages/*.dist-info/
+Regenerate the Windows notice file with:
 
-Those package metadata directories contain the authoritative wheel license files
-and metadata available in the staged runtime.
+```text
+npm run licenses:windows-x64
+```
 
-Major bundled components for current portable artifacts include:
-
-- Python 3.12 runtime and standard library.
-- PyTorch CPU inference packages for macOS and PyTorch CUDA-capable inference
-  packages for Windows.
-- Resemble Enhance inference package and repository-owned ClearPodcast sidecar.
-- Scientific and audio Python packages used by Resemble Enhance, including
-  NumPy, SciPy, soundfile, librosa, scikit-learn, numba, llvmlite, soxr,
-  pandas, matplotlib, requests, tqdm, PyYAML, omegaconf, and their transitive
-  dependencies.
-- Tauri, Wry, Tao, React, Vite, TypeScript, and other JavaScript/Rust build and
-  desktop runtime dependencies.
-- Rust audio and utility crates used by the native layer, including hound,
-  symphonia, tempfile, serde, thiserror, and rfd.
-
-ClearPodcast does not bundle FFmpeg.
-
-Milestone 4 license review status:
-
-- License notices are staged into every macOS portable artifact.
-- Python package metadata is preserved in the artifact for package-level
-  license inspection.
-- A later public release should replace this milestone notice with a generated
-  full dependency notice report before distribution outside local validation.
+The Windows staging script runs that command automatically before copying
+license notices into the portable artifact.

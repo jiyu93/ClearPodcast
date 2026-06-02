@@ -11,6 +11,7 @@
     "check": "tsc --noEmit",
     "package:stage:macos-cpu": "node scripts/stage-macos-cpu-resources.mjs",
     "package:macos-cpu": "node scripts/build-macos-cpu-portable.mjs",
+    "licenses:windows-x64": "node scripts/generate-third-party-notices.mjs windows-x64",
     "package:stage:windows-x64": "node scripts/stage-windows-x64-resources.mjs",
     "package:windows-x64": "node scripts/build-windows-x64-portable.mjs"
   },

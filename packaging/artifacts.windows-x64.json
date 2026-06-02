@@ -54,8 +54,8 @@
       "id": "license-notices",
       "kind": "licenses",
       "platform": "all",
-      "version": "Milestone 5 third-party notices",
-      "source": "packaging/licenses",
+      "version": "Generated Windows x64 third-party notices",
+      "source": "packaging/licenses/windows-x64",
       "artifact_path": "licenses",
       "sha256": {
         "mode": "directory-tree",

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import crypto from "node:crypto";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -13,6 +14,7 @@ const skipExtensions = new Set([".pyc", ".pyo"]);
 
 function main() {
   assertWindowsHost();
+  generateThirdPartyNotices();
   const manifest = readJson(manifestPath);
   const resourceRoot = resolveRepoPath(manifest.resource_root);
 
@@ -42,6 +44,26 @@ function main() {
 
   console.log(`Staged ${stagedArtifacts.length} artifacts into ${resourceRoot}`);
   console.log(`Generated ${generatedManifestPath}`);
+}
+
+function generateThirdPartyNotices() {
+  const result = spawnSync(
+    process.execPath,
+    [path.join(repoRoot, "scripts", "generate-third-party-notices.mjs"), "windows-x64"],
+    {
+      cwd: repoRoot,
+      env: process.env,
+      stdio: "inherit",
+    },
+  );
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (result.status !== 0) {
+    throw new Error(`third-party notice generation failed with ${result.status}`);
+  }
 }
 
 function assertWindowsHost() {

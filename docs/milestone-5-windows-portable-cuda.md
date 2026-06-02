@@ -157,7 +157,8 @@ Completed local checks:
 - UI layout smoke for the device indicator surface in the Vite app
 - device indicator is a standalone Job panel card populated before the first
   enhancement run and refreshed from completed job device metadata
-- license notice review for the staged Windows artifact
+- generated Windows x64 third-party notice review for the staged Windows
+  artifact
 
 The CUDA smokes reported:
 
