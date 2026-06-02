@@ -1,4 +1,4 @@
-use clearpodcast_app::runtime::{enhance_wav, EnhanceRequest};
+use clearpodcast_app::runtime::{enhance_audio, EnhanceRequest};
 use std::{collections::HashMap, env, path::PathBuf, process};
 
 fn main() {
@@ -26,7 +26,7 @@ fn main() {
         }
     };
 
-    match enhance_wav(request) {
+    match enhance_audio(request) {
         Ok(result) => {
             println!(
                 "{}",
@@ -45,7 +45,7 @@ fn print_help() {
         "Usage: cargo run --manifest-path src-tauri/Cargo.toml --bin enhance_wav -- \\
   --python localfiles/runtime/macos-arm64/bin/python3 \\
   --model-dir localfiles/models/resemble-enhance/enhancer_stage2 \\
-  --input localfiles/samples/low_quality_voice_sample_1.wav \\
+  --input localfiles/samples/low_quality_voice_sample_1.wav|.mp3|.m4a \\
   --output localfiles/outputs/low_quality_voice_sample_1.enhanced.wav \\
   --expected-checkpoint-sha256 f9d035f318de3e6d919bc70cf7ad7d32b4fe92ec5cbe0b30029a27f5db07d9d6"
     );
@@ -80,7 +80,7 @@ fn build_request(flags: &HashMap<String, String>) -> Result<EnhanceRequest, Stri
     Ok(EnhanceRequest {
         python: required_path(flags, "python")?,
         model_dir: required_path(flags, "model-dir")?,
-        input_wav: required_path(flags, "input")?,
+        input_audio: required_path(flags, "input")?,
         output_wav: required_path(flags, "output")?,
         sidecar: optional_path(flags, "sidecar"),
         device: flags.get("device").cloned(),

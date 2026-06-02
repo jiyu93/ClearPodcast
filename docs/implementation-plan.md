@@ -409,6 +409,35 @@ Verification:
   M4A -> sidecar -> WAV.
 - Run `git diff --check`.
 
+Completion state as of June 2, 2026:
+
+- Rust owns the user-facing audio boundary in `src-tauri/src/audio.rs`.
+- WAV decoding and WAV writing use `hound`.
+- MP3 and M4A decoding use `symphonia` without introducing FFmpeg.
+- WAV, MP3, and M4A inputs decode to mono `f32` PCM.
+- Rust writes a stable mono 32-bit float WAV sidecar handoff.
+- The Python sidecar remains WAV-only and is no longer responsible for MP3 or
+  M4A compatibility.
+- Rust reads the sidecar WAV output and writes the final user-visible 44.1 kHz
+  mono 24-bit PCM WAV.
+- Rust owns temporary handoff files and cleans the temporary job directory after
+  success and sidecar failure. Cancellation is not present in milestone 2; it is
+  a milestone 3 job-manager behavior.
+- Tauri exposes `probe_audio_command` and `enhance_audio_command`, while
+  `enhance_wav_command` remains as a compatibility wrapper.
+- The `enhance_wav` smoke CLI keeps its historical name, but its `--input` flag
+  now accepts `.wav`, `.mp3`, and `.m4a`.
+- Synthetic committed tests cover WAV decode/write, MP3 decode, M4A/AAC decode,
+  stereo-to-mono conversion, unsupported and corrupt input errors, WAV/MP3/M4A
+  sidecar handoff paths, final WAV writing, and temporary cleanup.
+- Full local model smoke checks pass for
+  `localfiles/samples/low_quality_voice_sample_1.wav`,
+  `localfiles/samples/low_quality_voice_sample_1.mp3`, and
+  `localfiles/samples/low_quality_voice_sample_1.m4a`. All three outputs are
+  44.1 kHz mono 24-bit little-endian PCM WAV files.
+- Milestone 2 has no deferred exit criteria. See
+  `docs/milestone-2-audio-contract.md`.
+
 ### Milestone 3: Desktop MVP
 
 Objective:
@@ -454,6 +483,14 @@ Verification:
   workflow is stable.
 - UI/build checks introduced by the app scaffold.
 - Run `git diff --check`.
+
+Starting state after Milestone 2:
+
+- Reuse `probe_audio_command` for metadata display.
+- Reuse `enhance_audio_command` for the backend processing path.
+- Do not reimplement codec handling in the UI layer.
+- Add cancellation in the job manager and keep temporary handoff cleanup tied to
+  the job lifecycle.
 
 ### Milestone 4: Portable Release
 

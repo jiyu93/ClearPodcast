@@ -21,10 +21,11 @@ Start here:
 
 - [Implementation plan](docs/implementation-plan.md)
 - [Milestone 1 runtime spine](docs/milestone-1-runtime-spine.md)
+- [Milestone 2 audio contract](docs/milestone-2-audio-contract.md)
 - [Domain context](CONTEXT.md)
 - [Architecture decisions](docs/adr/)
 
-## Milestone 1 Development
+## Local Development
 
 Install the desktop scaffold dependencies:
 
@@ -38,14 +39,16 @@ Bootstrap the local macOS CPU Python runtime with a Python 3.10+ interpreter:
 PYTHON_BIN=/path/to/python3.12 scripts/bootstrap-macos-cpu-runtime.sh
 ```
 
-Run the documented WAV -> enhanced WAV smoke path:
+Run the documented audio -> enhanced WAV smoke path. The `enhance_wav` binary
+name is kept for compatibility, but `--input` accepts `.wav`, `.mp3`, and
+`.m4a`:
 
 ```sh
 cargo run --manifest-path src-tauri/Cargo.toml --bin enhance_wav -- \
   --python localfiles/runtime/macos-arm64/bin/python3 \
   --model-dir localfiles/models/resemble-enhance/enhancer_stage2 \
-  --input localfiles/samples/low_quality_voice_sample_1.wav \
-  --output localfiles/outputs/low_quality_voice_sample_1.enhanced.wav \
+  --input localfiles/samples/low_quality_voice_sample_1.mp3 \
+  --output localfiles/outputs/low_quality_voice_sample_1.mp3.enhanced.wav \
   --expected-checkpoint-sha256 f9d035f318de3e6d919bc70cf7ad7d32b4fe92ec5cbe0b30029a27f5db07d9d6
 ```
 

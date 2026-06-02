@@ -1,8 +1,18 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
+type AudioMetadata = {
+  format: "wav" | "mp3" | "m4a";
+  source_sample_rate: number;
+  channels: number;
+  frame_count?: number;
+  duration_seconds?: number;
+};
+
 type EnhancementResult = {
   output_wav: string;
+  input_metadata: AudioMetadata;
+  output_metadata: AudioMetadata;
   exit_code: number;
   stdout: string;
   stderr: string;
@@ -11,14 +21,14 @@ type EnhancementResult = {
 type FormState = {
   python: string;
   model_dir: string;
-  input_wav: string;
+  input_audio: string;
   output_wav: string;
 };
 
 const defaultFormState: FormState = {
   python: "localfiles/runtime/macos-arm64/bin/python3",
   model_dir: "localfiles/models/resemble-enhance/enhancer_stage2",
-  input_wav: "localfiles/samples/low_quality_voice_sample_1.wav",
+  input_audio: "localfiles/samples/low_quality_voice_sample_1.wav",
   output_wav: "localfiles/outputs/low_quality_voice_sample_1.enhanced.wav",
 };
 
@@ -34,7 +44,7 @@ export default function App() {
     setMessage("Launching local Resemble Enhance sidecar...");
 
     try {
-      const result = await invoke<EnhancementResult>("enhance_wav_command", {
+      const result = await invoke<EnhancementResult>("enhance_audio_command", {
         request: {
           ...form,
           device: "cpu",
@@ -43,7 +53,7 @@ export default function App() {
 
       setStatus("done");
       setMessage(
-        `Wrote ${result.output_wav}. Exit ${result.exit_code}.\n${result.stderr || result.stdout}`,
+        `Wrote ${result.output_wav}. Exit ${result.exit_code}.\nInput: ${formatMetadata(result.input_metadata)}\nOutput: ${formatMetadata(result.output_metadata)}\n${result.stderr || result.stdout}`,
       );
     } catch (error) {
       setStatus("failed");
@@ -84,10 +94,10 @@ export default function App() {
             />
           </label>
           <label>
-            Input WAV
+            Input audio
             <input
-              value={form.input_wav}
-              onChange={(event) => updateField("input_wav", event.target.value)}
+              value={form.input_audio}
+              onChange={(event) => updateField("input_audio", event.target.value)}
               spellCheck={false}
             />
           </label>
@@ -106,11 +116,20 @@ export default function App() {
           onClick={runEnhancement}
           disabled={status === "running"}
         >
-          Run WAV Enhancement
+          Run Enhancement
         </button>
 
         <pre className="message-panel">{message || "Ready."}</pre>
       </section>
     </main>
   );
+}
+
+function formatMetadata(metadata: AudioMetadata) {
+  const duration =
+    typeof metadata.duration_seconds === "number"
+      ? `${metadata.duration_seconds.toFixed(2)}s`
+      : "unknown duration";
+
+  return `${metadata.format.toUpperCase()}, ${metadata.source_sample_rate} Hz, ${metadata.channels} channel(s), ${duration}`;
 }

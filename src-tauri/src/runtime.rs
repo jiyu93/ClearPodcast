@@ -1,3 +1,4 @@
+use crate::audio::{self, AudioMetadata};
 use serde::{Deserialize, Serialize};
 use std::{
     fs,
@@ -12,7 +13,8 @@ const EXPECTED_LATEST_FILE: &str = "default";
 pub struct EnhanceRequest {
     pub python: PathBuf,
     pub model_dir: PathBuf,
-    pub input_wav: PathBuf,
+    #[serde(alias = "input_wav")]
+    pub input_audio: PathBuf,
     pub output_wav: PathBuf,
     pub sidecar: Option<PathBuf>,
     pub device: Option<String>,
@@ -26,6 +28,15 @@ pub struct EnhanceRequest {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct EnhancementResult {
     pub output_wav: PathBuf,
+    pub input_metadata: AudioMetadata,
+    pub output_metadata: AudioMetadata,
+    pub exit_code: i32,
+    pub stdout: String,
+    pub stderr: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct SidecarRunResult {
     pub exit_code: i32,
     pub stdout: String,
     pub stderr: String,
@@ -37,7 +48,7 @@ pub enum RuntimeError {
     MissingRuntime(PathBuf),
     #[error("sidecar entrypoint was not found at {0}")]
     MissingSidecar(PathBuf),
-    #[error("input WAV was not found at {0}")]
+    #[error("input audio file was not found at {0}")]
     MissingInput(PathBuf),
     #[error("model directory was not found at {0}")]
     MissingModelDirectory(PathBuf),
@@ -49,11 +60,12 @@ pub enum RuntimeError {
         actual: String,
         expected: &'static str,
     },
-    #[error("failed to prepare output directory {path}: {source}")]
-    OutputDirectory {
-        path: PathBuf,
-        source: std::io::Error,
-    },
+    #[error("audio contract failed: {0}")]
+    Audio(#[from] audio::AudioError),
+    #[error("failed to create temporary audio handoff directory: {0}")]
+    TemporaryDirectory(std::io::Error),
+    #[error("sidecar did not write the expected enhanced WAV at {0}")]
+    MissingSidecarOutput(PathBuf),
     #[error("failed to launch sidecar with runtime {runtime}: {source}")]
     Launch {
         runtime: PathBuf,
@@ -67,78 +79,129 @@ pub enum RuntimeError {
     },
 }
 
+pub trait SidecarRunner {
+    fn run_sidecar(
+        &self,
+        request: &EnhanceRequest,
+        input_wav: &Path,
+        output_wav: &Path,
+    ) -> Result<SidecarRunResult, RuntimeError>;
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub struct PythonSidecarRunner;
+
+pub fn enhance_audio(request: EnhanceRequest) -> Result<EnhancementResult, RuntimeError> {
+    enhance_audio_with_runner(request, &PythonSidecarRunner)
+}
+
 pub fn enhance_wav(request: EnhanceRequest) -> Result<EnhancementResult, RuntimeError> {
+    enhance_audio(request)
+}
+
+pub fn enhance_audio_with_runner<R: SidecarRunner>(
+    request: EnhanceRequest,
+    runner: &R,
+) -> Result<EnhancementResult, RuntimeError> {
     let request = request.with_resolved_paths();
     validate_request(&request)?;
 
-    if let Some(parent) = request.output_wav.parent() {
-        fs::create_dir_all(parent).map_err(|source| RuntimeError::OutputDirectory {
-            path: parent.to_path_buf(),
-            source,
-        })?;
+    let decoded_input = audio::decode_audio(&request.input_audio)?;
+    let temp_dir = tempfile::Builder::new()
+        .prefix("clearpodcast-audio-")
+        .tempdir()
+        .map_err(RuntimeError::TemporaryDirectory)?;
+    let handoff_input = temp_dir.path().join("input-handoff.wav");
+    let sidecar_output = temp_dir.path().join("sidecar-output.wav");
+
+    audio::write_handoff_wav(&handoff_input, &decoded_input.pcm)?;
+    let sidecar_result = runner.run_sidecar(&request, &handoff_input, &sidecar_output)?;
+
+    if !sidecar_output.is_file() {
+        return Err(RuntimeError::MissingSidecarOutput(sidecar_output));
     }
 
-    let sidecar = request.sidecar.clone().unwrap_or_else(default_sidecar_path);
-    let mut command = Command::new(&request.python);
-    command
-        .arg(&sidecar)
-        .arg("--model-dir")
-        .arg(&request.model_dir)
-        .arg("--input-wav")
-        .arg(&request.input_wav)
-        .arg("--output-wav")
-        .arg(&request.output_wav)
-        .arg("--device")
-        .arg(request.device.as_deref().unwrap_or("cpu"))
-        .arg("--nfe")
-        .arg(request.nfe.unwrap_or(64).to_string())
-        .arg("--solver")
-        .arg(request.solver.as_deref().unwrap_or("midpoint"))
-        .arg("--lambd")
-        .arg(request.lambd.unwrap_or(1.0).to_string())
-        .arg("--tau")
-        .arg(request.tau.unwrap_or(0.5).to_string())
-        .env("PYTHONNOUSERSITE", "1")
-        .env("PYTHONUNBUFFERED", "1")
-        .env("HF_HUB_OFFLINE", "1")
-        .env("TRANSFORMERS_OFFLINE", "1");
-
-    if let Some(expected_sha256) = &request.expected_checkpoint_sha256 {
-        command
-            .arg("--expected-checkpoint-sha256")
-            .arg(expected_sha256);
-    }
-
-    let output = command.output().map_err(|source| RuntimeError::Launch {
-        runtime: request.python.clone(),
-        source,
-    })?;
-
-    let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
-    let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
-    let exit_code = output.status.code().unwrap_or(-1);
-
-    if !output.status.success() {
-        return Err(RuntimeError::SidecarFailed {
-            exit_code,
-            stdout,
-            stderr,
-        });
-    }
+    let enhanced = audio::decode_audio(&sidecar_output)?;
+    let output_metadata = audio::write_final_wav(&request.output_wav, &enhanced.pcm)?;
 
     Ok(EnhancementResult {
         output_wav: request.output_wav,
-        exit_code,
-        stdout,
-        stderr,
+        input_metadata: decoded_input.metadata,
+        output_metadata,
+        exit_code: sidecar_result.exit_code,
+        stdout: sidecar_result.stdout,
+        stderr: sidecar_result.stderr,
     })
+}
+
+impl SidecarRunner for PythonSidecarRunner {
+    fn run_sidecar(
+        &self,
+        request: &EnhanceRequest,
+        input_wav: &Path,
+        output_wav: &Path,
+    ) -> Result<SidecarRunResult, RuntimeError> {
+        let sidecar = request.sidecar.clone().unwrap_or_else(default_sidecar_path);
+        let mut command = Command::new(&request.python);
+        command
+            .arg(&sidecar)
+            .arg("--model-dir")
+            .arg(&request.model_dir)
+            .arg("--input-wav")
+            .arg(input_wav)
+            .arg("--output-wav")
+            .arg(output_wav)
+            .arg("--device")
+            .arg(request.device.as_deref().unwrap_or("cpu"))
+            .arg("--nfe")
+            .arg(request.nfe.unwrap_or(64).to_string())
+            .arg("--solver")
+            .arg(request.solver.as_deref().unwrap_or("midpoint"))
+            .arg("--lambd")
+            .arg(request.lambd.unwrap_or(1.0).to_string())
+            .arg("--tau")
+            .arg(request.tau.unwrap_or(0.5).to_string())
+            .env("PYTHONNOUSERSITE", "1")
+            .env("PYTHONUNBUFFERED", "1")
+            .env("HF_HUB_OFFLINE", "1")
+            .env("TRANSFORMERS_OFFLINE", "1");
+
+        if let Some(expected_sha256) = &request.expected_checkpoint_sha256 {
+            command
+                .arg("--expected-checkpoint-sha256")
+                .arg(expected_sha256);
+        }
+
+        let output = command.output().map_err(|source| RuntimeError::Launch {
+            runtime: request.python.clone(),
+            source,
+        })?;
+
+        let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
+        let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+        let exit_code = output.status.code().unwrap_or(-1);
+
+        if !output.status.success() {
+            return Err(RuntimeError::SidecarFailed {
+                exit_code,
+                stdout,
+                stderr,
+            });
+        }
+
+        Ok(SidecarRunResult {
+            exit_code,
+            stdout,
+            stderr,
+        })
+    }
 }
 
 impl EnhanceRequest {
     fn with_resolved_paths(mut self) -> Self {
         self.python = resolve_repo_relative(self.python);
         self.model_dir = resolve_repo_relative(self.model_dir);
-        self.input_wav = resolve_repo_relative(self.input_wav);
+        self.input_audio = resolve_repo_relative(self.input_audio);
         self.output_wav = resolve_repo_relative(self.output_wav);
         self.sidecar = self.sidecar.map(resolve_repo_relative);
         self
@@ -155,8 +218,8 @@ fn validate_request(request: &EnhanceRequest) -> Result<(), RuntimeError> {
         return Err(RuntimeError::MissingSidecar(sidecar));
     }
 
-    if !request.input_wav.is_file() {
-        return Err(RuntimeError::MissingInput(request.input_wav.clone()));
+    if !request.input_audio.is_file() {
+        return Err(RuntimeError::MissingInput(request.input_audio.clone()));
     }
 
     ensure_local_model(&request.model_dir)?;

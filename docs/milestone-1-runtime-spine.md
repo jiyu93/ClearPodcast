@@ -112,13 +112,9 @@ As of June 2, 2026:
   - Missing local runtime reports `local Python runtime was not found`.
   - Missing model directory reports `model directory was not found`.
 
-## Notes For Milestone 2
+## Milestone 2 Follow-Up
 
-- Milestone 1 keeps the sidecar boundary as WAV. Milestone 2 should make Rust own
-  user-facing WAV/MP3/M4A decoding and temporary WAV handoff cleanup.
-- The sidecar already returns 44.1 kHz mono WAV for the model output. Milestone 2
-  should decide whether Rust rewrites the final user-visible WAV or accepts the
-  sidecar WAV as an intermediate before final export writing.
-- The product should continue avoiding torchaudio as a codec boundary. The
-  sidecar reads and writes WAV through `soundfile`; Rust should own broader audio
-  compatibility.
+Milestone 2 is complete. See
+[`docs/milestone-2-audio-contract.md`](milestone-2-audio-contract.md) for the
+current WAV/MP3/M4A input contract, temporary sidecar handoff behavior, Rust WAV
+output writer, and audio-contract tests.
