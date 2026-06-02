@@ -20,5 +20,37 @@ zip.
 Start here:
 
 - [Implementation plan](docs/implementation-plan.md)
+- [Milestone 1 runtime spine](docs/milestone-1-runtime-spine.md)
 - [Domain context](CONTEXT.md)
 - [Architecture decisions](docs/adr/)
+
+## Milestone 1 Development
+
+Install the desktop scaffold dependencies:
+
+```sh
+npm install
+```
+
+Bootstrap the local macOS CPU Python runtime with a Python 3.10+ interpreter:
+
+```sh
+PYTHON_BIN=/path/to/python3.12 scripts/bootstrap-macos-cpu-runtime.sh
+```
+
+Run the documented WAV -> enhanced WAV smoke path:
+
+```sh
+cargo run --manifest-path src-tauri/Cargo.toml --bin enhance_wav -- \
+  --python localfiles/runtime/macos-arm64/bin/python3 \
+  --model-dir localfiles/models/resemble-enhance/enhancer_stage2 \
+  --input localfiles/samples/low_quality_voice_sample_1.wav \
+  --output localfiles/outputs/low_quality_voice_sample_1.enhanced.wav \
+  --expected-checkpoint-sha256 f9d035f318de3e6d919bc70cf7ad7d32b4fe92ec5cbe0b30029a27f5db07d9d6
+```
+
+Start the Tauri dev app:
+
+```sh
+npm run tauri dev
+```

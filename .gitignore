@@ -1,2 +1,14 @@
 # Private local fixtures, model weights, runtime experiments, and generated outputs.
 localfiles/
+
+# JavaScript and Rust build outputs.
+node_modules/
+dist/
+src-tauri/target/
+
+# Local package manager and OS noise.
+.DS_Store
+
+# Python bytecode caches.
+__pycache__/
+*.py[cod]

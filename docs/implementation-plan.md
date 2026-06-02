@@ -345,6 +345,29 @@ Verification:
   the scaffold.
 - Run `git diff --check`.
 
+Completion state as of June 2, 2026:
+
+- Tauri v2, React, TypeScript, and Rust scaffold files are present.
+- Rust exposes a Tauri command and `enhance_wav` smoke-test CLI that launch an
+  explicit local Python runtime.
+- The repository-owned sidecar lives at
+  `sidecars/resemble/clearpodcast_resemble.py` and validates local model files
+  before importing inference dependencies.
+- Local runtime bootstrap and smoke commands are documented in
+  `docs/milestone-1-runtime-spine.md`.
+- Full WAV -> enhanced WAV smoke verification passes on macOS CPU with the
+  local 9.216 second WAV fixture. The output is a 44.1 kHz mono PCM16 WAV and
+  the observed CPU processing time was about 39 seconds.
+- Missing-runtime and missing-model verification both surface actionable Rust
+  errors before the sidecar is launched.
+- Runtime dependency drift is a real risk: Resemble Enhance 0.0.1 failed with
+  NumPy 2.x in the CFM solver path. The macOS CPU runtime pins the verified
+  scientific stack in `sidecars/resemble/requirements-macos-cpu.txt`.
+- The sidecar reads and writes the WAV handoff with `soundfile`, not
+  `torchaudio.load/save`, so it does not depend on TorchCodec for the milestone
+  1 WAV boundary. Rust should still own user-facing MP3/M4A compatibility in
+  Milestone 2.
+
 ### Milestone 2: Audio Contract
 
 Objective:
@@ -445,6 +468,12 @@ Scope:
 - Build Windows x64 CPU portable archive, validated first on Windows 11.
 - Build Windows x64 NVIDIA CUDA portable archive, validated first on Windows 11
   with the RTX 5070 Ti machine.
+- Add committed packaging manifests and staging scripts so a clean checkout can
+  assemble the runtime, sidecar, model, resource layout, and license notices
+  before invoking Tauri build.
+- Add model/runtime manifests with source, expected local artifact path, version,
+  platform, and SHA256 metadata. Keep large runtime and model artifacts out of
+  git unless a later ADR explicitly chooses Git LFS or release-asset storage.
 - Bundle Python runtime, PyTorch, sidecar, model weights, resources, and license
   notices.
 - Verify portable folder/resource lookup for sidecar and model paths.
@@ -460,6 +489,9 @@ Exit criteria:
 - The RTX 5070 Ti machine completes an end-to-end WAV/MP3/M4A input to WAV output
   CUDA smoke test.
 - Third-party license notices are present in the artifact.
+- A fresh developer checkout has documented commands for staging the required
+  runtime and model artifacts into the Tauri resource layout without relying on
+  hidden `localfiles/` state.
 - Documentation explains the artifact layout and platform support status.
 
 Out of scope:

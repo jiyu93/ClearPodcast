@@ -37,5 +37,12 @@ Negative:
 
 - Package Python runtime and dependencies with the app.
 - Maintain a minimal lockfile or manifest for the Python inference environment.
+  Resemble Enhance 0.0.1 is sensitive to dependency drift; NumPy 2.x breaks the
+  current CFM solver path, so the macOS CPU runtime pins the inference
+  scientific stack to the verified 1.x-compatible versions.
 - Pass explicit input/output/model paths to the sidecar.
 - Sidecar output should be structured enough for progress, errors, and logs.
+- Do not install upstream demo, Gradio, Deepspeed, or training-only dependencies
+  into the first inference runtime. The product-owned sidecar uses a minimal
+  inference loader and stubs training/distributed helpers that are not required
+  for local CPU inference.
