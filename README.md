@@ -24,6 +24,7 @@ Start here:
 - [Milestone 2 audio contract](docs/milestone-2-audio-contract.md)
 - [Milestone 3 desktop MVP](docs/milestone-3-desktop-mvp.md)
 - [Milestone 4 macOS portable release](docs/milestone-4-macos-portable-release.md)
+- [Release workflow](docs/release-workflow.md)
 - [Domain context](CONTEXT.md)
 - [Architecture decisions](docs/adr/)
 
@@ -79,6 +80,7 @@ Build the self-contained `.app` and zip artifact:
 npm run package:macos-cpu
 ```
 
-The local artifact is written to `localfiles/releases/`. See the Milestone 4
-document for the resource layout, expected local inputs, artifact sizes,
-no-network smoke command, and Windows handoff contract.
+The local artifact is written to `localfiles/releases/`. Use the
+[release workflow](docs/release-workflow.md) for routine release builds; see the
+Milestone 4 document for the original macOS packaging contract and deeper
+resource-layout details.

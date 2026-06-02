@@ -16,6 +16,15 @@ This is a single-context repo with `CONTEXT.md` at the root and ADRs in `docs/ad
 
 During development, actively judge whether each meaningful code, architecture, packaging, or product-scope change should update the project docs. Keep `README.md`, `CONTEXT.md`, `docs/implementation-plan.md`, ADRs, and `docs/agents/` aligned with the current state of the project.
 
+### Release workflow
+
+For routine release requests such as "build a new release", "make a macOS zip",
+"package the current app", or "create a portable artifact", use
+`docs/release-workflow.md`. Release commands are CPU- and time-intensive; do not run them
+during ordinary development, UI iteration, test, or review work unless the user
+explicitly asks for a release artifact. Do not require the user to mention the
+historical implementation milestone.
+
 ### Goal-mode development
 
 When working in Codex goal mode, use `docs/implementation-plan.md` as the
