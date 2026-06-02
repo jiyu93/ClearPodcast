@@ -242,9 +242,9 @@ These files should represent the same short low-quality spoken voice sample in
 each supported input format. This is enough for Runtime Spine, Audio Contract,
 and early Desktop MVP smoke tests.
 
-Do not require separate meeting, phone, Bluetooth, laptop microphone, or
-60-minute samples before the MVP workflow is stable. Add scenario-specific and
-long-file samples later when tuning quality, stability, and performance.
+The MVP fixture set centers on one representative short spoken-word sample.
+Scenario-specific and long-file samples belong to later quality, stability, and
+performance tuning passes.
 
 Expected local model location:
 
@@ -284,11 +284,9 @@ order; use the goal-mode milestones below for implementation order.
 6. WAV export path.
 7. Progress, cancellation, and error reporting.
 8. Before/after playback.
-9. Basic preset names, even if they map to fixed defaults at first:
-   - Bluetooth headset.
-   - Meeting recording.
-   - Laptop microphone.
-   - Phone recording.
+9. One clear restore action for supported one-file spoken-word input, with
+   Bluetooth, meeting, laptop-microphone, phone, and remote-call recordings
+   represented as target source scenarios in product context and QA planning.
 
 ## Goal-Mode Milestones
 
@@ -448,14 +446,14 @@ podcast speech restoration.
 Scope:
 
 - Add file picker and drag/drop for WAV, MP3, and M4A.
-- Show source metadata and selected preset.
+- Show source metadata.
 - Add job states for queued, running, completed, failed, and cancelled.
 - Show progress or honest indeterminate processing state.
 - Support cancellation and safe cleanup.
 - Add before/after playback.
 - Add export flow for the enhanced WAV.
-- Add the first preset names: Bluetooth headset, meeting recording, laptop
-  microphone, and phone recording.
+- Keep the import-to-export flow as one clear restore path for all supported
+  first-release inputs.
 
 Exit criteria:
 
@@ -463,8 +461,8 @@ Exit criteria:
   original/enhanced audio, and export the WAV.
 - Errors are visible in the UI and do not leave the app stuck in a running state.
 - Cancellation does not leave a successful-looking partial output.
-- Presets are represented in the UI and pipeline even if they initially map to
-  the same processing defaults.
+- The workflow keeps one clear enhancement path from import to export for all
+  supported first-release inputs.
 - The app still works offline after local runtime/model setup.
 
 Out of scope:
@@ -479,8 +477,8 @@ Verification:
 
 - Manual QA with the short low-quality voice fixture in WAV, MP3, and M4A
   forms.
-- Long-file and scenario-specific samples can be deferred until after the MVP
-  workflow is stable.
+- Long-file and scenario-specific samples can be added during later quality,
+  stability, and performance tuning.
 - UI/build checks introduced by the app scaffold.
 - Run `git diff --check`.
 
@@ -495,16 +493,16 @@ Starting state after Milestone 2:
 Completion state as of June 2, 2026:
 
 - The React desktop surface in `src/App.tsx` now supports native file picking,
-  Tauri drag/drop, source metadata display, preset selection, cancellable job
-  state, before/after playback, and WAV export.
+  Tauri drag/drop, source metadata display, a single restore action,
+  cancellable job state, before/after playback, and WAV export.
 - Rust exposes a job-managed command surface:
   `start_enhancement_job_command`, `get_enhancement_job_command`,
   `cancel_enhancement_job_command`, and `export_enhanced_wav_command`.
 - The existing direct `probe_audio_command`, `enhance_audio_command`, and
   `enhance_wav_command` remain available for smoke tests and compatibility.
-- Presets are represented in both the UI and backend request types:
-  Bluetooth headset, meeting recording, laptop microphone, and phone recording.
-  They still map to the same processing defaults in this milestone.
+- Bluetooth, meeting, laptop-microphone, phone, and remote-call recordings are
+  represented as target source scenarios in product context and QA planning.
+  The desktop pipeline uses one restore action for supported imported audio.
 - The runtime can cancel a launched Python sidecar process and checks
   cancellation between decode, handoff, sidecar, final decode, and final write
   stages.
@@ -575,8 +573,8 @@ Exit criteria:
 - A freshly extracted macOS arm64 CPU artifact runs without user-installed
   Python, Conda, FFmpeg, CUDA Toolkit, network access, or model downloads.
 - The macOS artifact can complete the one-file desktop workflow for WAV, MP3,
-  and M4A input: import, metadata display, preset selection, enhancement,
-  before/after playback, and WAV export.
+  and M4A input: import, metadata display, enhancement, before/after playback,
+  and WAV export.
 - The app resolves the bundled Python runtime, sidecar, and model files from the
   packaged resource layout by default.
 - Developer overrides still allow local smoke testing from `localfiles/` or an
@@ -641,8 +639,7 @@ Scope:
   sidecar, and model files without relying on repository-relative paths or
   hidden `localfiles/` state.
 - Verify the desktop job-managed workflow on Windows: import, metadata display,
-  preset selection, enhancement, cancellation behavior, before/after playback,
-  and WAV export.
+  enhancement, cancellation behavior, before/after playback, and WAV export.
 - Validate CPU fallback behavior when CUDA is unavailable or disabled.
 - Validate CUDA startup, model load, and end-to-end inference on the RTX 5070 Ti
   machine.

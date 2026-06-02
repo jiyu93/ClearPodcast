@@ -10,12 +10,6 @@ type AudioMetadata = {
   duration_seconds?: number;
 };
 
-type EnhancementPreset =
-  | "bluetooth_headset"
-  | "meeting_recording"
-  | "laptop_microphone"
-  | "phone_recording";
-
 type EnhancementJobState =
   | "queued"
   | "running"
@@ -26,7 +20,6 @@ type EnhancementJobState =
 type EnhancementJobSnapshot = {
   job_id: string;
   state: EnhancementJobState;
-  preset: EnhancementPreset;
   input_audio: string;
   preview_wav?: string;
   exported_wav?: string;
@@ -48,13 +41,6 @@ type RuntimeSettings = {
   model_dir: string;
 };
 
-const PRESETS: Array<{ id: EnhancementPreset; label: string }> = [
-  { id: "bluetooth_headset", label: "Bluetooth headset" },
-  { id: "meeting_recording", label: "Meeting recording" },
-  { id: "laptop_microphone", label: "Laptop microphone" },
-  { id: "phone_recording", label: "Phone recording" },
-];
-
 const DEFAULT_RUNTIME: RuntimeSettings = {
   python: "localfiles/runtime/macos-arm64/bin/python3",
   model_dir: "localfiles/models/resemble-enhance/enhancer_stage2",
@@ -72,8 +58,6 @@ const TERMINAL_STATES: EnhancementJobState[] = [
 export default function App() {
   const [selectedPath, setSelectedPath] = useState("");
   const [metadata, setMetadata] = useState<AudioMetadata | undefined>();
-  const [preset, setPreset] =
-    useState<EnhancementPreset>("meeting_recording");
   const [runtimeSettings, setRuntimeSettings] =
     useState<RuntimeSettings>(DEFAULT_RUNTIME);
   const [job, setJob] = useState<EnhancementJobSnapshot | undefined>();
@@ -206,7 +190,6 @@ export default function App() {
           request: {
             ...runtimeSettings,
             input_audio: selectedPath,
-            preset,
             device: "cpu",
             expected_checkpoint_sha256: EXPECTED_CHECKPOINT_SHA256,
           },
@@ -291,20 +274,6 @@ export default function App() {
             </div>
 
             <MetadataGrid metadata={metadata} />
-
-            <div className="preset-group" role="radiogroup" aria-label="Preset">
-              {PRESETS.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  className={option.id === preset ? "preset active" : "preset"}
-                  onClick={() => setPreset(option.id)}
-                  aria-pressed={option.id === preset}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
 
             <div className="action-row">
               <button

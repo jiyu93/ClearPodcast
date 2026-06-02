@@ -6,7 +6,6 @@ workflow:
 ```text
 Choose or drop WAV/MP3/M4A
 -> Rust probe metadata
--> select a podcast source preset
 -> start a cancellable enhancement job
 -> preview original and enhanced audio
 -> export enhanced WAV
@@ -19,8 +18,7 @@ The React app in `src/App.tsx` now presents the first usable desktop surface:
 - Native audio file picker for WAV, MP3, and M4A.
 - Tauri file drag/drop for supported audio files.
 - Source metadata display from `probe_audio_command`.
-- Preset selection for Bluetooth headset, meeting recording, laptop microphone,
-  and phone recording.
+- One clear restore action for supported one-file spoken-word input.
 - Job state display for queued, running, completed, failed, and cancelled.
 - Honest indeterminate processing state while Resemble Enhance runs.
 - Before/after playback with local asset URLs.
@@ -62,19 +60,12 @@ The temporary sidecar handoff directory from Milestone 2 is still owned by Rust
 and is cleaned by normal `tempfile` lifetime behavior after success, failure, or
 cancellation.
 
-## Presets
+## Source Scenarios
 
-The first preset names are represented in both UI and backend request types:
-
-- Bluetooth headset.
-- Meeting recording.
-- Laptop microphone.
-- Phone recording.
-
-For Milestone 3, all presets still map to the same Resemble Enhance defaults.
-They are now part of the pipeline request so later packaged builds can preserve
-them and tuning work can specialize them without changing the desktop workflow
-contract.
+Bluetooth headset, meeting software, phone recording, remote-call, and laptop
+microphone recordings remain the product's target source examples. The desktop
+workflow turns those real-world inputs into a single restore path: import,
+enhance, compare, and export.
 
 ## Local Preview Access
 

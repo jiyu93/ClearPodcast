@@ -1,8 +1,6 @@
 use crate::{
     audio::{self, AudioMetadata},
-    runtime::{
-        self, CancellationToken, EnhanceRequest, EnhancementPreset, EnhancementResult, RuntimeError,
-    },
+    runtime::{self, CancellationToken, EnhanceRequest, EnhancementResult, RuntimeError},
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -35,8 +33,6 @@ pub struct StartEnhancementJobRequest {
     pub python: PathBuf,
     pub model_dir: PathBuf,
     pub input_audio: PathBuf,
-    #[serde(default)]
-    pub preset: EnhancementPreset,
     pub sidecar: Option<PathBuf>,
     pub device: Option<String>,
     pub nfe: Option<u16>,
@@ -50,7 +46,6 @@ pub struct StartEnhancementJobRequest {
 pub struct EnhancementJobSnapshot {
     pub job_id: String,
     pub state: EnhancementJobState,
-    pub preset: EnhancementPreset,
     pub input_audio: PathBuf,
     pub preview_wav: Option<PathBuf>,
     pub exported_wav: Option<PathBuf>,
@@ -144,7 +139,6 @@ impl EnhancementJobManager {
         let snapshot = EnhancementJobSnapshot {
             job_id: job_id.clone(),
             state: EnhancementJobState::Queued,
-            preset: request.preset,
             input_audio: runtime::resolve_repo_relative_path(request.input_audio.clone()),
             preview_wav: None,
             exported_wav: None,
@@ -354,7 +348,6 @@ impl StartEnhancementJobRequest {
             model_dir: self.model_dir,
             input_audio: self.input_audio,
             output_wav,
-            preset: self.preset,
             sidecar: self.sidecar,
             device: self.device,
             nfe: self.nfe,
@@ -556,7 +549,6 @@ mod tests {
             python: runtime_env.python.clone(),
             model_dir: runtime_env.model_dir.clone(),
             input_audio: input_audio.to_path_buf(),
-            preset: EnhancementPreset::MeetingRecording,
             sidecar: Some(runtime_env.sidecar.clone()),
             device: Some("cpu".to_string()),
             nfe: None,

@@ -16,21 +16,6 @@ use thiserror::Error;
 const EXPECTED_LATEST_FILE: &str = "default";
 const SIDE_CAR_POLL_INTERVAL: Duration = Duration::from_millis(100);
 
-#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
-#[serde(rename_all = "snake_case")]
-pub enum EnhancementPreset {
-    BluetoothHeadset,
-    MeetingRecording,
-    LaptopMicrophone,
-    PhoneRecording,
-}
-
-impl Default for EnhancementPreset {
-    fn default() -> Self {
-        Self::MeetingRecording
-    }
-}
-
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct EnhanceRequest {
     pub python: PathBuf,
@@ -38,8 +23,6 @@ pub struct EnhanceRequest {
     #[serde(alias = "input_wav")]
     pub input_audio: PathBuf,
     pub output_wav: PathBuf,
-    #[serde(default)]
-    pub preset: EnhancementPreset,
     pub sidecar: Option<PathBuf>,
     pub device: Option<String>,
     pub nfe: Option<u16>,

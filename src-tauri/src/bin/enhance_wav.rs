@@ -1,4 +1,4 @@
-use clearpodcast_app::runtime::{enhance_audio, EnhanceRequest, EnhancementPreset};
+use clearpodcast_app::runtime::{enhance_audio, EnhanceRequest};
 use std::{collections::HashMap, env, path::PathBuf, process};
 
 fn main() {
@@ -82,7 +82,6 @@ fn build_request(flags: &HashMap<String, String>) -> Result<EnhanceRequest, Stri
         model_dir: required_path(flags, "model-dir")?,
         input_audio: required_path(flags, "input")?,
         output_wav: required_path(flags, "output")?,
-        preset: EnhancementPreset::MeetingRecording,
         sidecar: optional_path(flags, "sidecar"),
         device: flags.get("device").cloned(),
         nfe: optional_parse(flags, "nfe")?,

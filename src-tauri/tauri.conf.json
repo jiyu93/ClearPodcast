@@ -13,10 +13,11 @@
     "windows": [
       {
         "title": "ClearPodcast",
-        "width": 960,
-        "height": 640,
-        "minWidth": 760,
-        "minHeight": 540
+        "width": 1180,
+        "height": 860,
+        "minWidth": 960,
+        "minHeight": 700,
+        "center": true
       }
     ],
     "security": {

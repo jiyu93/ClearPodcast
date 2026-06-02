@@ -20,8 +20,8 @@ equipment, or upload private conversations to a cloud service.
 The primary user is a podcast creator who wants to publish spoken-word content
 and does not want to understand audio engineering.
 
-They should be able to drag in a WAV or MP3 file, choose a preset if needed, run
-enhancement locally, compare the result, and export a WAV file suitable for
+They should be able to drag in a WAV, MP3, or M4A file, run enhancement locally
+with one clear action, compare the result, and export a WAV file suitable for
 further publishing or distribution.
 
 ## Core Domain Language

@@ -1,8 +1,7 @@
 use clearpodcast_app::{
     audio::{self, AudioBuffer, AudioError, AudioFormat, FINAL_SAMPLE_RATE},
     runtime::{
-        enhance_audio_with_runner, EnhanceRequest, EnhancementPreset, RuntimeError,
-        SidecarRunResult, SidecarRunner,
+        enhance_audio_with_runner, EnhanceRequest, RuntimeError, SidecarRunResult, SidecarRunner,
     },
 };
 use std::{
@@ -242,7 +241,6 @@ fn request_for(
         model_dir: runtime_env.model_dir.clone(),
         input_audio: input_audio.to_path_buf(),
         output_wav: output_wav.to_path_buf(),
-        preset: EnhancementPreset::MeetingRecording,
         sidecar: Some(runtime_env.sidecar.clone()),
         device: Some("cpu".to_string()),
         nfe: None,

@@ -97,8 +97,7 @@ cargo test --manifest-path src-tauri/Cargo.toml
 
 Milestone 3 can start from the generic backend commands and does not need to
 rebuild codec support. It should focus on the user-facing workflow: file picker,
-drag/drop, metadata display, job states, cancellation, playback, presets, and
-export.
+drag/drop, metadata display, job states, cancellation, playback, and export.
 
 When cancellation is added, keep temporary handoff ownership in the job manager
 so cancellation cannot leave a successful-looking partial output.
