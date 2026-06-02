@@ -626,6 +626,48 @@ Verification:
 - `npm run tauri build` or the documented macOS artifact build command.
 - Run `git diff --check`.
 
+Completion state as of June 3, 2026:
+
+- The first macOS wrapper format is zip. DMG is intentionally deferred because
+  the previous Finder AppleScript path timed out with AppleEvent `-1712`.
+- `packaging/artifacts.macos-arm64-cpu.json` defines the committed macOS CPU
+  artifact manifest with source, artifact path, version, platform, and SHA256
+  metadata.
+- `scripts/stage-macos-cpu-resources.mjs` stages a self-contained macOS arm64
+  CPU resource tree under `src-tauri/resources/clearpodcast/`, copies a
+  relocatable base Python runtime, overlays the Resemble/PyTorch venv
+  `site-packages`, validates the Resemble checkpoint SHA256, rejects absolute
+  symlink leaks, stages license notices, and generates
+  `clearpodcast/manifests/artifacts.json`.
+- `scripts/build-macos-cpu-portable.mjs` stages resources, builds the Tauri
+  `.app`, and creates
+  `localfiles/releases/ClearPodcast-0.1.0-macos-arm64-cpu.zip`.
+- Tauri now bundles `src-tauri/resources/clearpodcast` as the packaged
+  `clearpodcast` resource directory.
+- Rust resolves packaged Python runtime, sidecar, model directory, license
+  notices, and artifact manifest paths from Tauri's resource directory by
+  default. Developer overrides remain available from the UI and smoke CLI.
+- The desktop UI no longer defaults to development-only `localfiles/` runtime
+  and model paths; runtime/model fields are optional overrides.
+- Third-party notices are staged at
+  `clearpodcast/licenses/THIRD_PARTY_NOTICES.txt`; Python package `.dist-info`
+  metadata is preserved in the packaged runtime for package-level license
+  review.
+- Observed local artifact sizes: 1.6 GB extracted `.app`, 957 MB packaged
+  runtime, 688 MB packaged model, and 886 MB zip archive.
+- Fresh-extracted WAV, MP3, and M4A smoke tests all pass using the packaged
+  resource layout and produce 44.1 kHz mono WAV outputs.
+- A no-network smoke test passed under macOS `sandbox-exec` with
+  `(deny network*)`.
+- The asset protocol scope remains `$HOME/**` and `$TEMP/**`. This supports
+  typical home-directory source files and temp preview WAVs. External-volume
+  original playback is documented as a future preview-path improvement if it
+  becomes a release blocker.
+- Windows handoff requirements for Milestone 5 are documented in
+  `docs/milestone-4-macos-portable-release.md`.
+- Milestone 4 has no deferred exit criteria. See
+  `docs/milestone-4-macos-portable-release.md`.
+
 ### Milestone 5: Windows Portable Release And CUDA Validation
 
 Objective:

@@ -5,6 +5,8 @@ localfiles/
 node_modules/
 dist/
 src-tauri/target/
+src-tauri/resources/clearpodcast/**
+!src-tauri/resources/clearpodcast/.gitkeep
 
 # Local package manager and OS noise.
 .DS_Store

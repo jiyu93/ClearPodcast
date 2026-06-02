@@ -1,5 +1,6 @@
 use crate::{
     audio::{self, AudioMetadata},
+    packaging::PackagedResourcePaths,
     runtime::{self, CancellationToken, EnhanceRequest, EnhancementResult, RuntimeError},
 };
 use serde::{Deserialize, Serialize};
@@ -30,8 +31,8 @@ pub enum EnhancementJobState {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct StartEnhancementJobRequest {
-    pub python: PathBuf,
-    pub model_dir: PathBuf,
+    pub python: Option<PathBuf>,
+    pub model_dir: Option<PathBuf>,
     pub input_audio: PathBuf,
     pub sidecar: Option<PathBuf>,
     pub device: Option<String>,
@@ -119,6 +120,7 @@ impl EnhancementJobManager {
     pub fn start_job(
         &self,
         request: StartEnhancementJobRequest,
+        packaged_resources: PackagedResourcePaths,
     ) -> Result<EnhancementJobSnapshot, JobError> {
         let job_id = next_job_id();
         let job_dir = std::env::temp_dir()
@@ -163,7 +165,14 @@ impl EnhancementJobManager {
 
         let manager = self.clone();
         thread::spawn(move || {
-            manager.run_job(job_id, request, preview_wav, job_dir, cancellation);
+            manager.run_job(
+                job_id,
+                request,
+                packaged_resources,
+                preview_wav,
+                job_dir,
+                cancellation,
+            );
         });
 
         Ok(snapshot)
@@ -268,6 +277,7 @@ impl EnhancementJobManager {
         &self,
         job_id: String,
         request: StartEnhancementJobRequest,
+        packaged_resources: PackagedResourcePaths,
         preview_wav: PathBuf,
         job_dir: PathBuf,
         cancellation: CancellationToken,
@@ -288,7 +298,7 @@ impl EnhancementJobManager {
         });
 
         let result = runtime::enhance_audio_with_cancellation(
-            request.into_enhance_request(preview_wav.clone()),
+            request.into_enhance_request(preview_wav.clone(), &packaged_resources),
             &cancellation,
         );
 
@@ -342,13 +352,24 @@ impl EnhancementJobManager {
 }
 
 impl StartEnhancementJobRequest {
-    fn into_enhance_request(self, output_wav: PathBuf) -> EnhanceRequest {
+    fn into_enhance_request(
+        self,
+        output_wav: PathBuf,
+        packaged_resources: &PackagedResourcePaths,
+    ) -> EnhanceRequest {
         EnhanceRequest {
-            python: self.python,
-            model_dir: self.model_dir,
+            python: self
+                .python
+                .unwrap_or_else(|| packaged_resources.python.clone()),
+            model_dir: self
+                .model_dir
+                .unwrap_or_else(|| packaged_resources.model_dir.clone()),
             input_audio: self.input_audio,
             output_wav,
-            sidecar: self.sidecar,
+            sidecar: Some(
+                self.sidecar
+                    .unwrap_or_else(|| packaged_resources.sidecar.clone()),
+            ),
             device: self.device,
             nfe: self.nfe,
             solver: self.solver,
@@ -445,7 +466,10 @@ mod tests {
 
         let manager = EnhancementJobManager::default();
         let snapshot = manager
-            .start_job(request_for(&runtime_env, &input))
+            .start_job(
+                request_for(&runtime_env, &input),
+                runtime_env.packaged_resources(),
+            )
             .expect("start job");
         let completed = wait_for_terminal(&manager, &snapshot.job_id);
 
@@ -482,7 +506,10 @@ mod tests {
 
         let manager = EnhancementJobManager::default();
         let snapshot = manager
-            .start_job(request_for(&runtime_env, &input))
+            .start_job(
+                request_for(&runtime_env, &input),
+                runtime_env.packaged_resources(),
+            )
             .expect("start job");
         wait_for_state(&manager, &snapshot.job_id, EnhancementJobState::Running);
 
@@ -497,11 +524,57 @@ mod tests {
     }
 
     #[cfg(unix)]
+    #[test]
+    fn job_manager_uses_packaged_resource_defaults_when_paths_are_omitted() {
+        let runtime_env = fake_runtime_env(0);
+        let input = runtime_env.dir.path().join("input.wav");
+        audio::write_handoff_wav(&input, &synthetic_audio()).expect("write input wav");
+
+        let mut request = request_for(&runtime_env, &input);
+        request.python = None;
+        request.model_dir = None;
+        request.sidecar = None;
+
+        let manager = EnhancementJobManager::default();
+        let snapshot = manager
+            .start_job(request, runtime_env.packaged_resources())
+            .expect("start job");
+        let completed = wait_for_terminal(&manager, &snapshot.job_id);
+
+        assert_eq!(completed.state, EnhancementJobState::Completed);
+        assert!(completed
+            .preview_wav
+            .as_ref()
+            .is_some_and(|path| path.is_file()));
+
+        if let Some(preview_wav) = completed.preview_wav {
+            if let Some(parent) = preview_wav.parent() {
+                let _ = fs::remove_dir_all(parent);
+            }
+        }
+    }
+
+    #[cfg(unix)]
     struct FakeRuntimeEnv {
         dir: TempDir,
         python: PathBuf,
         sidecar: PathBuf,
         model_dir: PathBuf,
+    }
+
+    #[cfg(unix)]
+    impl FakeRuntimeEnv {
+        fn packaged_resources(&self) -> PackagedResourcePaths {
+            PackagedResourcePaths {
+                resource_dir: self.dir.path().to_path_buf(),
+                resource_root: self.dir.path().to_path_buf(),
+                python: self.python.clone(),
+                sidecar: self.sidecar.clone(),
+                model_dir: self.model_dir.clone(),
+                third_party_notices: self.dir.path().join("THIRD_PARTY_NOTICES.txt"),
+                artifact_manifest: self.dir.path().join("artifacts.json"),
+            }
+        }
     }
 
     #[cfg(unix)]
@@ -546,8 +619,8 @@ mod tests {
     #[cfg(unix)]
     fn request_for(runtime_env: &FakeRuntimeEnv, input_audio: &Path) -> StartEnhancementJobRequest {
         StartEnhancementJobRequest {
-            python: runtime_env.python.clone(),
-            model_dir: runtime_env.model_dir.clone(),
+            python: Some(runtime_env.python.clone()),
+            model_dir: Some(runtime_env.model_dir.clone()),
             input_audio: input_audio.to_path_buf(),
             sidecar: Some(runtime_env.sidecar.clone()),
             device: Some("cpu".to_string()),

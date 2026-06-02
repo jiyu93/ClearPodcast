@@ -1,0 +1,39 @@
+ClearPodcast third-party notices
+=================================
+
+ClearPodcast bundles third-party software to provide an offline desktop speech
+restoration workflow. This notice file is included in packaged artifacts at:
+
+  clearpodcast/licenses/THIRD_PARTY_NOTICES.txt
+
+The packaged Python runtime also preserves installed Python package metadata
+under:
+
+  clearpodcast/runtimes/<platform>/lib/python3.12/site-packages/*.dist-info/
+
+Those package metadata directories contain the authoritative wheel license files
+and metadata available in the staged runtime.
+
+Major bundled components for the macOS arm64 CPU artifact include:
+
+- Python 3.12 runtime and standard library.
+- PyTorch and torchaudio CPU inference packages.
+- Resemble Enhance inference package and repository-owned ClearPodcast sidecar.
+- Scientific and audio Python packages used by Resemble Enhance, including
+  NumPy, SciPy, soundfile, librosa, scikit-learn, numba, llvmlite, soxr,
+  pandas, matplotlib, requests, tqdm, PyYAML, omegaconf, and their transitive
+  dependencies.
+- Tauri, Wry, Tao, React, Vite, TypeScript, and other JavaScript/Rust build and
+  desktop runtime dependencies.
+- Rust audio and utility crates used by the native layer, including hound,
+  symphonia, tempfile, serde, thiserror, and rfd.
+
+ClearPodcast does not bundle FFmpeg.
+
+Milestone 4 license review status:
+
+- License notices are staged into every macOS portable artifact.
+- Python package metadata is preserved in the artifact for package-level
+  license inspection.
+- A later public release should replace this milestone notice with a generated
+  full dependency notice report before distribution outside local validation.

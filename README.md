@@ -14,8 +14,8 @@ daily development baseline; Windows 11 x64 is the NVIDIA CUDA validation and
 performance target.
 
 Distribution is portable-first: Windows ships as a self-contained folder
-archive, and macOS ships as a self-contained `.app` bundle wrapped in a DMG or
-zip.
+archive, and macOS currently ships as a self-contained `.app` bundle wrapped in
+a zip archive.
 
 Start here:
 
@@ -23,6 +23,7 @@ Start here:
 - [Milestone 1 runtime spine](docs/milestone-1-runtime-spine.md)
 - [Milestone 2 audio contract](docs/milestone-2-audio-contract.md)
 - [Milestone 3 desktop MVP](docs/milestone-3-desktop-mvp.md)
+- [Milestone 4 macOS portable release](docs/milestone-4-macos-portable-release.md)
 - [Domain context](CONTEXT.md)
 - [Architecture decisions](docs/adr/)
 
@@ -62,3 +63,22 @@ npm run tauri dev
 Milestone 3 adds the desktop MVP workflow: choose or drop a WAV/MP3/M4A file,
 use official-demo-aligned enhancement defaults, run a cancellable enhancement
 job, compare original/enhanced audio, and export the enhanced WAV.
+
+## macOS Portable Packaging
+
+Stage the macOS arm64 CPU runtime, sidecar, model, and license notices into the
+Tauri resource layout:
+
+```sh
+npm run package:stage:macos-cpu
+```
+
+Build the self-contained `.app` and zip artifact:
+
+```sh
+npm run package:macos-cpu
+```
+
+The local artifact is written to `localfiles/releases/`. See the Milestone 4
+document for the resource layout, expected local inputs, artifact sizes,
+no-network smoke command, and Windows handoff contract.

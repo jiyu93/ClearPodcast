@@ -51,8 +51,8 @@ type EnhancementSettings = {
 };
 
 const DEFAULT_RUNTIME: RuntimeSettings = {
-  python: "localfiles/runtime/macos-arm64/bin/python3",
-  model_dir: "localfiles/models/resemble-enhance/enhancer_stage2",
+  python: "",
+  model_dir: "",
 };
 
 const DEFAULT_ENHANCEMENT_SETTINGS: EnhancementSettings = {
@@ -221,7 +221,7 @@ export default function App() {
         "start_enhancement_job_command",
         {
           request: {
-            ...runtimeSettings,
+            ...runtimeOverrides(runtimeSettings),
             ...enhancementSettings,
             input_audio: selectedPath,
             device: "cpu",
@@ -540,20 +540,22 @@ export default function App() {
 
           <section className="runtime-panel">
             <label>
-              Python runtime
+              Python override
               <input
                 value={runtimeSettings.python}
                 onChange={(event) => updateRuntimeField("python", event.target.value)}
+                placeholder="Packaged runtime"
                 spellCheck={false}
               />
             </label>
             <label>
-              Model directory
+              Model override
               <input
                 value={runtimeSettings.model_dir}
                 onChange={(event) =>
                   updateRuntimeField("model_dir", event.target.value)
                 }
+                placeholder="Packaged model"
                 spellCheck={false}
               />
             </label>
@@ -636,6 +638,22 @@ function tauriAvailable() {
 
 function isActiveJob(job?: EnhancementJobSnapshot) {
   return job?.state === "queued" || job?.state === "running";
+}
+
+function runtimeOverrides(settings: RuntimeSettings) {
+  const overrides: Partial<RuntimeSettings> = {};
+  const python = settings.python.trim();
+  const modelDir = settings.model_dir.trim();
+
+  if (python) {
+    overrides.python = python;
+  }
+
+  if (modelDir) {
+    overrides.model_dir = modelDir;
+  }
+
+  return overrides;
 }
 
 function isSupportedAudioPath(path: string) {

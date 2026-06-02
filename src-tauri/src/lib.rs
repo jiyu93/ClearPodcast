@@ -1,15 +1,17 @@
 pub mod audio;
 pub mod dialogs;
 pub mod jobs;
+pub mod packaging;
 pub mod runtime;
 
 use audio::AudioMetadata;
 use jobs::{
     EnhancementJobManager, EnhancementJobSnapshot, ExportResult, StartEnhancementJobRequest,
 };
+use packaging::PackagedResourcePaths;
 use runtime::{EnhanceRequest, EnhancementResult};
 use std::path::PathBuf;
-use tauri::State;
+use tauri::{Manager, State};
 
 #[tauri::command]
 fn enhance_audio_command(request: EnhanceRequest) -> Result<EnhancementResult, String> {
@@ -29,11 +31,19 @@ fn probe_audio_command(path: PathBuf) -> Result<AudioMetadata, String> {
 #[tauri::command]
 fn start_enhancement_job_command(
     manager: State<EnhancementJobManager>,
+    packaged_resources: State<PackagedResourcePaths>,
     request: StartEnhancementJobRequest,
 ) -> Result<EnhancementJobSnapshot, String> {
     manager
-        .start_job(request)
+        .start_job(request, packaged_resources.inner().clone())
         .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn packaged_resource_paths_command(
+    packaged_resources: State<PackagedResourcePaths>,
+) -> PackagedResourcePaths {
+    packaged_resources.inner().clone()
 }
 
 #[tauri::command]
@@ -79,6 +89,11 @@ fn pick_export_wav_command(suggested_file_name: Option<String>) -> Option<PathBu
 pub fn run() {
     tauri::Builder::default()
         .manage(EnhancementJobManager::default())
+        .setup(|app| {
+            let resource_dir = app.path().resource_dir()?;
+            app.manage(PackagedResourcePaths::from_resource_dir(resource_dir));
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             enhance_audio_command,
             enhance_wav_command,
@@ -87,6 +102,7 @@ pub fn run() {
             get_enhancement_job_command,
             cancel_enhancement_job_command,
             export_enhanced_wav_command,
+            packaged_resource_paths_command,
             pick_audio_file_command,
             pick_export_wav_command
         ])

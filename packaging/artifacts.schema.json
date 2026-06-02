@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ClearPodcast packaging artifact manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "package_id",
+    "resource_root",
+    "generated_manifest_path",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "package_id": { "type": "string" },
+    "description": { "type": "string" },
+    "resource_root": { "type": "string" },
+    "generated_manifest_path": { "type": "string" },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "platform",
+          "version",
+          "source",
+          "artifact_path",
+          "sha256"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "kind": {
+            "type": "string",
+            "enum": ["runtime", "sidecar", "model", "licenses", "resource"]
+          },
+          "platform": { "type": "string" },
+          "version": { "type": "string" },
+          "source": { "type": "string" },
+          "artifact_path": { "type": "string" },
+          "sha256": {
+            "type": "object",
+            "required": ["mode"],
+            "properties": {
+              "mode": { "type": "string", "enum": ["file", "directory-tree"] },
+              "value": { "type": ["string", "null"] },
+              "generated_during_staging": { "type": "boolean" }
+            }
+          },
+          "required_file_sha256": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["path", "sha256"],
+              "properties": {
+                "path": { "type": "string" },
+                "sha256": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

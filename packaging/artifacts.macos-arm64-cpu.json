@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "package_id": "macos-arm64-cpu",
+  "description": "macOS arm64 CPU portable resource set for ClearPodcast.",
+  "resource_root": "src-tauri/resources/clearpodcast",
+  "generated_manifest_path": "src-tauri/resources/clearpodcast/manifests/artifacts.json",
+  "artifacts": [
+    {
+      "id": "python-runtime-macos-arm64-cpu",
+      "kind": "runtime",
+      "platform": "macos-arm64",
+      "version": "Python 3.12 runtime plus requirements-macos-cpu.txt inference environment",
+      "source": "localfiles/runtime/macos-arm64",
+      "artifact_path": "runtimes/macos-arm64-cpu",
+      "sha256": {
+        "mode": "directory-tree",
+        "value": null,
+        "generated_during_staging": true
+      }
+    },
+    {
+      "id": "resemble-sidecar",
+      "kind": "sidecar",
+      "platform": "all",
+      "version": "repo-owned ClearPodcast Resemble sidecar",
+      "source": "sidecars/resemble",
+      "artifact_path": "sidecars/resemble",
+      "sha256": {
+        "mode": "directory-tree",
+        "value": null,
+        "generated_during_staging": true
+      }
+    },
+    {
+      "id": "resemble-enhance-enhancer-stage2",
+      "kind": "model",
+      "platform": "all",
+      "version": "Resemble Enhance enhancer_stage2 checkpoint",
+      "source": "localfiles/models/resemble-enhance/enhancer_stage2",
+      "artifact_path": "models/resemble-enhance/enhancer_stage2",
+      "sha256": {
+        "mode": "directory-tree",
+        "value": null,
+        "generated_during_staging": true
+      },
+      "required_file_sha256": [
+        {
+          "path": "ds/G/default/mp_rank_00_model_states.pt",
+          "sha256": "f9d035f318de3e6d919bc70cf7ad7d32b4fe92ec5cbe0b30029a27f5db07d9d6"
+        }
+      ]
+    },
+    {
+      "id": "license-notices",
+      "kind": "licenses",
+      "platform": "all",
+      "version": "Milestone 4 third-party notices",
+      "source": "packaging/licenses",
+      "artifact_path": "licenses",
+      "sha256": {
+        "mode": "directory-tree",
+        "value": null,
+        "generated_during_staging": true
+      }
+    }
+  ]
+}

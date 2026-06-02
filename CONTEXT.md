@@ -47,6 +47,8 @@ further publishing or distribution.
 - Windows 11 x64 is the primary NVIDIA CUDA validation and acceleration target.
 - Distribution is portable-first. Prefer self-contained app folders or app
   bundles over mandatory system installers.
+- The first macOS portable wrapper is a zip archive containing a self-contained
+  `.app` bundle. DMG is deferred until it solves a concrete release problem.
 - Resemble Enhance is the single AI model family for the first implementation.
 - Runtime, Python environment, PyTorch dependencies, and model weights are
   bundled into the app distribution.
@@ -81,6 +83,8 @@ speech, and harsh high-frequency hallucination.
 - `sidecars/resemble/`: Minimal Python inference sidecar.
 - `models/resemble-enhance/`: Bundled model weights in release artifacts.
 - `packaging/`: Platform-specific runtime, model, release, and license notes.
+- `src-tauri/resources/clearpodcast/`: Git-ignored staged resource layout for
+  packaged runtime, sidecar, model, license notices, and artifact manifests.
 - `crates/audio-io/`: Rust WAV/MP3/M4A decode and WAV encode code if split into
   a workspace crate.
 - `docs/`: implementation docs, packaging docs, ADRs, and agent setup docs.
