@@ -27,9 +27,9 @@ The React app in `src/App.tsx` now presents the first usable desktop surface:
 - Before/after playback with local asset URLs.
 - Export flow that asks for a WAV destination only after a job completes.
 
-The local runtime and model path fields remain visible because Milestone 4 has
-not yet staged packaged resources. Their defaults match the documented macOS CPU
-development layout under `localfiles/`.
+The runtime and model path fields remain visible as optional developer
+overrides. After Milestone 4, leaving them blank uses packaged resource lookup;
+local `localfiles/` paths can still be entered for smoke testing.
 
 ## Job Manager
 
@@ -62,6 +62,11 @@ between decode, handoff, sidecar, final decode, and final write stages.
 The temporary sidecar handoff directory from Milestone 2 is still owned by Rust
 and is cleaned by normal `tempfile` lifetime behavior after success, failure, or
 cancellation.
+
+The cancellable sidecar path preserves stdout and stderr for diagnostics, but it
+decodes captured logs lossily so Windows console progress output cannot make a
+successful enhancement job fail only because a log stream contains non-UTF-8
+bytes.
 
 ## Source Scenarios
 
@@ -144,6 +149,23 @@ cargo test --manifest-path src-tauri/Cargo.toml
   reached the generated `.app` but timed out in Finder AppleScript with
   AppleEvent `-1712`; Milestone 4 should either make DMG creation reliable in
   the local macOS build environment or choose zip as the first macOS wrapper.
+
+As of June 3, 2026, Windows 11 x64 local CPU validation on the Windows
+development machine also passes:
+
+- `npm run check`
+- `cargo test --manifest-path src-tauri/Cargo.toml`
+- `npm run tauri build`
+- Full local model smoke checks pass with the short fixture in WAV, MP3, and
+  M4A form using `localfiles/runtime/windows-x64/Scripts/python.exe`.
+- The Windows smoke outputs were written to `localfiles/outputs/` as
+  `low_quality_voice_sample_1.windows.wav.enhanced.wav`,
+  `low_quality_voice_sample_1.windows.mp3.enhanced.wav`, and
+  `low_quality_voice_sample_1.windows.m4a.enhanced.wav`.
+- The first Windows run exposed two portability issues that are now fixed:
+  Resemble Enhance model hparams saved with `pathlib.PosixPath` YAML tags now
+  load on Windows, and cancellable desktop jobs tolerate non-UTF-8 sidecar log
+  bytes from Windows console progress output.
 
 Milestone 3 has no deferred exit criteria.
 

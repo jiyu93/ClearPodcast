@@ -42,6 +42,17 @@ Bootstrap the local macOS CPU Python runtime with a Python 3.10+ interpreter:
 PYTHON_BIN=/path/to/python3.12 scripts/bootstrap-macos-cpu-runtime.sh
 ```
 
+On Windows, create a local CPU Python runtime for smoke tests or for the
+desktop MVP's optional Python override:
+
+```powershell
+uv venv --python 3.12 localfiles\runtime\windows-x64
+localfiles\runtime\windows-x64\Scripts\python.exe -m ensurepip --upgrade
+localfiles\runtime\windows-x64\Scripts\python.exe -m pip install --upgrade pip
+localfiles\runtime\windows-x64\Scripts\python.exe -m pip install -r sidecars\resemble\requirements-macos-cpu.txt
+localfiles\runtime\windows-x64\Scripts\python.exe -m pip install --no-deps resemble-enhance==0.0.1
+```
+
 Run the documented audio -> enhanced WAV smoke path. The `enhance_wav` binary
 name is kept for compatibility, but `--input` accepts `.wav`, `.mp3`, and
 `.m4a`:

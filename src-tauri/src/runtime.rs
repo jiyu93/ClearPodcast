@@ -394,8 +394,8 @@ fn run_cancellable_sidecar(
         thread::sleep(SIDE_CAR_POLL_INTERVAL);
     };
 
-    let stdout = fs::read_to_string(stdout_path).map_err(RuntimeError::SidecarOutputCapture)?;
-    let stderr = fs::read_to_string(stderr_path).map_err(RuntimeError::SidecarOutputCapture)?;
+    let stdout = read_sidecar_log(&stdout_path)?;
+    let stderr = read_sidecar_log(&stderr_path)?;
     fail_if_cancelled(Some(cancellation))?;
 
     sidecar_result_from_parts(
@@ -404,6 +404,11 @@ fn run_cancellable_sidecar(
         stdout,
         stderr,
     )
+}
+
+fn read_sidecar_log(path: &Path) -> Result<String, RuntimeError> {
+    let bytes = fs::read(path).map_err(RuntimeError::SidecarOutputCapture)?;
+    Ok(String::from_utf8_lossy(&bytes).into_owned())
 }
 
 fn sidecar_result_from_parts(
@@ -441,4 +446,51 @@ fn fail_if_cancelled(cancellation: Option<&CancellationToken>) -> Result<(), Run
 fn repository_root() -> PathBuf {
     let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     manifest_dir.parent().unwrap_or(&manifest_dir).to_path_buf()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cancellable_sidecar_tolerates_non_utf8_output() {
+        let command = non_utf8_stderr_command();
+        let request = EnhanceRequest {
+            python: PathBuf::from("test-runtime"),
+            model_dir: PathBuf::from("test-model"),
+            input_audio: PathBuf::from("test-input.wav"),
+            output_wav: PathBuf::from("test-output.wav"),
+            sidecar: None,
+            device: None,
+            nfe: None,
+            solver: None,
+            lambd: None,
+            tau: None,
+            expected_checkpoint_sha256: None,
+        };
+
+        let result = run_cancellable_sidecar(command, &request, &CancellationToken::default())
+            .expect("non-UTF-8 sidecar logs should not fail the job");
+
+        assert!(result.stderr.contains(char::REPLACEMENT_CHARACTER));
+    }
+
+    #[cfg(windows)]
+    fn non_utf8_stderr_command() -> Command {
+        let mut command = Command::new("powershell.exe");
+        command.args([
+            "-NoLogo",
+            "-NoProfile",
+            "-Command",
+            "[Console]::OpenStandardError().Write([byte[]](0xff), 0, 1)",
+        ]);
+        command
+    }
+
+    #[cfg(unix)]
+    fn non_utf8_stderr_command() -> Command {
+        let mut command = Command::new("sh");
+        command.args(["-c", "printf '\\377' >&2"]);
+        command
+    }
 }

@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import json
 import os
+import pathlib
 import sys
 import time
 import traceback
@@ -149,6 +150,7 @@ def import_inference_dependencies():
     try:
         import torch
         import soundfile
+        install_cross_platform_omegaconf_path_loader()
         install_training_path_stubs(torch)
         from resemble_enhance.enhancer.enhancer import Enhancer
         from resemble_enhance.enhancer.hparams import HParams
@@ -167,6 +169,37 @@ def import_inference_dependencies():
             return inference(model=model, dwav=dwav, sr=sr, device=device)
 
     return torch, soundfile, enhance
+
+
+def install_cross_platform_omegaconf_path_loader() -> None:
+    """Allow model hparams saved on Unix or Windows to load on either platform."""
+    try:
+        import omegaconf._utils as omegaconf_utils
+    except ImportError:
+        return
+
+    if getattr(omegaconf_utils.get_yaml_loader, "_clearpodcast_path_patch", False):
+        return
+
+    original_get_yaml_loader = omegaconf_utils.get_yaml_loader
+
+    def get_yaml_loader():
+        loader = original_get_yaml_loader()
+
+        def construct_native_path(yaml_loader, node):
+            return pathlib.Path(*yaml_loader.construct_sequence(node))
+
+        for tag in (
+            "tag:yaml.org,2002:python/object/apply:pathlib.Path",
+            "tag:yaml.org,2002:python/object/apply:pathlib.PosixPath",
+            "tag:yaml.org,2002:python/object/apply:pathlib.WindowsPath",
+        ):
+            loader.add_constructor(tag, construct_native_path)
+
+        return loader
+
+    get_yaml_loader._clearpodcast_path_patch = True
+    omegaconf_utils.get_yaml_loader = get_yaml_loader
 
 
 def load_wav(path: Path, torch_module, soundfile_module):

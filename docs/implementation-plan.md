@@ -531,6 +531,14 @@ Completion state as of June 3, 2026:
 - Full local model smoke checks pass for the short low-quality fixture in WAV,
   MP3, and M4A form. All three Milestone 3 smoke outputs are 44.1 kHz mono WAV
   files under `localfiles/outputs/`.
+- Windows 11 x64 local CPU validation also passes on the Windows development
+  machine with `localfiles/runtime/windows-x64/Scripts/python.exe`; this
+  validates the Milestone 3 desktop and smoke-test path on Windows but does not
+  replace the Milestone 5 portable CPU/CUDA artifact work.
+- The Windows validation pass fixed two portability issues: model hparams saved
+  with `pathlib.PosixPath` YAML tags now load on Windows, and cancellable desktop
+  jobs tolerate non-UTF-8 sidecar log bytes from Windows console progress
+  output.
 - `npm run tauri build -- --bundles app` produces a macOS `.app` bundle. The
   default bundle target is currently `app` so the next milestone starts from a
   passing app bundle build.

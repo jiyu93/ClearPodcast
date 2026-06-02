@@ -429,15 +429,17 @@ fn ensure_wav_destination(path: &Path) -> Result<(), JobError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(unix)]
     use crate::audio::AudioBuffer;
     #[cfg(unix)]
     use std::os::unix::fs::PermissionsExt;
+    #[cfg(unix)]
     use std::{
-        fs,
-        path::Path,
-        thread,
+        fs, thread,
         time::{Duration, Instant},
     };
+    use std::path::Path;
+    #[cfg(unix)]
     use tempfile::{tempdir, TempDir};
 
     #[test]
@@ -632,6 +634,7 @@ mod tests {
         }
     }
 
+    #[cfg(unix)]
     fn synthetic_audio() -> AudioBuffer {
         let sample_rate = 16_000;
         let samples = (0..1_600)
@@ -647,6 +650,7 @@ mod tests {
         }
     }
 
+    #[cfg(unix)]
     fn wait_for_state(
         manager: &EnhancementJobManager,
         job_id: &str,
@@ -655,6 +659,7 @@ mod tests {
         wait_for(manager, job_id, |snapshot| snapshot.state == state)
     }
 
+    #[cfg(unix)]
     fn wait_for_terminal(manager: &EnhancementJobManager, job_id: &str) -> EnhancementJobSnapshot {
         wait_for(manager, job_id, |snapshot| {
             matches!(
@@ -666,6 +671,7 @@ mod tests {
         })
     }
 
+    #[cfg(unix)]
     fn wait_for(
         manager: &EnhancementJobManager,
         job_id: &str,
