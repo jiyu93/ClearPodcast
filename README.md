@@ -22,6 +22,7 @@ Start here:
 - [Implementation plan](docs/implementation-plan.md)
 - [Milestone 1 runtime spine](docs/milestone-1-runtime-spine.md)
 - [Milestone 2 audio contract](docs/milestone-2-audio-contract.md)
+- [Milestone 3 desktop MVP](docs/milestone-3-desktop-mvp.md)
 - [Domain context](CONTEXT.md)
 - [Architecture decisions](docs/adr/)
 
@@ -57,3 +58,7 @@ Start the Tauri dev app:
 ```sh
 npm run tauri dev
 ```
+
+Milestone 3 adds the desktop MVP workflow: choose or drop a WAV/MP3/M4A file,
+select a preset, run a cancellable enhancement job, compare original/enhanced
+audio, and export the enhanced WAV.

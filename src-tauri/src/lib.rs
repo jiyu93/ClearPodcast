@@ -1,9 +1,15 @@
 pub mod audio;
+pub mod dialogs;
+pub mod jobs;
 pub mod runtime;
 
 use audio::AudioMetadata;
+use jobs::{
+    EnhancementJobManager, EnhancementJobSnapshot, ExportResult, StartEnhancementJobRequest,
+};
 use runtime::{EnhanceRequest, EnhancementResult};
 use std::path::PathBuf;
+use tauri::State;
 
 #[tauri::command]
 fn enhance_audio_command(request: EnhanceRequest) -> Result<EnhancementResult, String> {
@@ -17,16 +23,72 @@ fn enhance_wav_command(request: EnhanceRequest) -> Result<EnhancementResult, Str
 
 #[tauri::command]
 fn probe_audio_command(path: PathBuf) -> Result<AudioMetadata, String> {
-    audio::probe_audio(path).map_err(|error| error.to_string())
+    audio::probe_audio(runtime::resolve_repo_relative_path(path)).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn start_enhancement_job_command(
+    manager: State<EnhancementJobManager>,
+    request: StartEnhancementJobRequest,
+) -> Result<EnhancementJobSnapshot, String> {
+    manager
+        .start_job(request)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn get_enhancement_job_command(
+    manager: State<EnhancementJobManager>,
+    job_id: String,
+) -> Result<EnhancementJobSnapshot, String> {
+    manager.snapshot(&job_id).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn cancel_enhancement_job_command(
+    manager: State<EnhancementJobManager>,
+    job_id: String,
+) -> Result<EnhancementJobSnapshot, String> {
+    manager
+        .cancel_job(&job_id)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn export_enhanced_wav_command(
+    manager: State<EnhancementJobManager>,
+    job_id: String,
+    destination: PathBuf,
+) -> Result<ExportResult, String> {
+    manager
+        .export_job(&job_id, destination)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn pick_audio_file_command() -> Option<PathBuf> {
+    dialogs::pick_audio_file()
+}
+
+#[tauri::command]
+fn pick_export_wav_command(suggested_file_name: Option<String>) -> Option<PathBuf> {
+    dialogs::pick_export_wav(suggested_file_name)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(EnhancementJobManager::default())
         .invoke_handler(tauri::generate_handler![
             enhance_audio_command,
             enhance_wav_command,
-            probe_audio_command
+            probe_audio_command,
+            start_enhancement_job_command,
+            get_enhancement_job_command,
+            cancel_enhancement_job_command,
+            export_enhanced_wav_command,
+            pick_audio_file_command,
+            pick_export_wav_command
         ])
         .run(tauri::generate_context!())
         .expect("error while running ClearPodcast");

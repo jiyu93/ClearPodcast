@@ -3,11 +3,33 @@ use serde::{Deserialize, Serialize};
 use std::{
     fs,
     path::{Path, PathBuf},
-    process::Command,
+    process::{Child, Command, Stdio},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc, Mutex,
+    },
+    thread,
+    time::Duration,
 };
 use thiserror::Error;
 
 const EXPECTED_LATEST_FILE: &str = "default";
+const SIDE_CAR_POLL_INTERVAL: Duration = Duration::from_millis(100);
+
+#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum EnhancementPreset {
+    BluetoothHeadset,
+    MeetingRecording,
+    LaptopMicrophone,
+    PhoneRecording,
+}
+
+impl Default for EnhancementPreset {
+    fn default() -> Self {
+        Self::MeetingRecording
+    }
+}
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct EnhanceRequest {
@@ -16,6 +38,8 @@ pub struct EnhanceRequest {
     #[serde(alias = "input_wav")]
     pub input_audio: PathBuf,
     pub output_wav: PathBuf,
+    #[serde(default)]
+    pub preset: EnhancementPreset,
     pub sidecar: Option<PathBuf>,
     pub device: Option<String>,
     pub nfe: Option<u16>,
@@ -64,6 +88,8 @@ pub enum RuntimeError {
     Audio(#[from] audio::AudioError),
     #[error("failed to create temporary audio handoff directory: {0}")]
     TemporaryDirectory(std::io::Error),
+    #[error("failed to capture sidecar output: {0}")]
+    SidecarOutputCapture(std::io::Error),
     #[error("sidecar did not write the expected enhanced WAV at {0}")]
     MissingSidecarOutput(PathBuf),
     #[error("failed to launch sidecar with runtime {runtime}: {source}")]
@@ -77,6 +103,37 @@ pub enum RuntimeError {
         stdout: String,
         stderr: String,
     },
+    #[error("enhancement job was cancelled")]
+    Cancelled,
+}
+
+#[derive(Clone, Default)]
+pub struct CancellationToken {
+    cancelled: Arc<AtomicBool>,
+    child: Arc<Mutex<Option<Child>>>,
+}
+
+impl CancellationToken {
+    pub fn cancel(&self) {
+        self.cancelled.store(true, Ordering::SeqCst);
+        if let Ok(mut child) = self.child.lock() {
+            if let Some(child) = child.as_mut() {
+                let _ = child.kill();
+            }
+        }
+    }
+
+    pub fn is_cancelled(&self) -> bool {
+        self.cancelled.load(Ordering::SeqCst)
+    }
+
+    fn set_child(&self, child: Child) {
+        *self.child.lock().expect("sidecar child lock") = Some(child);
+    }
+
+    fn take_child(&self) -> Option<Child> {
+        self.child.lock().expect("sidecar child lock").take()
+    }
 }
 
 pub trait SidecarRunner {
@@ -85,6 +142,7 @@ pub trait SidecarRunner {
         request: &EnhanceRequest,
         input_wav: &Path,
         output_wav: &Path,
+        cancellation: Option<&CancellationToken>,
     ) -> Result<SidecarRunResult, RuntimeError>;
 }
 
@@ -103,10 +161,28 @@ pub fn enhance_audio_with_runner<R: SidecarRunner>(
     request: EnhanceRequest,
     runner: &R,
 ) -> Result<EnhancementResult, RuntimeError> {
+    enhance_audio_with_runner_and_cancellation(request, runner, None)
+}
+
+pub fn enhance_audio_with_cancellation(
+    request: EnhanceRequest,
+    cancellation: &CancellationToken,
+) -> Result<EnhancementResult, RuntimeError> {
+    enhance_audio_with_runner_and_cancellation(request, &PythonSidecarRunner, Some(cancellation))
+}
+
+pub fn enhance_audio_with_runner_and_cancellation<R: SidecarRunner>(
+    request: EnhanceRequest,
+    runner: &R,
+    cancellation: Option<&CancellationToken>,
+) -> Result<EnhancementResult, RuntimeError> {
     let request = request.with_resolved_paths();
     validate_request(&request)?;
+    fail_if_cancelled(cancellation)?;
 
     let decoded_input = audio::decode_audio(&request.input_audio)?;
+    fail_if_cancelled(cancellation)?;
+
     let temp_dir = tempfile::Builder::new()
         .prefix("clearpodcast-audio-")
         .tempdir()
@@ -115,13 +191,17 @@ pub fn enhance_audio_with_runner<R: SidecarRunner>(
     let sidecar_output = temp_dir.path().join("sidecar-output.wav");
 
     audio::write_handoff_wav(&handoff_input, &decoded_input.pcm)?;
-    let sidecar_result = runner.run_sidecar(&request, &handoff_input, &sidecar_output)?;
+    fail_if_cancelled(cancellation)?;
+    let sidecar_result =
+        runner.run_sidecar(&request, &handoff_input, &sidecar_output, cancellation)?;
+    fail_if_cancelled(cancellation)?;
 
     if !sidecar_output.is_file() {
         return Err(RuntimeError::MissingSidecarOutput(sidecar_output));
     }
 
     let enhanced = audio::decode_audio(&sidecar_output)?;
+    fail_if_cancelled(cancellation)?;
     let output_metadata = audio::write_final_wav(&request.output_wav, &enhanced.pcm)?;
 
     Ok(EnhancementResult {
@@ -140,6 +220,7 @@ impl SidecarRunner for PythonSidecarRunner {
         request: &EnhanceRequest,
         input_wav: &Path,
         output_wav: &Path,
+        cancellation: Option<&CancellationToken>,
     ) -> Result<SidecarRunResult, RuntimeError> {
         let sidecar = request.sidecar.clone().unwrap_or_else(default_sidecar_path);
         let mut command = Command::new(&request.python);
@@ -172,38 +253,17 @@ impl SidecarRunner for PythonSidecarRunner {
                 .arg(expected_sha256);
         }
 
-        let output = command.output().map_err(|source| RuntimeError::Launch {
-            runtime: request.python.clone(),
-            source,
-        })?;
-
-        let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
-        let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
-        let exit_code = output.status.code().unwrap_or(-1);
-
-        if !output.status.success() {
-            return Err(RuntimeError::SidecarFailed {
-                exit_code,
-                stdout,
-                stderr,
-            });
-        }
-
-        Ok(SidecarRunResult {
-            exit_code,
-            stdout,
-            stderr,
-        })
+        run_sidecar_command(command, request, cancellation)
     }
 }
 
 impl EnhanceRequest {
     fn with_resolved_paths(mut self) -> Self {
-        self.python = resolve_repo_relative(self.python);
-        self.model_dir = resolve_repo_relative(self.model_dir);
-        self.input_audio = resolve_repo_relative(self.input_audio);
-        self.output_wav = resolve_repo_relative(self.output_wav);
-        self.sidecar = self.sidecar.map(resolve_repo_relative);
+        self.python = resolve_repo_relative_path(self.python);
+        self.model_dir = resolve_repo_relative_path(self.model_dir);
+        self.input_audio = resolve_repo_relative_path(self.input_audio);
+        self.output_wav = resolve_repo_relative_path(self.output_wav);
+        self.sidecar = self.sidecar.map(resolve_repo_relative_path);
         self
     }
 }
@@ -263,11 +323,135 @@ pub fn default_sidecar_path() -> PathBuf {
         .join("clearpodcast_resemble.py")
 }
 
-fn resolve_repo_relative(path: PathBuf) -> PathBuf {
+pub fn resolve_repo_relative_path(path: PathBuf) -> PathBuf {
     if path.is_absolute() {
         path
     } else {
         repository_root().join(path)
+    }
+}
+
+fn run_sidecar_command(
+    command: Command,
+    request: &EnhanceRequest,
+    cancellation: Option<&CancellationToken>,
+) -> Result<SidecarRunResult, RuntimeError> {
+    match cancellation {
+        Some(cancellation) => run_cancellable_sidecar(command, request, cancellation),
+        None => run_blocking_sidecar(command, request),
+    }
+}
+
+fn run_blocking_sidecar(
+    mut command: Command,
+    request: &EnhanceRequest,
+) -> Result<SidecarRunResult, RuntimeError> {
+    let output = command.output().map_err(|source| RuntimeError::Launch {
+        runtime: request.python.clone(),
+        source,
+    })?;
+
+    sidecar_result_from_parts(
+        output.status.success(),
+        output.status.code().unwrap_or(-1),
+        String::from_utf8_lossy(&output.stdout).into_owned(),
+        String::from_utf8_lossy(&output.stderr).into_owned(),
+    )
+}
+
+fn run_cancellable_sidecar(
+    mut command: Command,
+    request: &EnhanceRequest,
+    cancellation: &CancellationToken,
+) -> Result<SidecarRunResult, RuntimeError> {
+    fail_if_cancelled(Some(cancellation))?;
+
+    let log_dir = tempfile::Builder::new()
+        .prefix("clearpodcast-sidecar-log-")
+        .tempdir()
+        .map_err(RuntimeError::TemporaryDirectory)?;
+    let stdout_path = log_dir.path().join("stdout.txt");
+    let stderr_path = log_dir.path().join("stderr.txt");
+    let stdout = fs::File::create(&stdout_path).map_err(RuntimeError::SidecarOutputCapture)?;
+    let stderr = fs::File::create(&stderr_path).map_err(RuntimeError::SidecarOutputCapture)?;
+    command
+        .stdout(Stdio::from(stdout))
+        .stderr(Stdio::from(stderr));
+
+    let child = command.spawn().map_err(|source| RuntimeError::Launch {
+        runtime: request.python.clone(),
+        source,
+    })?;
+    cancellation.set_child(child);
+
+    let status = loop {
+        if cancellation.is_cancelled() {
+            if let Some(mut child) = cancellation.take_child() {
+                let _ = child.kill();
+                let _ = child.wait();
+            }
+            return Err(RuntimeError::Cancelled);
+        }
+
+        let maybe_status = {
+            let mut child = cancellation.child.lock().expect("sidecar child lock");
+            match child.as_mut() {
+                Some(child) => child
+                    .try_wait()
+                    .map_err(RuntimeError::SidecarOutputCapture)?,
+                None => return Err(RuntimeError::Cancelled),
+            }
+        };
+
+        if let Some(status) = maybe_status {
+            cancellation.take_child();
+            break status;
+        }
+
+        thread::sleep(SIDE_CAR_POLL_INTERVAL);
+    };
+
+    let stdout = fs::read_to_string(stdout_path).map_err(RuntimeError::SidecarOutputCapture)?;
+    let stderr = fs::read_to_string(stderr_path).map_err(RuntimeError::SidecarOutputCapture)?;
+    fail_if_cancelled(Some(cancellation))?;
+
+    sidecar_result_from_parts(
+        status.success(),
+        status.code().unwrap_or(-1),
+        stdout,
+        stderr,
+    )
+}
+
+fn sidecar_result_from_parts(
+    success: bool,
+    exit_code: i32,
+    stdout: String,
+    stderr: String,
+) -> Result<SidecarRunResult, RuntimeError> {
+    if !success {
+        return Err(RuntimeError::SidecarFailed {
+            exit_code,
+            stdout,
+            stderr,
+        });
+    }
+
+    Ok(SidecarRunResult {
+        exit_code,
+        stdout,
+        stderr,
+    })
+}
+
+fn fail_if_cancelled(cancellation: Option<&CancellationToken>) -> Result<(), RuntimeError> {
+    if cancellation
+        .map(CancellationToken::is_cancelled)
+        .unwrap_or(false)
+    {
+        Err(RuntimeError::Cancelled)
+    } else {
+        Ok(())
     }
 }
 

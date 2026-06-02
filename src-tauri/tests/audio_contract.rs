@@ -1,7 +1,8 @@
 use clearpodcast_app::{
     audio::{self, AudioBuffer, AudioError, AudioFormat, FINAL_SAMPLE_RATE},
     runtime::{
-        enhance_audio_with_runner, EnhanceRequest, RuntimeError, SidecarRunResult, SidecarRunner,
+        enhance_audio_with_runner, EnhanceRequest, EnhancementPreset, RuntimeError,
+        SidecarRunResult, SidecarRunner,
     },
 };
 use std::{
@@ -156,6 +157,7 @@ impl SidecarRunner for CopySidecarRunner {
         _request: &EnhanceRequest,
         input_wav: &Path,
         output_wav: &Path,
+        _cancellation: Option<&clearpodcast_app::runtime::CancellationToken>,
     ) -> Result<SidecarRunResult, RuntimeError> {
         *self.handoff_dir.lock().expect("handoff lock") = input_wav.parent().map(Path::to_path_buf);
         let decoded = audio::decode_audio(input_wav)?;
@@ -186,6 +188,7 @@ impl SidecarRunner for FailingSidecarRunner {
         _request: &EnhanceRequest,
         input_wav: &Path,
         _output_wav: &Path,
+        _cancellation: Option<&clearpodcast_app::runtime::CancellationToken>,
     ) -> Result<SidecarRunResult, RuntimeError> {
         *self.handoff_dir.lock().expect("handoff lock") = input_wav.parent().map(Path::to_path_buf);
         Err(RuntimeError::SidecarFailed {
@@ -239,6 +242,7 @@ fn request_for(
         model_dir: runtime_env.model_dir.clone(),
         input_audio: input_audio.to_path_buf(),
         output_wav: output_wav.to_path_buf(),
+        preset: EnhancementPreset::MeetingRecording,
         sidecar: Some(runtime_env.sidecar.clone()),
         device: Some("cpu".to_string()),
         nfe: None,

@@ -1,0 +1,623 @@
+use crate::{
+    audio::{self, AudioMetadata},
+    runtime::{
+        self, CancellationToken, EnhanceRequest, EnhancementPreset, EnhancementResult, RuntimeError,
+    },
+};
+use serde::{Deserialize, Serialize};
+use std::{
+    collections::HashMap,
+    fs,
+    path::{Path, PathBuf},
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Arc, Mutex,
+    },
+    thread,
+    time::{SystemTime, UNIX_EPOCH},
+};
+use thiserror::Error;
+
+static JOB_COUNTER: AtomicU64 = AtomicU64::new(1);
+
+#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum EnhancementJobState {
+    Queued,
+    Running,
+    Completed,
+    Failed,
+    Cancelled,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct StartEnhancementJobRequest {
+    pub python: PathBuf,
+    pub model_dir: PathBuf,
+    pub input_audio: PathBuf,
+    #[serde(default)]
+    pub preset: EnhancementPreset,
+    pub sidecar: Option<PathBuf>,
+    pub device: Option<String>,
+    pub nfe: Option<u16>,
+    pub solver: Option<String>,
+    pub lambd: Option<f32>,
+    pub tau: Option<f32>,
+    pub expected_checkpoint_sha256: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct EnhancementJobSnapshot {
+    pub job_id: String,
+    pub state: EnhancementJobState,
+    pub preset: EnhancementPreset,
+    pub input_audio: PathBuf,
+    pub preview_wav: Option<PathBuf>,
+    pub exported_wav: Option<PathBuf>,
+    pub input_metadata: Option<AudioMetadata>,
+    pub output_metadata: Option<AudioMetadata>,
+    pub message: String,
+    pub error: Option<String>,
+    pub created_at_ms: u128,
+    pub updated_at_ms: u128,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ExportResult {
+    pub exported_wav: PathBuf,
+    pub output_metadata: AudioMetadata,
+}
+
+#[derive(Debug, Error)]
+pub enum JobError {
+    #[error("enhancement job was not found: {0}")]
+    MissingJob(String),
+    #[error("enhancement job {job_id} is {state:?} and cannot be cancelled")]
+    CannotCancel {
+        job_id: String,
+        state: EnhancementJobState,
+    },
+    #[error("enhancement job {job_id} is {state:?}; export requires completed")]
+    CannotExport {
+        job_id: String,
+        state: EnhancementJobState,
+    },
+    #[error("enhancement job {0} has no completed preview WAV")]
+    MissingPreview(String),
+    #[error("export path must end in .wav: {0}")]
+    ExportMustBeWav(PathBuf),
+    #[error("failed to prepare export directory {path}: {source}")]
+    ExportDirectory {
+        path: PathBuf,
+        source: std::io::Error,
+    },
+    #[error("failed to copy enhanced WAV from {source_path} to {destination}: {source}")]
+    ExportCopy {
+        source_path: PathBuf,
+        destination: PathBuf,
+        source: std::io::Error,
+    },
+    #[error("failed to read exported WAV metadata at {path}: {source}")]
+    ExportProbe {
+        path: PathBuf,
+        source: audio::AudioError,
+    },
+    #[error("failed to create enhancement preview directory {path}: {source}")]
+    PreviewDirectory {
+        path: PathBuf,
+        source: std::io::Error,
+    },
+}
+
+#[derive(Clone, Default)]
+pub struct EnhancementJobManager {
+    jobs: Arc<Mutex<HashMap<String, EnhancementJobRecord>>>,
+}
+
+#[derive(Clone)]
+struct EnhancementJobRecord {
+    snapshot: EnhancementJobSnapshot,
+    cancellation: CancellationToken,
+}
+
+impl EnhancementJobManager {
+    pub fn start_job(
+        &self,
+        request: StartEnhancementJobRequest,
+    ) -> Result<EnhancementJobSnapshot, JobError> {
+        let job_id = next_job_id();
+        let job_dir = std::env::temp_dir()
+            .join("clearpodcast")
+            .join("jobs")
+            .join(&job_id);
+        fs::create_dir_all(&job_dir).map_err(|source| JobError::PreviewDirectory {
+            path: job_dir.clone(),
+            source,
+        })?;
+
+        let preview_wav = job_dir.join(format!(
+            "{}.enhanced.wav",
+            safe_file_stem(&request.input_audio)
+        ));
+        let cancellation = CancellationToken::default();
+        let now = timestamp_ms();
+        let snapshot = EnhancementJobSnapshot {
+            job_id: job_id.clone(),
+            state: EnhancementJobState::Queued,
+            preset: request.preset,
+            input_audio: runtime::resolve_repo_relative_path(request.input_audio.clone()),
+            preview_wav: None,
+            exported_wav: None,
+            input_metadata: None,
+            output_metadata: None,
+            message: "Queued".to_string(),
+            error: None,
+            created_at_ms: now,
+            updated_at_ms: now,
+        };
+
+        {
+            let mut jobs = self.jobs.lock().expect("job manager lock");
+            jobs.insert(
+                job_id.clone(),
+                EnhancementJobRecord {
+                    snapshot: snapshot.clone(),
+                    cancellation: cancellation.clone(),
+                },
+            );
+        }
+
+        let manager = self.clone();
+        thread::spawn(move || {
+            manager.run_job(job_id, request, preview_wav, job_dir, cancellation);
+        });
+
+        Ok(snapshot)
+    }
+
+    pub fn snapshot(&self, job_id: &str) -> Result<EnhancementJobSnapshot, JobError> {
+        self.jobs
+            .lock()
+            .expect("job manager lock")
+            .get(job_id)
+            .map(|record| record.snapshot.clone())
+            .ok_or_else(|| JobError::MissingJob(job_id.to_string()))
+    }
+
+    pub fn cancel_job(&self, job_id: &str) -> Result<EnhancementJobSnapshot, JobError> {
+        let cancellation = {
+            let mut jobs = self.jobs.lock().expect("job manager lock");
+            let record = jobs
+                .get_mut(job_id)
+                .ok_or_else(|| JobError::MissingJob(job_id.to_string()))?;
+
+            match record.snapshot.state {
+                EnhancementJobState::Queued | EnhancementJobState::Running => {
+                    record.snapshot.state = EnhancementJobState::Cancelled;
+                    record.snapshot.message = "Cancelling".to_string();
+                    record.snapshot.error = None;
+                    record.snapshot.updated_at_ms = timestamp_ms();
+                    record.cancellation.clone()
+                }
+                state => {
+                    return Err(JobError::CannotCancel {
+                        job_id: job_id.to_string(),
+                        state,
+                    });
+                }
+            }
+        };
+
+        cancellation.cancel();
+        self.snapshot(job_id)
+    }
+
+    pub fn export_job(&self, job_id: &str, destination: PathBuf) -> Result<ExportResult, JobError> {
+        ensure_wav_destination(&destination)?;
+
+        let preview_wav = {
+            let jobs = self.jobs.lock().expect("job manager lock");
+            let record = jobs
+                .get(job_id)
+                .ok_or_else(|| JobError::MissingJob(job_id.to_string()))?;
+
+            if record.snapshot.state != EnhancementJobState::Completed {
+                return Err(JobError::CannotExport {
+                    job_id: job_id.to_string(),
+                    state: record.snapshot.state,
+                });
+            }
+
+            record
+                .snapshot
+                .preview_wav
+                .clone()
+                .filter(|path| path.is_file())
+                .ok_or_else(|| JobError::MissingPreview(job_id.to_string()))?
+        };
+
+        if let Some(parent) = destination
+            .parent()
+            .filter(|parent| !parent.as_os_str().is_empty())
+        {
+            fs::create_dir_all(parent).map_err(|source| JobError::ExportDirectory {
+                path: parent.to_path_buf(),
+                source,
+            })?;
+        }
+
+        fs::copy(&preview_wav, &destination).map_err(|source| JobError::ExportCopy {
+            source_path: preview_wav,
+            destination: destination.clone(),
+            source,
+        })?;
+        let output_metadata =
+            audio::probe_audio(&destination).map_err(|source| JobError::ExportProbe {
+                path: destination.clone(),
+                source,
+            })?;
+
+        let mut jobs = self.jobs.lock().expect("job manager lock");
+        if let Some(record) = jobs.get_mut(job_id) {
+            record.snapshot.exported_wav = Some(destination.clone());
+            record.snapshot.message = "Exported".to_string();
+            record.snapshot.updated_at_ms = timestamp_ms();
+        }
+
+        Ok(ExportResult {
+            exported_wav: destination,
+            output_metadata,
+        })
+    }
+
+    fn run_job(
+        &self,
+        job_id: String,
+        request: StartEnhancementJobRequest,
+        preview_wav: PathBuf,
+        job_dir: PathBuf,
+        cancellation: CancellationToken,
+    ) {
+        if cancellation.is_cancelled() {
+            self.finish_cancelled(&job_id, &job_dir);
+            return;
+        }
+
+        let input_metadata = audio::probe_audio(runtime::resolve_repo_relative_path(
+            request.input_audio.clone(),
+        ))
+        .ok();
+        self.update_snapshot(&job_id, |snapshot| {
+            snapshot.state = EnhancementJobState::Running;
+            snapshot.message = "Processing".to_string();
+            snapshot.input_metadata = input_metadata;
+        });
+
+        let result = runtime::enhance_audio_with_cancellation(
+            request.into_enhance_request(preview_wav.clone()),
+            &cancellation,
+        );
+
+        match result {
+            Ok(result) => self.finish_completed(&job_id, result),
+            Err(RuntimeError::Cancelled) => self.finish_cancelled(&job_id, &job_dir),
+            Err(error) => self.finish_failed(&job_id, &job_dir, error.to_string()),
+        }
+    }
+
+    fn finish_completed(&self, job_id: &str, result: EnhancementResult) {
+        self.update_snapshot(job_id, |snapshot| {
+            snapshot.state = EnhancementJobState::Completed;
+            snapshot.preview_wav = Some(result.output_wav);
+            snapshot.input_metadata = Some(result.input_metadata);
+            snapshot.output_metadata = Some(result.output_metadata);
+            snapshot.message = "Completed".to_string();
+            snapshot.error = None;
+        });
+    }
+
+    fn finish_failed(&self, job_id: &str, job_dir: &Path, error: String) {
+        let _ = fs::remove_dir_all(job_dir);
+        self.update_snapshot(job_id, |snapshot| {
+            snapshot.state = EnhancementJobState::Failed;
+            snapshot.preview_wav = None;
+            snapshot.output_metadata = None;
+            snapshot.message = "Failed".to_string();
+            snapshot.error = Some(error);
+        });
+    }
+
+    fn finish_cancelled(&self, job_id: &str, job_dir: &Path) {
+        let _ = fs::remove_dir_all(job_dir);
+        self.update_snapshot(job_id, |snapshot| {
+            snapshot.state = EnhancementJobState::Cancelled;
+            snapshot.preview_wav = None;
+            snapshot.output_metadata = None;
+            snapshot.message = "Cancelled".to_string();
+            snapshot.error = None;
+        });
+    }
+
+    fn update_snapshot(&self, job_id: &str, update: impl FnOnce(&mut EnhancementJobSnapshot)) {
+        let mut jobs = self.jobs.lock().expect("job manager lock");
+        if let Some(record) = jobs.get_mut(job_id) {
+            update(&mut record.snapshot);
+            record.snapshot.updated_at_ms = timestamp_ms();
+        }
+    }
+}
+
+impl StartEnhancementJobRequest {
+    fn into_enhance_request(self, output_wav: PathBuf) -> EnhanceRequest {
+        EnhanceRequest {
+            python: self.python,
+            model_dir: self.model_dir,
+            input_audio: self.input_audio,
+            output_wav,
+            preset: self.preset,
+            sidecar: self.sidecar,
+            device: self.device,
+            nfe: self.nfe,
+            solver: self.solver,
+            lambd: self.lambd,
+            tau: self.tau,
+            expected_checkpoint_sha256: self.expected_checkpoint_sha256,
+        }
+    }
+}
+
+fn next_job_id() -> String {
+    let sequence = JOB_COUNTER.fetch_add(1, Ordering::SeqCst);
+    format!("job-{}-{sequence}", timestamp_ms())
+}
+
+fn timestamp_ms() -> u128 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|duration| duration.as_millis())
+        .unwrap_or_default()
+}
+
+fn safe_file_stem(path: &Path) -> String {
+    let stem = path
+        .file_stem()
+        .and_then(|stem| stem.to_str())
+        .unwrap_or("clearpodcast-output");
+    let mut output = String::new();
+    for character in stem.chars() {
+        if character.is_ascii_alphanumeric() || matches!(character, '-' | '_') {
+            output.push(character);
+        } else if !output.ends_with('-') {
+            output.push('-');
+        }
+    }
+    let output = output.trim_matches('-');
+    if output.is_empty() {
+        "clearpodcast-output".to_string()
+    } else {
+        output.to_string()
+    }
+}
+
+fn ensure_wav_destination(path: &Path) -> Result<(), JobError> {
+    if path
+        .extension()
+        .and_then(|extension| extension.to_str())
+        .map(|extension| extension.eq_ignore_ascii_case("wav"))
+        .unwrap_or(false)
+    {
+        Ok(())
+    } else {
+        Err(JobError::ExportMustBeWav(path.to_path_buf()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::audio::AudioBuffer;
+    #[cfg(unix)]
+    use std::os::unix::fs::PermissionsExt;
+    use std::{
+        fs,
+        path::Path,
+        thread,
+        time::{Duration, Instant},
+    };
+    use tempfile::{tempdir, TempDir};
+
+    #[test]
+    fn safe_file_stem_keeps_preview_names_portable() {
+        assert_eq!(
+            safe_file_stem(Path::new("Meeting Audio 01.m4a")),
+            "Meeting-Audio-01"
+        );
+    }
+
+    #[test]
+    fn wav_export_paths_are_required() {
+        assert!(ensure_wav_destination(Path::new("episode.wav")).is_ok());
+        assert!(matches!(
+            ensure_wav_destination(Path::new("episode.mp3")),
+            Err(JobError::ExportMustBeWav(_))
+        ));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn job_manager_completes_and_exports_with_fake_sidecar() {
+        let runtime_env = fake_runtime_env(0);
+        let input = runtime_env.dir.path().join("input.wav");
+        audio::write_handoff_wav(&input, &synthetic_audio()).expect("write input wav");
+
+        let manager = EnhancementJobManager::default();
+        let snapshot = manager
+            .start_job(request_for(&runtime_env, &input))
+            .expect("start job");
+        let completed = wait_for_terminal(&manager, &snapshot.job_id);
+
+        assert_eq!(completed.state, EnhancementJobState::Completed);
+        assert!(completed
+            .preview_wav
+            .as_ref()
+            .is_some_and(|path| path.is_file()));
+        let export_path = runtime_env.dir.path().join("exported.wav");
+        let export = manager
+            .export_job(&snapshot.job_id, export_path.clone())
+            .expect("export completed job");
+
+        assert_eq!(export.exported_wav, export_path);
+        assert_eq!(
+            export.output_metadata.source_sample_rate,
+            audio::FINAL_SAMPLE_RATE
+        );
+        assert_eq!(export.output_metadata.channels, 1);
+
+        if let Some(preview_wav) = completed.preview_wav {
+            if let Some(parent) = preview_wav.parent() {
+                let _ = fs::remove_dir_all(parent);
+            }
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn job_manager_cancels_running_sidecar_without_preview_output() {
+        let runtime_env = fake_runtime_env(5);
+        let input = runtime_env.dir.path().join("input.wav");
+        audio::write_handoff_wav(&input, &synthetic_audio()).expect("write input wav");
+
+        let manager = EnhancementJobManager::default();
+        let snapshot = manager
+            .start_job(request_for(&runtime_env, &input))
+            .expect("start job");
+        wait_for_state(&manager, &snapshot.job_id, EnhancementJobState::Running);
+
+        let cancelled = manager
+            .cancel_job(&snapshot.job_id)
+            .expect("cancel running job");
+        assert_eq!(cancelled.state, EnhancementJobState::Cancelled);
+
+        let finished = wait_for_terminal(&manager, &snapshot.job_id);
+        assert_eq!(finished.state, EnhancementJobState::Cancelled);
+        assert!(finished.preview_wav.is_none());
+    }
+
+    #[cfg(unix)]
+    struct FakeRuntimeEnv {
+        dir: TempDir,
+        python: PathBuf,
+        sidecar: PathBuf,
+        model_dir: PathBuf,
+    }
+
+    #[cfg(unix)]
+    fn fake_runtime_env(sleep_seconds: u64) -> FakeRuntimeEnv {
+        let dir = tempdir().expect("tempdir");
+        let python = dir.path().join("fake-python");
+        let sidecar = dir.path().join("sidecar.py");
+        let model_dir = dir.path().join("model");
+        let checkpoint_dir = model_dir.join("ds/G/default");
+
+        fs::write(
+            &python,
+            format!(
+                "#!/bin/sh\nsleep {sleep_seconds}\nwhile [ $# -gt 0 ]; do\n  case \"$1\" in\n    --input-wav) shift; input=\"$1\" ;;\n    --output-wav) shift; output=\"$1\" ;;\n  esac\n  shift\ndone\ncp \"$input\" \"$output\"\n"
+            ),
+        )
+        .expect("write fake python");
+        let mut permissions = fs::metadata(&python)
+            .expect("fake python metadata")
+            .permissions();
+        permissions.set_mode(0o755);
+        fs::set_permissions(&python, permissions).expect("chmod fake python");
+
+        fs::write(&sidecar, b"fake sidecar").expect("write fake sidecar");
+        fs::create_dir_all(&checkpoint_dir).expect("create fake checkpoint dir");
+        fs::write(model_dir.join("hparams.yaml"), b"fake: true\n").expect("write hparams");
+        fs::write(model_dir.join("ds/G/latest"), b"default\n").expect("write latest");
+        fs::write(
+            checkpoint_dir.join("mp_rank_00_model_states.pt"),
+            b"fake checkpoint",
+        )
+        .expect("write checkpoint");
+
+        FakeRuntimeEnv {
+            dir,
+            python,
+            sidecar,
+            model_dir,
+        }
+    }
+
+    #[cfg(unix)]
+    fn request_for(runtime_env: &FakeRuntimeEnv, input_audio: &Path) -> StartEnhancementJobRequest {
+        StartEnhancementJobRequest {
+            python: runtime_env.python.clone(),
+            model_dir: runtime_env.model_dir.clone(),
+            input_audio: input_audio.to_path_buf(),
+            preset: EnhancementPreset::MeetingRecording,
+            sidecar: Some(runtime_env.sidecar.clone()),
+            device: Some("cpu".to_string()),
+            nfe: None,
+            solver: None,
+            lambd: None,
+            tau: None,
+            expected_checkpoint_sha256: None,
+        }
+    }
+
+    fn synthetic_audio() -> AudioBuffer {
+        let sample_rate = 16_000;
+        let samples = (0..1_600)
+            .map(|index| {
+                let phase = index as f32 * 220.0 * std::f32::consts::TAU / sample_rate as f32;
+                phase.sin() * 0.2
+            })
+            .collect();
+
+        AudioBuffer {
+            sample_rate,
+            samples,
+        }
+    }
+
+    fn wait_for_state(
+        manager: &EnhancementJobManager,
+        job_id: &str,
+        state: EnhancementJobState,
+    ) -> EnhancementJobSnapshot {
+        wait_for(manager, job_id, |snapshot| snapshot.state == state)
+    }
+
+    fn wait_for_terminal(manager: &EnhancementJobManager, job_id: &str) -> EnhancementJobSnapshot {
+        wait_for(manager, job_id, |snapshot| {
+            matches!(
+                snapshot.state,
+                EnhancementJobState::Completed
+                    | EnhancementJobState::Failed
+                    | EnhancementJobState::Cancelled
+            )
+        })
+    }
+
+    fn wait_for(
+        manager: &EnhancementJobManager,
+        job_id: &str,
+        predicate: impl Fn(&EnhancementJobSnapshot) -> bool,
+    ) -> EnhancementJobSnapshot {
+        let start = Instant::now();
+        loop {
+            let snapshot = manager.snapshot(job_id).expect("job snapshot");
+            if predicate(&snapshot) {
+                return snapshot;
+            }
+
+            assert!(
+                start.elapsed() < Duration::from_secs(8),
+                "timed out waiting for job {job_id}; latest snapshot: {snapshot:?}"
+            );
+            thread::sleep(Duration::from_millis(50));
+        }
+    }
+}

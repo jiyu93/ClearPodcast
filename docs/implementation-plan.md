@@ -492,6 +492,43 @@ Starting state after Milestone 2:
 - Add cancellation in the job manager and keep temporary handoff cleanup tied to
   the job lifecycle.
 
+Completion state as of June 2, 2026:
+
+- The React desktop surface in `src/App.tsx` now supports native file picking,
+  Tauri drag/drop, source metadata display, preset selection, cancellable job
+  state, before/after playback, and WAV export.
+- Rust exposes a job-managed command surface:
+  `start_enhancement_job_command`, `get_enhancement_job_command`,
+  `cancel_enhancement_job_command`, and `export_enhanced_wav_command`.
+- The existing direct `probe_audio_command`, `enhance_audio_command`, and
+  `enhance_wav_command` remain available for smoke tests and compatibility.
+- Presets are represented in both the UI and backend request types:
+  Bluetooth headset, meeting recording, laptop microphone, and phone recording.
+  They still map to the same processing defaults in this milestone.
+- The runtime can cancel a launched Python sidecar process and checks
+  cancellation between decode, handoff, sidecar, final decode, and final write
+  stages.
+- Completed desktop preview WAVs live in app-managed temporary job directories;
+  export copies the completed preview to a user-selected `.wav` destination.
+- Failed and cancelled jobs remove their temporary preview directory and do not
+  expose a successful-looking partial output.
+- The Tauri asset protocol is enabled for local audio playback from selected
+  files and temporary enhanced previews.
+- Tests cover job completion/export through a fake sidecar, cancellation of a
+  running fake sidecar, no preview output after cancellation, WAV-only export
+  destinations, and the existing Milestone 2 audio contract.
+- Full local model smoke checks pass for the short low-quality fixture in WAV,
+  MP3, and M4A form. All three Milestone 3 smoke outputs are 44.1 kHz mono WAV
+  files under `localfiles/outputs/`.
+- `npm run tauri build -- --bundles app` produces a macOS `.app` bundle. The
+  default bundle target is currently `app` so the next milestone starts from a
+  passing app bundle build.
+- A DMG wrapper attempt reached the generated `.app` but timed out in Finder
+  AppleScript with AppleEvent `-1712`; Milestone 4 should resolve the DMG path
+  or intentionally use zip as the first macOS wrapper.
+- Milestone 3 has no deferred exit criteria. See
+  `docs/milestone-3-desktop-mvp.md`.
+
 ### Milestone 4: Portable Release
 
 Objective:
@@ -502,18 +539,28 @@ platform matrix and prove they run without network or system Python setup.
 Scope:
 
 - Build macOS arm64 CPU `.app`, wrapped in DMG or zip.
+- Make an explicit macOS wrapper choice. The `.app` bundle already builds after
+  Milestone 3, but the local DMG script timed out in Finder AppleScript with
+  AppleEvent `-1712`; fix that path or choose zip for the first wrapper.
 - Build Windows x64 CPU portable archive, validated first on Windows 11.
 - Build Windows x64 NVIDIA CUDA portable archive, validated first on Windows 11
   with the RTX 5070 Ti machine.
 - Add committed packaging manifests and staging scripts so a clean checkout can
   assemble the runtime, sidecar, model, resource layout, and license notices
   before invoking Tauri build.
+- Replace the development-only `localfiles/` runtime/model defaults in the
+  desktop workflow with packaged resource lookup while preserving developer
+  overrides for local smoke testing.
 - Add model/runtime manifests with source, expected local artifact path, version,
   platform, and SHA256 metadata. Keep large runtime and model artifacts out of
   git unless a later ADR explicitly chooses Git LFS or release-asset storage.
 - Bundle Python runtime, PyTorch, sidecar, model weights, resources, and license
   notices.
 - Verify portable folder/resource lookup for sidecar and model paths.
+- Verify that the job-managed preview/export workflow works from packaged
+  resource paths, not only from repository-relative development paths.
+- Review the asset protocol scope for arbitrary user-selected audio and
+  temporary enhanced previews in packaged builds.
 - Document archive size, extracted size, runtime expectations, and known
   platform limitations.
 
