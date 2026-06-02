@@ -27,7 +27,7 @@ Responsibilities:
 - Write the sidecar handoff as mono 32-bit float WAV.
 - Read the sidecar WAV output back through the same Rust audio boundary.
 - Resample final output to 44.1 kHz when needed.
-- Write product output as mono 24-bit PCM WAV.
+- Write product output as standard mono PCM16 WAV at 44.1 kHz.
 
 The Python sidecar remains WAV-only. It no longer owns user-facing MP3 or M4A
 compatibility.
@@ -91,7 +91,8 @@ cargo test --manifest-path src-tauri/Cargo.toml
   - `localfiles/samples/low_quality_voice_sample_1.wav`
   - `localfiles/samples/low_quality_voice_sample_1.mp3`
   - `localfiles/samples/low_quality_voice_sample_1.m4a`
-- The smoke outputs are 44.1 kHz mono 24-bit little-endian PCM WAV files.
+- The smoke outputs are 44.1 kHz mono PCM16 WAV files with standard PCM
+  headers.
 
 ## Notes For Milestone 3
 

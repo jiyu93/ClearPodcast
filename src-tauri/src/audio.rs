@@ -185,7 +185,7 @@ pub fn write_final_wav(
             source,
         })?;
     let temp_path = temp.into_temp_path();
-    write_pcm24_wav(&temp_path, &final_audio)?;
+    write_pcm16_wav(&temp_path, &final_audio)?;
     persist_temp_output(temp_path.persist(path), path)?;
 
     probe_audio(path)
@@ -567,12 +567,12 @@ fn metadata_from_codec_params(
     })
 }
 
-fn write_pcm24_wav(path: impl AsRef<Path>, audio: &AudioBuffer) -> Result<(), AudioError> {
+fn write_pcm16_wav(path: impl AsRef<Path>, audio: &AudioBuffer) -> Result<(), AudioError> {
     let path = path.as_ref();
     let spec = hound::WavSpec {
         channels: 1,
         sample_rate: audio.sample_rate,
-        bits_per_sample: 24,
+        bits_per_sample: 16,
         sample_format: hound::SampleFormat::Int,
     };
     let mut writer =
@@ -582,7 +582,7 @@ fn write_pcm24_wav(path: impl AsRef<Path>, audio: &AudioBuffer) -> Result<(), Au
         })?;
 
     for sample in &audio.samples {
-        let quantized = (clamp_sample(*sample) * 8_388_607.0).round() as i32;
+        let quantized = (clamp_sample(*sample) * i16::MAX as f32).round() as i16;
         writer
             .write_sample(quantized)
             .map_err(|source| AudioError::WriteWav {

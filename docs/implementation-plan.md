@@ -88,9 +88,9 @@ Internal representation:
 Output:
 
 - WAV only.
-- Recommended first output: 44.1 kHz mono 24-bit PCM WAV.
-- If implementation simplicity matters, 32-bit float WAV is acceptable for early
-  internal builds, but product export should prefer 24-bit PCM.
+- Recommended first output: standard 44.1 kHz mono PCM16 WAV.
+- Standard PCM16 WAV headers keep mono speech center-routed in native players
+  and align with the sidecar's PCM16 output.
 
 ## Rust Audio Dependencies
 
@@ -419,8 +419,8 @@ Completion state as of June 2, 2026:
 - Rust writes a stable mono 32-bit float WAV sidecar handoff.
 - The Python sidecar remains WAV-only and is no longer responsible for MP3 or
   M4A compatibility.
-- Rust reads the sidecar WAV output and writes the final user-visible 44.1 kHz
-  mono 24-bit PCM WAV.
+- Rust reads the sidecar WAV output and writes the final user-visible standard
+  44.1 kHz mono PCM16 WAV.
 - Rust owns temporary handoff files and cleans the temporary job directory after
   success and sidecar failure. Cancellation is not present in milestone 2; it is
   a milestone 3 job-manager behavior.
@@ -435,7 +435,7 @@ Completion state as of June 2, 2026:
   `localfiles/samples/low_quality_voice_sample_1.wav`,
   `localfiles/samples/low_quality_voice_sample_1.mp3`, and
   `localfiles/samples/low_quality_voice_sample_1.m4a`. All three outputs are
-  44.1 kHz mono 24-bit little-endian PCM WAV files.
+  44.1 kHz mono PCM16 WAV files with standard PCM headers.
 - Milestone 2 has no deferred exit criteria. See
   `docs/milestone-2-audio-contract.md`.
 

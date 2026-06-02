@@ -44,4 +44,5 @@ Negative:
   probing.
 - Use `hound` for WAV read/write.
 - Convert stereo inputs to mono before inference.
-- Prefer 44.1 kHz mono 24-bit PCM WAV as the product export format.
+- Prefer standard 44.1 kHz mono PCM16 WAV as the product export format, with
+  standard PCM headers for center-routed mono playback.

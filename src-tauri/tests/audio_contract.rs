@@ -33,6 +33,7 @@ fn wav_decode_write_and_stereo_to_mono_contract() {
     assert_eq!(metadata.source_sample_rate, FINAL_SAMPLE_RATE);
     assert_eq!(metadata.channels, 1);
     assert!(metadata.frame_count.unwrap_or_default() > decoded.pcm.samples.len() as u64);
+    assert_standard_pcm16_mono_wav(&output);
 }
 
 #[test]
@@ -109,6 +110,7 @@ fn wav_mp3_and_m4a_complete_sidecar_handoff_to_final_wav() {
         assert_eq!(result.output_metadata.source_sample_rate, FINAL_SAMPLE_RATE);
         assert_eq!(result.output_metadata.channels, 1);
         assert!(output.is_file());
+        assert_standard_pcm16_mono_wav(&output);
 
         let handoff_dir = runner.handoff_dir().expect("runner saw handoff path");
         assert!(
@@ -287,6 +289,27 @@ fn write_stereo_wav(path: &Path) {
 
 fn write_base64_fixture(path: &Path, fixture: &str) {
     fs::write(path, decode_base64(fixture)).expect("write base64 fixture");
+}
+
+fn assert_standard_pcm16_mono_wav(path: &Path) {
+    let bytes = fs::read(path).expect("read wav bytes");
+    let fmt_offset = bytes
+        .windows(4)
+        .position(|window| window == b"fmt ")
+        .expect("fmt chunk");
+    assert_eq!(read_u32_le(&bytes, fmt_offset + 4), 16);
+    assert_eq!(read_u16_le(&bytes, fmt_offset + 8), 0x0001);
+    assert_eq!(read_u16_le(&bytes, fmt_offset + 10), 1);
+    assert_eq!(read_u32_le(&bytes, fmt_offset + 12), FINAL_SAMPLE_RATE);
+    assert_eq!(read_u16_le(&bytes, fmt_offset + 22), 16);
+}
+
+fn read_u16_le(bytes: &[u8], offset: usize) -> u16 {
+    u16::from_le_bytes(bytes[offset..offset + 2].try_into().expect("u16 bytes"))
+}
+
+fn read_u32_le(bytes: &[u8], offset: usize) -> u32 {
+    u32::from_le_bytes(bytes[offset..offset + 4].try_into().expect("u32 bytes"))
 }
 
 fn decode_base64(fixture: &str) -> Vec<u8> {
