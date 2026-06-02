@@ -14,10 +14,11 @@ under:
 Those package metadata directories contain the authoritative wheel license files
 and metadata available in the staged runtime.
 
-Major bundled components for the macOS arm64 CPU artifact include:
+Major bundled components for current portable artifacts include:
 
 - Python 3.12 runtime and standard library.
-- PyTorch and torchaudio CPU inference packages.
+- PyTorch CPU inference packages for macOS and PyTorch CUDA-capable inference
+  packages for Windows.
 - Resemble Enhance inference package and repository-owned ClearPodcast sidecar.
 - Scientific and audio Python packages used by Resemble Enhance, including
   NumPy, SciPy, soundfile, librosa, scikit-learn, numba, llvmlite, soxr,

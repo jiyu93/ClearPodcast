@@ -24,6 +24,7 @@ Start here:
 - [Milestone 2 audio contract](docs/milestone-2-audio-contract.md)
 - [Milestone 3 desktop MVP](docs/milestone-3-desktop-mvp.md)
 - [Milestone 4 macOS portable release](docs/milestone-4-macos-portable-release.md)
+- [Milestone 5 Windows portable CUDA release](docs/milestone-5-windows-portable-cuda.md)
 - [Release workflow](docs/release-workflow.md)
 - [Domain context](CONTEXT.md)
 - [Architecture decisions](docs/adr/)
@@ -42,16 +43,22 @@ Bootstrap the local macOS CPU Python runtime with a Python 3.10+ interpreter:
 PYTHON_BIN=/path/to/python3.12 scripts/bootstrap-macos-cpu-runtime.sh
 ```
 
-On Windows, create a local CPU Python runtime for smoke tests or for the
-desktop MVP's optional Python override:
+On Windows, create a local CUDA-capable Python runtime for smoke tests,
+packaging, or the desktop MVP's optional Python override. The packaged app uses
+CUDA automatically when available and falls back to CPU when CUDA is unavailable
+or disabled:
 
 ```powershell
 uv venv --python 3.12 localfiles\runtime\windows-x64
 localfiles\runtime\windows-x64\Scripts\python.exe -m ensurepip --upgrade
 localfiles\runtime\windows-x64\Scripts\python.exe -m pip install --upgrade pip
-localfiles\runtime\windows-x64\Scripts\python.exe -m pip install -r sidecars\resemble\requirements-macos-cpu.txt
+localfiles\runtime\windows-x64\Scripts\python.exe -m pip install -r sidecars\resemble\requirements-windows-x64-cuda.txt
 localfiles\runtime\windows-x64\Scripts\python.exe -m pip install --no-deps resemble-enhance==0.0.1
 ```
+
+As of June 3, 2026, the Windows CUDA runtime pins the PyTorch CUDA 13.0
+(`cu130`) wheel line for RTX 5070 Ti validation. Users do not need the CUDA
+Toolkit installed; CUDA acceleration requires a compatible NVIDIA driver.
 
 Run the documented audio -> enhanced WAV smoke path. The `enhance_wav` binary
 name is kept for compatibility, but `--input` accepts `.wav`, `.mp3`, and
@@ -95,3 +102,16 @@ The local artifact is written to `localfiles/releases/`. Use the
 [release workflow](docs/release-workflow.md) for routine release builds; see the
 Milestone 4 document for the original macOS packaging contract and deeper
 resource-layout details.
+
+## Windows Portable Packaging
+
+Build the single Windows x64 CUDA-capable portable archive with CPU fallback:
+
+```powershell
+npm run package:windows-x64
+```
+
+The local artifact is written to `localfiles/releases/`. The Windows package
+bundles PyTorch CUDA runtime files and selects CUDA automatically when a
+compatible NVIDIA GPU is available; otherwise the same app runs on CPU. See the
+Milestone 5 document for the validation record and Windows resource layout.

@@ -37,7 +37,8 @@ Positive:
 - Fits the offline and privacy-oriented product promise.
 - Avoids requiring administrator privileges.
 - Makes bundled Python, PyTorch, sidecar, and model paths easier to validate.
-- Keeps Windows CPU and CUDA distributions explicit and separate.
+- Keeps the Windows user experience to one portable archive that chooses CUDA or
+  CPU automatically.
 
 Negative:
 
@@ -46,6 +47,8 @@ Negative:
 - Users must extract the Windows archive before running it.
 - Portable archives may be large because all runtime files and model weights are
   included.
+- The Windows archive is larger than a CPU-only package because it bundles a
+  CUDA-capable PyTorch runtime even for users who will fall back to CPU.
 
 ## Implementation Notes
 

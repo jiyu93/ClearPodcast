@@ -20,8 +20,7 @@ instead of release packaging.
 | Artifact | Status | Command |
 | --- | --- | --- |
 | macOS arm64 CPU zip | Available | `npm run package:macos-cpu` |
-| Windows x64 CPU portable zip | Planned after Milestone 5 | To be added |
-| Windows x64 NVIDIA CUDA portable zip | Planned after Milestone 5 | To be added |
+| Windows x64 CUDA-capable portable zip | Available | `npm run package:windows-x64` |
 
 ## Versioning
 
@@ -89,20 +88,33 @@ sandbox-exec -p '(version 1) (allow default) (deny network*)' \
   --expected-checkpoint-sha256 f9d035f318de3e6d919bc70cf7ad7d32b4fe92ec5cbe0b30029a27f5db07d9d6
 ```
 
-## Windows Releases
+## Windows X64 CUDA-Capable Portable Zip
 
-Windows release automation is not implemented yet. After Milestone 5, keep the
-Windows CPU and CUDA release workflows in this same document instead of creating
-separate release docs.
+Use this workflow when asked to build a new Windows release zip or portable
+Windows artifact for the current UI/backend state. Windows ships as one
+CUDA-capable portable archive with automatic CPU fallback.
 
-Expected future sections:
+Required local inputs:
 
-- Windows x64 CPU portable zip.
-- Windows x64 NVIDIA CUDA portable zip.
-- Windows smoke verification for WAV, MP3, and M4A input to WAV output.
-- CUDA device verification on the RTX 5070 Ti validation machine.
-- CPU fallback or clear-failure verification when CUDA is unavailable.
-- No-network verification after extracting each Windows archive.
+```text
+localfiles/runtime/windows-x64/
+localfiles/models/resemble-enhance/enhancer_stage2/
+```
+
+Build and verify:
+
+```powershell
+npm run check
+cargo test --manifest-path src-tauri/Cargo.toml
+git diff --check
+npm run package:windows-x64
+```
+
+The zip is written to:
+
+```text
+localfiles/releases/ClearPodcast-<version>-windows-x64.zip
+```
 
 Windows should reuse the resource contract established by macOS packaging:
 
@@ -115,9 +127,30 @@ clearpodcast/
   manifests/
 ```
 
-Milestone 5 should add committed Windows artifact manifests with the same fields
-as the macOS manifest: source, artifact path, version, platform, and SHA256
-metadata.
+The Windows runtime directory is `clearpodcast/runtimes/windows-x64/`. The
+committed Windows artifact manifest is `packaging/artifacts.windows-x64.json`.
+
+## Windows Smoke Verification
+
+After building, extract the zip into a fresh local directory and verify WAV,
+MP3, and M4A inputs produce 44.1 kHz mono WAV outputs using packaged resource
+paths inside the extracted portable folder.
+
+Run both device paths with the same artifact:
+
+- CUDA smoke on an NVIDIA machine with the default `device=auto` path.
+- CPU fallback smoke with `CUDA_VISIBLE_DEVICES=-1`.
+- Explicit `device=cuda` with CUDA disabled should fail clearly with
+  `cuda_unavailable`.
+
+Run a no-network smoke test when practical. A Windows Firewall block rule is
+preferred when the shell has administrator rights. In non-admin shells, use a
+temporary Python `sitecustomize.py` on `PYTHONPATH` that blocks socket connects
+for the sidecar process, then run the packaged-resource smoke CLI.
+
+Review the emitted sidecar device JSON or the desktop job panel after each run.
+CUDA runs should report `selected_device: cuda` and the NVIDIA device name; CPU
+fallback runs should report `selected_device: cpu`.
 
 ## Release Hygiene
 
@@ -128,3 +161,5 @@ metadata.
 - Keep third-party license notices in the packaged artifact.
 - Use `docs/milestone-4-macos-portable-release.md` for deeper macOS packaging
   context and the original portable packaging contract.
+- Use `docs/milestone-5-windows-portable-cuda.md` for deeper Windows CUDA,
+  CPU-fallback, size, and validation context.

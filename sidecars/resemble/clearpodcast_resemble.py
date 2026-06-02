@@ -32,7 +32,7 @@ def main() -> int:
     parser.add_argument("--model-dir", required=True, type=Path)
     parser.add_argument("--input-wav", required=True, type=Path)
     parser.add_argument("--output-wav", required=True, type=Path)
-    parser.add_argument("--device", default="cpu", choices=("auto", "cpu", "cuda"))
+    parser.add_argument("--device", default="auto", choices=("auto", "cpu", "cuda"))
     parser.add_argument("--nfe", default=64, type=int)
     parser.add_argument("--solver", default="midpoint", choices=("midpoint", "rk4", "euler"))
     parser.add_argument("--lambd", default=0.1, type=float)
@@ -50,7 +50,14 @@ def main() -> int:
 
         torch, soundfile, enhance = import_inference_dependencies()
         device = select_device(args.device, torch)
-        emit("progress", message="loaded inference dependencies", device=device)
+        emit(
+            "progress",
+            message="loaded inference dependencies",
+            device=device,
+            cuda_available=bool(torch.cuda.is_available()),
+            torch_cuda_version=getattr(torch.version, "cuda", None),
+            cuda_device_name=cuda_device_name(torch),
+        )
 
         start_time = time.perf_counter()
         waveform, sample_rate = load_wav(args.input_wav, torch, soundfile)
@@ -291,6 +298,16 @@ def select_device(configured_device: str, torch_module) -> str:
         )
 
     return configured_device
+
+
+def cuda_device_name(torch_module) -> str | None:
+    if not torch_module.cuda.is_available():
+        return None
+
+    try:
+        return torch_module.cuda.get_device_name(0)
+    except Exception:
+        return None
 
 
 def sha256_file(path: Path) -> str:

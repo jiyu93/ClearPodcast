@@ -25,10 +25,18 @@ type EnhancementJobSnapshot = {
   exported_wav?: string;
   input_metadata?: AudioMetadata;
   output_metadata?: AudioMetadata;
+  device_info?: EnhancementDeviceInfo;
   message: string;
   error?: string;
   created_at_ms: number;
   updated_at_ms: number;
+};
+
+type EnhancementDeviceInfo = {
+  selected_device: string;
+  cuda_available?: boolean;
+  torch_cuda_version?: string;
+  cuda_device_name?: string;
 };
 
 type ExportResult = {
@@ -224,7 +232,7 @@ export default function App() {
             ...runtimeOverrides(runtimeSettings),
             ...enhancementSettings,
             input_audio: selectedPath,
-            device: "cpu",
+            device: "auto",
             expected_checkpoint_sha256: EXPECTED_CHECKPOINT_SHA256,
           },
         },
@@ -510,6 +518,7 @@ export default function App() {
 
               <div className="message-panel">
                 <strong>{job?.message ?? notice}</strong>
+                <DeviceNotice deviceInfo={job?.device_info} state={job?.state} />
                 {job?.error ? <span>{job.error}</span> : <span>{notice}</span>}
                 {exportMessage ? <span>{exportMessage}</span> : null}
               </div>
@@ -616,6 +625,40 @@ function StatusPill({ state }: { state: EnhancementJobState | "idle" }) {
   return <span className={`status-pill ${state}`}>{labelForState(state)}</span>;
 }
 
+function DeviceNotice({
+  deviceInfo,
+  state,
+}: {
+  deviceInfo?: EnhancementDeviceInfo;
+  state?: EnhancementJobState;
+}) {
+  if (!deviceInfo) {
+    if (state === "running") {
+      return (
+        <div className="device-notice pending">
+          <span>Processing device</span>
+          <strong>Detecting</strong>
+        </div>
+      );
+    }
+
+    return null;
+  }
+
+  const isCuda = deviceInfo.selected_device.toLowerCase() === "cuda";
+  const detail = isCuda
+    ? (deviceInfo.cuda_device_name ?? cudaVersionLabel(deviceInfo))
+    : cpuDeviceDetail(deviceInfo);
+
+  return (
+    <div className={`device-notice ${isCuda ? "cuda" : "cpu"}`}>
+      <span>Processing device</span>
+      <strong>{isCuda ? "Using NVIDIA GPU" : "Using CPU"}</strong>
+      <small>{detail}</small>
+    </div>
+  );
+}
+
 function toAssetSrc(path?: string) {
   if (!path || !tauriAvailable()) {
     return undefined;
@@ -684,6 +727,22 @@ function formatDuration(duration?: number) {
 
 function formatMetadataShort(metadata: AudioMetadata) {
   return `${metadata.format.toUpperCase()} | ${metadata.source_sample_rate.toLocaleString()} Hz`;
+}
+
+function cudaVersionLabel(deviceInfo: EnhancementDeviceInfo) {
+  return deviceInfo.torch_cuda_version
+    ? `CUDA ${deviceInfo.torch_cuda_version}`
+    : "CUDA available";
+}
+
+function cpuDeviceDetail(deviceInfo: EnhancementDeviceInfo) {
+  if (deviceInfo.cuda_available) {
+    return "CUDA available; CPU selected";
+  }
+
+  return deviceInfo.torch_cuda_version
+    ? `CUDA ${deviceInfo.torch_cuda_version} unavailable`
+    : "CUDA unavailable";
 }
 
 function labelForState(state: EnhancementJobState | "idle") {

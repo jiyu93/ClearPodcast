@@ -144,11 +144,7 @@ Windows should reuse the same resource contract:
   ClearPodcast.exe
   resources-or-tauri-resource-dir/
     clearpodcast/
-      runtimes/windows-x64-cpu/
-        python.exe
-        Lib/
-        site-packages/
-      runtimes/windows-x64-cuda/
+      runtimes/windows-x64/
         python.exe
         Lib/
         site-packages/
@@ -158,14 +154,14 @@ Windows should reuse the same resource contract:
       manifests/
 ```
 
-Milestone 5 should add Windows manifests for CPU and CUDA artifacts with the same
-fields used by the macOS manifest: source, artifact path, version, platform, and
-SHA256 metadata.
+Milestone 5 should add a Windows manifest for the single CUDA-capable artifact
+with the same fields used by the macOS manifest: source, artifact path, version,
+platform, and SHA256 metadata.
 
 Windows staging needs local sources for:
 
-- CPU Python/PyTorch runtime.
-- CUDA Python/PyTorch runtime selected for the RTX 5070 Ti validation machine.
+- CUDA-capable Python/PyTorch runtime selected for the RTX 5070 Ti validation
+  machine, staged at `clearpodcast/runtimes/windows-x64/`.
 - Resemble Enhance model files with the expected checkpoint SHA256.
 - Third-party notices.
 
@@ -175,7 +171,12 @@ Expected Windows smoke checklist:
   and generated artifact manifest.
 - Run WAV, MP3, and M4A input to WAV output from the fresh portable folder.
 - Run with network disabled or blocked.
-- Verify CPU fallback behavior.
+- Verify CPU fallback behavior by disabling CUDA for the same artifact.
 - Verify CUDA device selection and capture evidence that inference ran on the
   NVIDIA GPU.
 - Verify cancellation while a sidecar process is running.
+
+Milestone 5 completed this handoff with the platform-specific Windows runtime
+path `runtimes/windows-x64/` while preserving the macOS runtime path
+`runtimes/macos-arm64-cpu/`. See
+`docs/milestone-5-windows-portable-cuda.md`.

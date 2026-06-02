@@ -26,6 +26,8 @@ The React app in `src/App.tsx` now presents the first usable desktop surface:
 - Honest indeterminate processing state while Resemble Enhance runs.
 - Before/after playback with local asset URLs.
 - Export flow that asks for a WAV destination only after a job completes.
+- Job result display showing whether the completed enhancement used CPU or
+  NVIDIA CUDA.
 
 The runtime and model path fields remain visible as optional developer
 overrides. After Milestone 4, leaving them blank uses packaged resource lookup;
@@ -67,6 +69,11 @@ The cancellable sidecar path preserves stdout and stderr for diagnostics, but it
 decodes captured logs lossily so Windows console progress output cannot make a
 successful enhancement job fail only because a log stream contains non-UTF-8
 bytes.
+
+The job manager parses the sidecar's structured device-selection log after a
+successful run and returns it to the UI. The Job panel displays whether the
+completed enhancement used CPU or NVIDIA CUDA, including the CUDA device name
+when available.
 
 ## Source Scenarios
 
@@ -177,5 +184,6 @@ lookup. Packaging work should also review whether the current asset protocol
 scope should remain broad for arbitrary user-selected audio or be paired with a
 narrower allowlist strategy after file selection. The first packaging task
 should also resolve the DMG wrapper timeout or intentionally use a zip wrapper
-for the macOS arm64 CPU artifact. Windows CPU and CUDA artifacts are now a
-separate Milestone 5 handoff for the Windows validation machine.
+for the macOS arm64 CPU artifact. The single Windows CUDA-capable portable
+artifact with CPU fallback is now a separate Milestone 5 handoff for the Windows
+validation machine.

@@ -25,7 +25,8 @@ Positive:
 
 - Fastest path to using the selected model reliably.
 - Clear separation between desktop app responsibilities and model inference.
-- Easier to package CPU and CUDA variants.
+- Easier to package platform-specific Python/PyTorch runtimes, including the
+  single Windows CUDA-capable runtime with CPU fallback.
 
 Negative:
 

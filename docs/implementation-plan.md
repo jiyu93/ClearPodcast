@@ -153,11 +153,12 @@ Do not require users to install or download at runtime:
 First release artifacts:
 
 - macOS arm64 CPU `.app`, wrapped in DMG or zip.
-- Windows x64 CPU portable archive, validated first on Windows 11.
-- Windows x64 NVIDIA CUDA portable archive, validated first on Windows 11.
+- Windows x64 CUDA-capable portable archive with CPU fallback, validated first
+  on Windows 11.
 
-The CPU artifact is the compatibility baseline. CUDA is an acceleration artifact,
-not the only supported path.
+CPU fallback is the compatibility baseline inside the Windows artifact. CUDA is
+an acceleration path selected automatically when the bundled runtime can use a
+compatible NVIDIA GPU.
 
 Portable-first means the Windows build should be usable after extracting a
 folder, without administrator privileges, registry writes, or mandatory system
@@ -178,14 +179,15 @@ First-class target platforms:
 
 - macOS arm64 for day-to-day development, UI work, Rust audio I/O, CPU sidecar
   integration, and baseline release work.
-- Windows 11 x64 CPU for general Windows compatibility.
-- Windows 11 x64 NVIDIA CUDA for accelerated inference and high-performance
-  validation on the local RTX 5070 Ti machine.
+- Windows 11 x64 for general Windows compatibility, CPU fallback, and NVIDIA
+  CUDA acceleration validation on the local RTX 5070 Ti machine.
 
-The Windows NVIDIA artifact should use the latest stable PyTorch CUDA wheel that
-supports the target GPU generation at packaging time. Do not pin the first CUDA
-artifact to an older CUDA build before validating it against the target Windows
-GPU.
+The Windows artifact should bundle the latest stable PyTorch CUDA wheel that
+supports the target GPU generation at packaging time and should run with
+`device=auto` by default. As of June 3, 2026, the preferred Windows wheel line is
+CUDA 13.0 (`cu130`) for the current PyTorch Windows Python 3.12 runtime after it
+is validated against the RTX 5070 Ti. Do not pin the first Windows artifact to an
+older CUDA build before validating the current CUDA line against the target GPU.
 
 Windows 10 x64 can be evaluated after the Windows 11 path is stable, but it is
 not the first validation target. For portable Windows builds, assume WebView2 is
@@ -218,13 +220,14 @@ Recommended:
 
 - 8-core CPU.
 - 16 GB RAM.
-- NVIDIA GPU with at least 6 GB VRAM for the CUDA build.
+- NVIDIA GPU with at least 6 GB VRAM for CUDA acceleration.
 - RTX 5070 Ti-class GPU is more than enough for local CUDA validation.
 
 Release artifacts are expected to be large because PyTorch and model weights are
-bundled. A 1.5 GB to 3 GB extracted app footprint is acceptable for the product
-promise of offline restoration. The disk minimum is higher because long inputs,
-temporary WAV handoff files, and exported WAVs need working space.
+bundled. The Windows artifact is expected to be larger than a CPU-only package
+because it includes the CUDA-capable PyTorch runtime even for users who fall back
+to CPU. The disk minimum is higher because long inputs, temporary WAV handoff
+files, and exported WAVs need working space.
 
 ## Local Development Fixtures
 
@@ -290,6 +293,8 @@ order; use the goal-mode milestones below for implementation order.
 10. Resemble Enhance model settings exposed in a collapsed advanced panel with
     public demo-aligned defaults: Midpoint solver, 64 CFM steps, 0.50 prior
     temperature, and 0.10 denoising strength.
+11. A visible job result indicator showing whether the completed enhancement
+    used CPU fallback or NVIDIA CUDA acceleration.
 
 ## Goal-Mode Milestones
 
@@ -508,6 +513,8 @@ Completion state as of June 3, 2026:
   panel. Defaults align with the public demo's initial enhancement path:
   `midpoint`, `nfe=64`, `tau=0.5`, and `lambd=0.1`; the panel includes reset
   defaults and concise help text.
+- The desktop job panel reports the actual sidecar-selected processing device
+  after completion, so users can see whether a job used CPU or NVIDIA CUDA.
 - Rust exposes a job-managed command surface:
   `start_enhancement_job_command`, `get_enhancement_job_command`,
   `cancel_enhancement_job_command`, and `export_enhanced_wav_command`.
@@ -534,7 +541,7 @@ Completion state as of June 3, 2026:
 - Windows 11 x64 local CPU validation also passes on the Windows development
   machine with `localfiles/runtime/windows-x64/Scripts/python.exe`; this
   validates the Milestone 3 desktop and smoke-test path on Windows but does not
-  replace the Milestone 5 portable CPU/CUDA artifact work.
+  replace the Milestone 5 portable Windows artifact work.
 - The Windows validation pass fixed two portability issues: model hparams saved
   with `pathlib.PosixPath` YAML tags now load on Windows, and cancellable desktop
   jobs tolerate non-UTF-8 sidecar log bytes from Windows console progress
@@ -611,8 +618,7 @@ Exit criteria:
 
 Out of scope:
 
-- Windows CPU artifact creation or validation.
-- Windows CUDA artifact creation or validation.
+- Windows portable artifact creation or validation.
 - Auto-update.
 - Start Menu shortcuts, file associations, MSI, NSIS, `.pkg`, or traditional
   installer flows.
@@ -680,8 +686,9 @@ Completion state as of June 3, 2026:
 
 Objective:
 
-Produce self-contained Windows 11 x64 portable release artifacts and validate
-both the CPU compatibility build and the NVIDIA CUDA acceleration build on the
+Produce one self-contained Windows 11 x64 portable release artifact that bundles
+a CUDA-capable PyTorch runtime, uses CUDA automatically when available, and falls
+back to CPU when CUDA is unavailable or disabled. Validate the artifact on the
 Windows RTX 5070 Ti machine. Milestone 5 is intended to run from a fresh clone on
 the Windows validation computer.
 
@@ -689,13 +696,13 @@ Scope:
 
 - Clone the repository onto the Windows 11 x64 validation machine after
   Milestone 4 is complete.
-- Build a Windows x64 CPU portable archive using the packaging contract,
-  manifests, and staging scripts established in Milestone 4.
-- Build a Windows x64 NVIDIA CUDA portable archive using the same resource
-  layout with a CUDA-capable Python/PyTorch runtime.
+- Build one Windows x64 CUDA-capable portable archive using the packaging
+  contract, manifests, and staging scripts established in Milestone 4.
 - Select the Windows CUDA PyTorch wheel at packaging time based on the latest
-  stable PyTorch support for the target GPU generation. Do not require users to
-  install the CUDA Toolkit.
+  stable PyTorch support for the target GPU generation. As of June 3, 2026,
+  prefer CUDA 13.0 (`cu130`) for the current PyTorch Windows Python 3.12 runtime
+  after validating it on the RTX 5070 Ti. Do not require users to install the
+  CUDA Toolkit.
 - Stage Windows runtime artifacts, sidecar files, model weights, app resources,
   and third-party license notices into the documented portable folder layout.
 - Verify that packaged Windows resource lookup finds the bundled runtime,
@@ -703,32 +710,33 @@ Scope:
   hidden `localfiles/` state.
 - Verify the desktop job-managed workflow on Windows: import, metadata display,
   enhancement, cancellation behavior, before/after playback, and WAV export.
-- Validate CPU fallback behavior when CUDA is unavailable or disabled.
+- Validate automatic CPU fallback behavior when CUDA is unavailable or disabled.
 - Validate CUDA startup, model load, and end-to-end inference on the RTX 5070 Ti
   machine.
+- Verify the desktop job panel shows the actual selected processing device for
+  both CUDA and CPU-fallback runs.
 - Document Windows archive size, extracted size, runtime expectations, GPU
   driver expectations, no-network behavior, artifact layout, and known platform
   limitations.
 
 Exit criteria:
 
-- A freshly extracted Windows x64 CPU portable archive runs on Windows 11 without
-  user-installed Python, Conda, FFmpeg, CUDA Toolkit, network access, or model
-  downloads.
-- The Windows CPU artifact completes end-to-end WAV, MP3, and M4A input to WAV
-  export smoke tests.
-- A freshly extracted Windows x64 NVIDIA CUDA portable archive runs on the RTX
-  5070 Ti Windows 11 machine without user-installed Python, Conda, FFmpeg, CUDA
-  Toolkit, network access, or model downloads.
-- The Windows CUDA artifact uses the NVIDIA GPU when CUDA is available.
-- CUDA unavailable or disabled states either fall back to CPU or fail with a
-  clear actionable error, according to the documented product behavior.
+- A freshly extracted Windows x64 portable archive runs on Windows 11 without
+  user-installed Python, Conda, FFmpeg, CUDA Toolkit, network access, model
+  downloads, or repository-relative `localfiles/` state.
+- The Windows artifact completes end-to-end WAV, MP3, and M4A input to WAV
+  export smoke tests with automatic CPU fallback when CUDA is disabled.
+- The same Windows artifact uses the NVIDIA GPU when CUDA is available on the
+  RTX 5070 Ti machine.
+- CUDA unavailable or disabled states fall back to CPU. Explicit developer
+  requests for `device=cuda` may fail, but must fail with a clear actionable
+  error.
 - The RTX 5070 Ti machine completes end-to-end WAV, MP3, and M4A input to WAV
   output CUDA smoke tests.
-- Third-party license notices are present in both Windows artifacts.
-- Documentation explains Windows CPU and CUDA artifact layout, archive sizes,
-  extracted sizes, runtime expectations, GPU driver expectations, and platform
-  support status.
+- Third-party license notices are present in the Windows artifact.
+- Documentation explains Windows artifact layout, archive size, extracted size,
+  runtime expectations, GPU driver expectations, CPU fallback behavior, and
+  platform support status.
 
 Out of scope:
 
@@ -741,20 +749,67 @@ Out of scope:
 
 Verification:
 
-- Windows 11 CPU portable archive no-network smoke test after extraction.
-- Windows 11 CUDA portable archive no-network smoke test after extraction.
-- Windows 11 CPU WAV, MP3, and M4A input to WAV export smoke tests.
+- Windows 11 portable archive no-network smoke test after extraction.
+- Windows 11 CPU-fallback WAV, MP3, and M4A input to WAV export smoke tests.
 - Windows 11 CUDA WAV, MP3, and M4A input to WAV export smoke tests on the RTX
-  5070 Ti machine.
+  5070 Ti machine using the same artifact.
 - CUDA enabled-device check and captured evidence that inference ran on NVIDIA
   GPU.
-- CPU fallback or clear-failure test with CUDA disabled or unavailable.
+- CPU fallback test with CUDA disabled or unavailable.
+- UI device indicator smoke test for CUDA and CPU-fallback runs.
 - Cancellation smoke test on Windows while a sidecar job is running.
-- License notice review for both Windows artifacts.
+- License notice review for the Windows artifact.
 - `npm run check`.
 - `cargo test --manifest-path src-tauri/Cargo.toml`.
 - Windows artifact build commands documented by Milestone 4.
 - Run `git diff --check`.
+
+Completion state as of June 3, 2026:
+
+- `packaging/artifacts.windows-x64.json` defines the committed Windows x64
+  artifact manifest with source, artifact path, version, platform, and SHA256
+  metadata.
+- `scripts/stage-windows-x64-resources.mjs` stages a self-contained Windows x64
+  resource tree under `src-tauri/resources/clearpodcast/`, dereferences the
+  uv-created base Python runtime, overlays the project `site-packages`,
+  validates the Resemble checkpoint SHA256, stages license notices, and
+  generates `clearpodcast/manifests/artifacts.json`.
+- `scripts/build-windows-x64-portable.mjs` stages resources, builds the Tauri
+  executable, and creates
+  `localfiles/releases/ClearPodcast-0.1.0-windows-x64.zip`.
+- The Windows runtime uses Python 3.12 with `torch==2.12.0+cu130`; PyTorch
+  reports CUDA 13.0, and the local validation machine reports NVIDIA driver
+  596.49 with `nvidia-smi` CUDA version 13.2.
+- The Windows artifact is one CUDA-capable portable zip with CPU fallback, not
+  separate CPU and CUDA downloads. Users do not need Python, Conda, FFmpeg, the
+  CUDA Toolkit, network downloads, model downloads, or repository-relative
+  `localfiles/` state after extraction.
+- Rust packaged-resource lookup now resolves `runtimes/windows-x64/python.exe`
+  on Windows while preserving the Milestone 4 macOS path
+  `runtimes/macos-arm64-cpu/bin/python3` on non-Windows builds.
+- The desktop UI sends `device=auto` by default. The sidecar chooses CUDA when
+  `torch.cuda.is_available()` is true and otherwise falls back to CPU.
+- The sidecar emits structured device metadata, and the desktop job panel shows
+  whether a completed enhancement used NVIDIA GPU or CPU.
+- Observed local artifact sizes: 3.86 GiB portable folder and 2.58 GiB zip
+  archive.
+- Fresh-extracted CUDA WAV, MP3, and M4A smoke tests all pass on the RTX 5070
+  Ti machine and report `selected_device: cuda` with device name
+  `NVIDIA GeForce RTX 5070 Ti`.
+- Fresh-extracted CPU fallback WAV, MP3, and M4A smoke tests all pass with
+  `CUDA_VISIBLE_DEVICES=-1` and report `selected_device: cpu`.
+- Explicit `device=cuda` with CUDA disabled fails clearly with
+  `cuda_unavailable`.
+- A no-network sidecar smoke passed using a Python socket-blocking
+  `sitecustomize.py`; a Windows Firewall block rule could not be installed from
+  this non-admin shell.
+- Output header checks confirmed all fresh-extracted smoke outputs are standard
+  PCM16 mono 44.1 kHz WAV files.
+- The fresh-extracted `ClearPodcast.exe` starts from the portable folder.
+- Windows cancellation behavior is covered by the job-manager fake sidecar
+  tests, and packaged lookup tests cover both Windows and macOS runtime paths.
+- Milestone 5 has no deferred exit criteria. See
+  `docs/milestone-5-windows-portable-cuda.md`.
 
 ## Open Questions
 

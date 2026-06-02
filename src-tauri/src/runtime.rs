@@ -37,9 +37,18 @@ pub struct EnhancementResult {
     pub output_wav: PathBuf,
     pub input_metadata: AudioMetadata,
     pub output_metadata: AudioMetadata,
+    pub device_info: Option<EnhancementDeviceInfo>,
     pub exit_code: i32,
     pub stdout: String,
     pub stderr: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+pub struct EnhancementDeviceInfo {
+    pub selected_device: String,
+    pub cuda_available: Option<bool>,
+    pub torch_cuda_version: Option<String>,
+    pub cuda_device_name: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -186,11 +195,13 @@ pub fn enhance_audio_with_runner_and_cancellation<R: SidecarRunner>(
     let enhanced = audio::decode_audio(&sidecar_output)?;
     fail_if_cancelled(cancellation)?;
     let output_metadata = audio::write_final_wav(&request.output_wav, &enhanced.pcm)?;
+    let device_info = parse_sidecar_device_info(&sidecar_result.stderr);
 
     Ok(EnhancementResult {
         output_wav: request.output_wav,
         input_metadata: decoded_input.metadata,
         output_metadata,
+        device_info,
         exit_code: sidecar_result.exit_code,
         stdout: sidecar_result.stdout,
         stderr: sidecar_result.stderr,
@@ -216,7 +227,7 @@ impl SidecarRunner for PythonSidecarRunner {
             .arg("--output-wav")
             .arg(output_wav)
             .arg("--device")
-            .arg(request.device.as_deref().unwrap_or("cpu"))
+            .arg(request.device.as_deref().unwrap_or("auto"))
             .arg("--nfe")
             .arg(request.nfe.unwrap_or(64).to_string())
             .arg("--solver")
@@ -432,6 +443,29 @@ fn sidecar_result_from_parts(
     })
 }
 
+fn parse_sidecar_device_info(stderr: &str) -> Option<EnhancementDeviceInfo> {
+    stderr
+        .lines()
+        .filter_map(|line| serde_json::from_str::<serde_json::Value>(line).ok())
+        .find_map(|event| {
+            let selected_device = event.get("device")?.as_str()?.to_string();
+            Some(EnhancementDeviceInfo {
+                selected_device,
+                cuda_available: event
+                    .get("cuda_available")
+                    .and_then(|value| value.as_bool()),
+                torch_cuda_version: event
+                    .get("torch_cuda_version")
+                    .and_then(|value| value.as_str())
+                    .map(String::from),
+                cuda_device_name: event
+                    .get("cuda_device_name")
+                    .and_then(|value| value.as_str())
+                    .map(String::from),
+            })
+        })
+}
+
 fn fail_if_cancelled(cancellation: Option<&CancellationToken>) -> Result<(), RuntimeError> {
     if cancellation
         .map(CancellationToken::is_cancelled)
@@ -473,6 +507,25 @@ mod tests {
             .expect("non-UTF-8 sidecar logs should not fail the job");
 
         assert!(result.stderr.contains(char::REPLACEMENT_CHARACTER));
+    }
+
+    #[test]
+    fn parses_selected_device_from_sidecar_json_logs() {
+        let stderr = concat!(
+            "loading model\n",
+            "{\"cuda_available\":true,\"cuda_device_name\":\"NVIDIA GeForce RTX 5070 Ti\",",
+            "\"device\":\"cuda\",\"event\":\"progress\",\"torch_cuda_version\":\"13.0\"}\n"
+        );
+
+        assert_eq!(
+            parse_sidecar_device_info(stderr),
+            Some(EnhancementDeviceInfo {
+                selected_device: "cuda".to_string(),
+                cuda_available: Some(true),
+                torch_cuda_version: Some("13.0".to_string()),
+                cuda_device_name: Some("NVIDIA GeForce RTX 5070 Ti".to_string()),
+            })
+        );
     }
 
     #[cfg(windows)]

@@ -1,4 +1,7 @@
-use clearpodcast_app::runtime::{enhance_audio, EnhanceRequest};
+use clearpodcast_app::{
+    packaging::PackagedResourcePaths,
+    runtime::{enhance_audio, EnhanceRequest},
+};
 use std::{collections::HashMap, env, path::PathBuf, process};
 
 fn main() {
@@ -43,11 +46,12 @@ fn main() {
 fn print_help() {
     eprintln!(
         "Usage: cargo run --manifest-path src-tauri/Cargo.toml --bin enhance_wav -- \\
-  --python localfiles/runtime/macos-arm64/bin/python3 \\
-  --model-dir localfiles/models/resemble-enhance/enhancer_stage2 \\
+  --resource-dir localfiles/releases/extracted/ClearPodcast \\
   --input localfiles/samples/low_quality_voice_sample_1.wav|.mp3|.m4a \\
   --output localfiles/outputs/low_quality_voice_sample_1.enhanced.wav \\
-  --expected-checkpoint-sha256 f9d035f318de3e6d919bc70cf7ad7d32b4fe92ec5cbe0b30029a27f5db07d9d6"
+  --expected-checkpoint-sha256 f9d035f318de3e6d919bc70cf7ad7d32b4fe92ec5cbe0b30029a27f5db07d9d6
+
+Explicit developer paths are still supported with --python, --model-dir, and optional --sidecar."
     );
 }
 
@@ -77,12 +81,41 @@ fn parse_flags(args: &[String]) -> Result<HashMap<String, String>, String> {
 }
 
 fn build_request(flags: &HashMap<String, String>) -> Result<EnhanceRequest, String> {
+    let packaged_resources = optional_path(flags, "resource-dir")
+        .map(PackagedResourcePaths::from_resource_dir)
+        .map(|paths| {
+            paths
+                .validate_packaged_lookup()
+                .map_err(|error| error.to_string())?;
+            Ok::<_, String>(paths)
+        })
+        .transpose()?;
+    let python = match optional_path(flags, "python") {
+        Some(path) => path,
+        None => packaged_resources
+            .as_ref()
+            .map(|paths| paths.python.clone())
+            .ok_or_else(|| "missing required --python or --resource-dir".to_string())?,
+    };
+    let model_dir = match optional_path(flags, "model-dir") {
+        Some(path) => path,
+        None => packaged_resources
+            .as_ref()
+            .map(|paths| paths.model_dir.clone())
+            .ok_or_else(|| "missing required --model-dir or --resource-dir".to_string())?,
+    };
+    let sidecar = optional_path(flags, "sidecar").or_else(|| {
+        packaged_resources
+            .as_ref()
+            .map(|paths| paths.sidecar.clone())
+    });
+
     Ok(EnhanceRequest {
-        python: required_path(flags, "python")?,
-        model_dir: required_path(flags, "model-dir")?,
+        python,
+        model_dir,
         input_audio: required_path(flags, "input")?,
         output_wav: required_path(flags, "output")?,
-        sidecar: optional_path(flags, "sidecar"),
+        sidecar,
         device: flags.get("device").cloned(),
         nfe: optional_parse(flags, "nfe")?,
         solver: flags.get("solver").cloned(),

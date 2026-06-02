@@ -44,6 +44,8 @@ Current accepted decisions:
 - AI inference runs through a bundled Python sidecar.
 - Windows and macOS are the first supported platforms; Windows 11 x64 is the
   primary NVIDIA CUDA validation target.
+- Windows uses one CUDA-capable portable artifact with automatic CPU fallback,
+  not separate CPU and CUDA release downloads.
 - Distribution is portable-first; installers are optional future artifacts, not
   the default first release surface.
 

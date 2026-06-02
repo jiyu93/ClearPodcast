@@ -10,7 +10,9 @@
     "tauri": "tauri",
     "check": "tsc --noEmit",
     "package:stage:macos-cpu": "node scripts/stage-macos-cpu-resources.mjs",
-    "package:macos-cpu": "node scripts/build-macos-cpu-portable.mjs"
+    "package:macos-cpu": "node scripts/build-macos-cpu-portable.mjs",
+    "package:stage:windows-x64": "node scripts/stage-windows-x64-resources.mjs",
+    "package:windows-x64": "node scripts/build-windows-x64-portable.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.0.0",

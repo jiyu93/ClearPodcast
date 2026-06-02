@@ -4,6 +4,7 @@ use thiserror::Error;
 
 pub const RESOURCE_ROOT_DIR: &str = "clearpodcast";
 pub const MACOS_CPU_RUNTIME_DIR: &str = "runtimes/macos-arm64-cpu";
+pub const WINDOWS_RUNTIME_DIR: &str = "runtimes/windows-x64";
 pub const RESEMBLE_SIDECAR_PATH: &str = "sidecars/resemble/clearpodcast_resemble.py";
 pub const RESEMBLE_MODEL_DIR: &str = "models/resemble-enhance/enhancer_stage2";
 pub const THIRD_PARTY_NOTICES_PATH: &str = "licenses/THIRD_PARTY_NOTICES.txt";
@@ -38,7 +39,7 @@ impl PackagedResourcePaths {
     pub fn from_resource_dir(resource_dir: impl AsRef<Path>) -> Self {
         let resource_dir = resource_dir.as_ref().to_path_buf();
         let resource_root = resource_dir.join(RESOURCE_ROOT_DIR);
-        let runtime_dir = resource_root.join(MACOS_CPU_RUNTIME_DIR);
+        let runtime_dir = resource_root.join(packaged_runtime_dir());
 
         Self {
             resource_dir,
@@ -92,6 +93,16 @@ fn python_executable_relpath() -> &'static str {
     "bin/python3"
 }
 
+#[cfg(windows)]
+fn packaged_runtime_dir() -> &'static str {
+    WINDOWS_RUNTIME_DIR
+}
+
+#[cfg(not(windows))]
+fn packaged_runtime_dir() -> &'static str {
+    MACOS_CPU_RUNTIME_DIR
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -100,23 +111,27 @@ mod tests {
 
     #[test]
     fn packaged_paths_follow_the_resource_layout_contract() {
-        let resource_dir = PathBuf::from("/Applications/ClearPodcast.app/Contents/Resources");
+        let resource_dir = PathBuf::from("packaged-resources");
         let paths = PackagedResourcePaths::from_resource_dir(&resource_dir);
 
         assert_eq!(
             paths.python,
             resource_dir
                 .join(RESOURCE_ROOT_DIR)
-                .join(MACOS_CPU_RUNTIME_DIR)
+                .join(packaged_runtime_dir())
                 .join(python_executable_relpath())
         );
         assert_eq!(
             paths.sidecar,
-            resource_dir.join(RESOURCE_ROOT_DIR).join(RESEMBLE_SIDECAR_PATH)
+            resource_dir
+                .join(RESOURCE_ROOT_DIR)
+                .join(RESEMBLE_SIDECAR_PATH)
         );
         assert_eq!(
             paths.model_dir,
-            resource_dir.join(RESOURCE_ROOT_DIR).join(RESEMBLE_MODEL_DIR)
+            resource_dir
+                .join(RESOURCE_ROOT_DIR)
+                .join(RESEMBLE_MODEL_DIR)
         );
         assert_eq!(
             paths.third_party_notices,
@@ -129,6 +144,36 @@ mod tests {
             resource_dir
                 .join(RESOURCE_ROOT_DIR)
                 .join(ARTIFACT_MANIFEST_PATH)
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn windows_packaged_lookup_uses_windows_runtime() {
+        let resource_dir = PathBuf::from("resources");
+        let paths = PackagedResourcePaths::from_resource_dir(&resource_dir);
+
+        assert_eq!(
+            paths.python,
+            resource_dir
+                .join(RESOURCE_ROOT_DIR)
+                .join(WINDOWS_RUNTIME_DIR)
+                .join("python.exe")
+        );
+    }
+
+    #[cfg(not(windows))]
+    #[test]
+    fn non_windows_packaged_lookup_keeps_macos_cpu_runtime() {
+        let resource_dir = PathBuf::from("resources");
+        let paths = PackagedResourcePaths::from_resource_dir(&resource_dir);
+
+        assert_eq!(
+            paths.python,
+            resource_dir
+                .join(RESOURCE_ROOT_DIR)
+                .join(MACOS_CPU_RUNTIME_DIR)
+                .join("bin/python3")
         );
     }
 

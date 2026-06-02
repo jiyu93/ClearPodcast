@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "package_id": "windows-x64",
+  "description": "Windows x64 CUDA-capable portable resource set for ClearPodcast with CPU fallback.",
+  "resource_root": "src-tauri/resources/clearpodcast",
+  "generated_manifest_path": "src-tauri/resources/clearpodcast/manifests/artifacts.json",
+  "artifacts": [
+    {
+      "id": "python-runtime-windows-x64",
+      "kind": "runtime",
+      "platform": "windows-x64",
+      "version": "Python 3.12 runtime plus requirements-windows-x64-cuda.txt CUDA 13.0 inference environment",
+      "source": "localfiles/runtime/windows-x64",
+      "artifact_path": "runtimes/windows-x64",
+      "sha256": {
+        "mode": "directory-tree",
+        "value": null,
+        "generated_during_staging": true
+      }
+    },
+    {
+      "id": "resemble-sidecar",
+      "kind": "sidecar",
+      "platform": "all",
+      "version": "repo-owned ClearPodcast Resemble sidecar",
+      "source": "sidecars/resemble",
+      "artifact_path": "sidecars/resemble",
+      "sha256": {
+        "mode": "directory-tree",
+        "value": null,
+        "generated_during_staging": true
+      }
+    },
+    {
+      "id": "resemble-enhance-enhancer-stage2",
+      "kind": "model",
+      "platform": "all",
+      "version": "Resemble Enhance enhancer_stage2 checkpoint",
+      "source": "localfiles/models/resemble-enhance/enhancer_stage2",
+      "artifact_path": "models/resemble-enhance/enhancer_stage2",
+      "sha256": {
+        "mode": "directory-tree",
+        "value": null,
+        "generated_during_staging": true
+      },
+      "required_file_sha256": [
+        {
+          "path": "ds/G/default/mp_rank_00_model_states.pt",
+          "sha256": "f9d035f318de3e6d919bc70cf7ad7d32b4fe92ec5cbe0b30029a27f5db07d9d6"
+        }
+      ]
+    },
+    {
+      "id": "license-notices",
+      "kind": "licenses",
+      "platform": "all",
+      "version": "Milestone 5 third-party notices",
+      "source": "packaging/licenses",
+      "artifact_path": "licenses",
+      "sha256": {
+        "mode": "directory-tree",
+        "value": null,
+        "generated_during_staging": true
+      }
+    }
+  ]
+}

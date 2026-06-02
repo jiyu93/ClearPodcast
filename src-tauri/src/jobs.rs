@@ -1,7 +1,10 @@
 use crate::{
     audio::{self, AudioMetadata},
     packaging::PackagedResourcePaths,
-    runtime::{self, CancellationToken, EnhanceRequest, EnhancementResult, RuntimeError},
+    runtime::{
+        self, CancellationToken, EnhanceRequest, EnhancementDeviceInfo, EnhancementResult,
+        RuntimeError,
+    },
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -52,6 +55,7 @@ pub struct EnhancementJobSnapshot {
     pub exported_wav: Option<PathBuf>,
     pub input_metadata: Option<AudioMetadata>,
     pub output_metadata: Option<AudioMetadata>,
+    pub device_info: Option<EnhancementDeviceInfo>,
     pub message: String,
     pub error: Option<String>,
     pub created_at_ms: u128,
@@ -146,6 +150,7 @@ impl EnhancementJobManager {
             exported_wav: None,
             input_metadata: None,
             output_metadata: None,
+            device_info: None,
             message: "Queued".to_string(),
             error: None,
             created_at_ms: now,
@@ -315,6 +320,7 @@ impl EnhancementJobManager {
             snapshot.preview_wav = Some(result.output_wav);
             snapshot.input_metadata = Some(result.input_metadata);
             snapshot.output_metadata = Some(result.output_metadata);
+            snapshot.device_info = result.device_info;
             snapshot.message = "Completed".to_string();
             snapshot.error = None;
         });
@@ -326,6 +332,7 @@ impl EnhancementJobManager {
             snapshot.state = EnhancementJobState::Failed;
             snapshot.preview_wav = None;
             snapshot.output_metadata = None;
+            snapshot.device_info = None;
             snapshot.message = "Failed".to_string();
             snapshot.error = Some(error);
         });
@@ -337,6 +344,7 @@ impl EnhancementJobManager {
             snapshot.state = EnhancementJobState::Cancelled;
             snapshot.preview_wav = None;
             snapshot.output_metadata = None;
+            snapshot.device_info = None;
             snapshot.message = "Cancelled".to_string();
             snapshot.error = None;
         });
@@ -429,17 +437,14 @@ fn ensure_wav_destination(path: &Path) -> Result<(), JobError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[cfg(unix)]
     use crate::audio::AudioBuffer;
     #[cfg(unix)]
     use std::os::unix::fs::PermissionsExt;
-    #[cfg(unix)]
+    use std::path::Path;
     use std::{
         fs, thread,
         time::{Duration, Instant},
     };
-    use std::path::Path;
-    #[cfg(unix)]
     use tempfile::{tempdir, TempDir};
 
     #[test]
@@ -459,7 +464,6 @@ mod tests {
         ));
     }
 
-    #[cfg(unix)]
     #[test]
     fn job_manager_completes_and_exports_with_fake_sidecar() {
         let runtime_env = fake_runtime_env(0);
@@ -476,6 +480,13 @@ mod tests {
         let completed = wait_for_terminal(&manager, &snapshot.job_id);
 
         assert_eq!(completed.state, EnhancementJobState::Completed);
+        assert_eq!(
+            completed
+                .device_info
+                .as_ref()
+                .map(|info| info.selected_device.as_str()),
+            Some("cpu")
+        );
         assert!(completed
             .preview_wav
             .as_ref()
@@ -499,7 +510,6 @@ mod tests {
         }
     }
 
-    #[cfg(unix)]
     #[test]
     fn job_manager_cancels_running_sidecar_without_preview_output() {
         let runtime_env = fake_runtime_env(5);
@@ -525,7 +535,6 @@ mod tests {
         assert!(finished.preview_wav.is_none());
     }
 
-    #[cfg(unix)]
     #[test]
     fn job_manager_uses_packaged_resource_defaults_when_paths_are_omitted() {
         let runtime_env = fake_runtime_env(0);
@@ -544,6 +553,13 @@ mod tests {
         let completed = wait_for_terminal(&manager, &snapshot.job_id);
 
         assert_eq!(completed.state, EnhancementJobState::Completed);
+        assert_eq!(
+            completed
+                .device_info
+                .as_ref()
+                .map(|info| info.selected_device.as_str()),
+            Some("cpu")
+        );
         assert!(completed
             .preview_wav
             .as_ref()
@@ -556,7 +572,6 @@ mod tests {
         }
     }
 
-    #[cfg(unix)]
     struct FakeRuntimeEnv {
         dir: TempDir,
         python: PathBuf,
@@ -564,7 +579,6 @@ mod tests {
         model_dir: PathBuf,
     }
 
-    #[cfg(unix)]
     impl FakeRuntimeEnv {
         fn packaged_resources(&self) -> PackagedResourcePaths {
             PackagedResourcePaths {
@@ -579,28 +593,14 @@ mod tests {
         }
     }
 
-    #[cfg(unix)]
     fn fake_runtime_env(sleep_seconds: u64) -> FakeRuntimeEnv {
         let dir = tempdir().expect("tempdir");
-        let python = dir.path().join("fake-python");
-        let sidecar = dir.path().join("sidecar.py");
+        let python = fake_python_path(dir.path());
+        let sidecar = fake_sidecar_path(dir.path());
         let model_dir = dir.path().join("model");
         let checkpoint_dir = model_dir.join("ds/G/default");
 
-        fs::write(
-            &python,
-            format!(
-                "#!/bin/sh\nsleep {sleep_seconds}\nwhile [ $# -gt 0 ]; do\n  case \"$1\" in\n    --input-wav) shift; input=\"$1\" ;;\n    --output-wav) shift; output=\"$1\" ;;\n  esac\n  shift\ndone\ncp \"$input\" \"$output\"\n"
-            ),
-        )
-        .expect("write fake python");
-        let mut permissions = fs::metadata(&python)
-            .expect("fake python metadata")
-            .permissions();
-        permissions.set_mode(0o755);
-        fs::set_permissions(&python, permissions).expect("chmod fake python");
-
-        fs::write(&sidecar, b"fake sidecar").expect("write fake sidecar");
+        prepare_fake_runtime(&python, &sidecar, sleep_seconds);
         fs::create_dir_all(&checkpoint_dir).expect("create fake checkpoint dir");
         fs::write(model_dir.join("hparams.yaml"), b"fake: true\n").expect("write hparams");
         fs::write(model_dir.join("ds/G/latest"), b"default\n").expect("write latest");
@@ -619,6 +619,59 @@ mod tests {
     }
 
     #[cfg(unix)]
+    fn fake_python_path(dir: &Path) -> PathBuf {
+        dir.join("fake-python")
+    }
+
+    #[cfg(windows)]
+    fn fake_python_path(_dir: &Path) -> PathBuf {
+        let system_root = std::env::var("SystemRoot").unwrap_or_else(|_| "C:\\Windows".to_string());
+        PathBuf::from(system_root)
+            .join("System32")
+            .join("WindowsPowerShell")
+            .join("v1.0")
+            .join("powershell.exe")
+    }
+
+    #[cfg(unix)]
+    fn fake_sidecar_path(dir: &Path) -> PathBuf {
+        dir.join("sidecar.py")
+    }
+
+    #[cfg(windows)]
+    fn fake_sidecar_path(dir: &Path) -> PathBuf {
+        dir.join("sidecar.ps1")
+    }
+
+    #[cfg(unix)]
+    fn prepare_fake_runtime(python: &Path, sidecar: &Path, sleep_seconds: u64) {
+        fs::write(
+            python,
+            format!(
+                "#!/bin/sh\nprintf '{{\"device\":\"cpu\",\"cuda_available\":false,\"torch_cuda_version\":null,\"cuda_device_name\":null}}\\n' >&2\nsleep {sleep_seconds}\nwhile [ $# -gt 0 ]; do\n  case \"$1\" in\n    --input-wav) shift; input=\"$1\" ;;\n    --output-wav) shift; output=\"$1\" ;;\n  esac\n  shift\ndone\ncp \"$input\" \"$output\"\n"
+            ),
+        )
+        .expect("write fake python");
+
+        let mut permissions = fs::metadata(python)
+            .expect("fake python metadata")
+            .permissions();
+        permissions.set_mode(0o755);
+        fs::set_permissions(python, permissions).expect("chmod fake python");
+        fs::write(sidecar, b"fake sidecar").expect("write fake sidecar");
+    }
+
+    #[cfg(windows)]
+    fn prepare_fake_runtime(_python: &Path, sidecar: &Path, sleep_seconds: u64) {
+        fs::write(
+            sidecar,
+            format!(
+                "[Console]::Error.WriteLine('{{\"device\":\"cpu\",\"cuda_available\":false,\"torch_cuda_version\":null,\"cuda_device_name\":null}}')\r\n$inputWav = $null\r\n$outputWav = $null\r\nfor ($i = 0; $i -lt $args.Count; $i++) {{\r\n  if ($args[$i] -eq '--input-wav') {{ $i++; $inputWav = $args[$i] }}\r\n  elseif ($args[$i] -eq '--output-wav') {{ $i++; $outputWav = $args[$i] }}\r\n}}\r\nStart-Sleep -Seconds {sleep_seconds}\r\nCopy-Item -LiteralPath $inputWav -Destination $outputWav -Force\r\n"
+            ),
+        )
+        .expect("write fake sidecar");
+    }
+
     fn request_for(runtime_env: &FakeRuntimeEnv, input_audio: &Path) -> StartEnhancementJobRequest {
         StartEnhancementJobRequest {
             python: Some(runtime_env.python.clone()),
@@ -634,7 +687,6 @@ mod tests {
         }
     }
 
-    #[cfg(unix)]
     fn synthetic_audio() -> AudioBuffer {
         let sample_rate = 16_000;
         let samples = (0..1_600)
@@ -650,7 +702,6 @@ mod tests {
         }
     }
 
-    #[cfg(unix)]
     fn wait_for_state(
         manager: &EnhancementJobManager,
         job_id: &str,
@@ -659,7 +710,6 @@ mod tests {
         wait_for(manager, job_id, |snapshot| snapshot.state == state)
     }
 
-    #[cfg(unix)]
     fn wait_for_terminal(manager: &EnhancementJobManager, job_id: &str) -> EnhancementJobSnapshot {
         wait_for(manager, job_id, |snapshot| {
             matches!(
@@ -671,7 +721,6 @@ mod tests {
         })
     }
 
-    #[cfg(unix)]
     fn wait_for(
         manager: &EnhancementJobManager,
         job_id: &str,

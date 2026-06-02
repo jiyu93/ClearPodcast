@@ -518,6 +518,53 @@ h1 {
   color: #576663;
 }
 
+.device-notice {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 10px;
+  align-items: center;
+  border: 1px solid #d5dcdf;
+  border-radius: 6px;
+  padding: 10px;
+  background: #ffffff;
+}
+
+.device-notice span {
+  color: #65736f;
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.device-notice strong {
+  color: #17211f;
+  font-size: 0.86rem;
+  text-align: right;
+}
+
+.device-notice small {
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+  color: #65736f;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.device-notice.cuda {
+  border-color: #8fbf9a;
+  background: #ebf8ef;
+}
+
+.device-notice.cpu {
+  border-color: #c8d0d3;
+  background: #f8faf9;
+}
+
+.device-notice.pending {
+  border-color: #c6922e;
+  background: #fff7df;
+}
+
 .export-action {
   width: 100%;
   margin-top: 14px;
