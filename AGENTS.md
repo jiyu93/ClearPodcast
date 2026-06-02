@@ -15,3 +15,16 @@ This is a single-context repo with `CONTEXT.md` at the root and ADRs in `docs/ad
 ### Documentation hygiene
 
 During development, actively judge whether each meaningful code, architecture, packaging, or product-scope change should update the project docs. Keep `README.md`, `CONTEXT.md`, `docs/implementation-plan.md`, ADRs, and `docs/agents/` aligned with the current state of the project.
+
+### Goal-mode development
+
+When working in Codex goal mode, use `docs/implementation-plan.md` as the
+milestone source of truth. Treat one milestone as one goal, follow its scope and
+out-of-scope boundaries, and only mark the goal complete when its exit criteria
+and verification expectations are satisfied or explicitly documented as
+deferred.
+
+### Local files
+
+Use `localfiles/` for private samples, model weights, runtime experiments, and
+generated outputs. Do not commit files from `localfiles/`.

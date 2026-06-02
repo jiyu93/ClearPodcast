@@ -8,7 +8,9 @@ Accepted.
 
 The app needs to support common podcast source files while keeping licensing and
 redistribution simple. MP3 input is important because many users will have MP3
-exports from recording tools, meeting software, or prior workflows.
+exports from recording tools, meeting software, or prior workflows. M4A input is
+important because iPhone and macOS voice workflows commonly produce M4A/AAC
+recordings by default.
 
 FFmpeg would solve many codec problems, but it adds licensing and build
 configuration complexity. The first release does not need MP3 export.
@@ -17,7 +19,7 @@ configuration complexity. The first release does not need MP3 export.
 
 Do not introduce FFmpeg.
 
-Support WAV and MP3 input. Export WAV only.
+Support WAV, MP3, and M4A input. Export WAV only.
 
 Handle audio decoding and WAV writing in Rust, outside the Python model layer.
 
@@ -38,7 +40,8 @@ Negative:
 
 ## Implementation Notes
 
-- Use `symphonia` for MP3 decoding and probing.
+- Use `symphonia` for MP3, M4A/MP4 container, AAC-LC, and ALAC decoding and
+  probing.
 - Use `hound` for WAV read/write.
 - Convert stereo inputs to mono before inference.
 - Prefer 44.1 kHz mono 24-bit PCM WAV as the product export format.

@@ -51,7 +51,7 @@ further publishing or distribution.
 - Runtime, Python environment, PyTorch dependencies, and model weights are
   bundled into the app distribution.
 - FFmpeg must not be introduced.
-- First release supports WAV and MP3 input.
+- First release supports WAV, MP3, and M4A input.
 - First release exports WAV only.
 - Audio file decoding and WAV writing should be handled outside the Python model
   layer so the inference boundary remains clean.
@@ -81,6 +81,6 @@ speech, and harsh high-frequency hallucination.
 - `sidecars/resemble/`: Minimal Python inference sidecar.
 - `models/resemble-enhance/`: Bundled model weights in release artifacts.
 - `packaging/`: Platform-specific runtime, model, release, and license notes.
-- `crates/audio-io/`: Rust WAV/MP3 decode and WAV encode code if split into a
-  workspace crate.
+- `crates/audio-io/`: Rust WAV/MP3/M4A decode and WAV encode code if split into
+  a workspace crate.
 - `docs/`: implementation docs, packaging docs, ADRs, and agent setup docs.

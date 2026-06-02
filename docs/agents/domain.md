@@ -40,9 +40,18 @@ explicitly before implementing.
 Current accepted decisions:
 
 - Resemble Enhance is the only first AI model.
-- FFmpeg is excluded; first release supports WAV/MP3 input and WAV output.
+- FFmpeg is excluded; first release supports WAV/MP3/M4A input and WAV output.
 - AI inference runs through a bundled Python sidecar.
 - Windows and macOS are the first supported platforms; Windows 11 x64 is the
   primary NVIDIA CUDA validation target.
 - Distribution is portable-first; installers are optional future artifacts, not
   the default first release surface.
+
+Goal-mode work:
+
+- Use the `Goal-Mode Milestones` section in `docs/implementation-plan.md` as the
+  execution plan.
+- Treat each milestone as one Codex goal with its own scope, exit criteria, and
+  verification evidence.
+- Do not expand a goal with later-milestone work unless the milestone explicitly
+  depends on it.

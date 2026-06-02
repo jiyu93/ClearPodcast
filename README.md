@@ -7,6 +7,8 @@ remote calls, or ordinary computer microphones.
 The product goal is not generic audio editing. It is a focused one-click workflow
 that turns damaged spoken-word recordings into publishable podcast WAV files.
 
+First-release input formats are WAV, MP3, and M4A. Output is WAV.
+
 The first supported desktop platforms are Windows and macOS. macOS arm64 is the
 daily development baseline; Windows 11 x64 is the NVIDIA CUDA validation and
 performance target.
