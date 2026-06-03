@@ -76,15 +76,34 @@ Start the Tauri dev app:
 npm run tauri dev
 ```
 
-The desktop workflow can choose or drop a WAV/MP3/M4A file, use
-official-demo-aligned enhancement defaults, run a cancellable enhancement job,
-compare original/enhanced audio, and export the enhanced WAV.
+The desktop workflow is a redesigned Restoration Desk workspace: choose or drop
+a WAV/MP3/M4A source, confirm metadata, run one local restoration, monitor the
+current run, compare original/enhanced audio, and export the enhanced WAV.
 
 The primary desktop surface uses product-facing restoration language. Python
 runtime and model directory overrides live under Diagnostics for local smoke
 testing, along with raw paths, job ids, and backend/device details. The app
 copies selected originals into managed temp preview storage for playback while
 keeping the original selected file as the processing input.
+
+For browser-only visual QA of the redesigned React surface, run the Vite dev
+server and append a fixture state:
+
+```sh
+npm run dev
+```
+
+Examples:
+
+- `http://localhost:5173/?fixture=empty`
+- `http://localhost:5173/?fixture=running`
+- `http://localhost:5173/?fixture=completed`
+- `http://localhost:5173/?fixture=advanced`
+- `http://localhost:5173/?fixture=diagnostics`
+
+The fixture mode is for frontend visual inspection only; the Tauri desktop app
+remains the product runtime for file dialogs, drag/drop, audio playback, restore,
+cancel, and export.
 
 ## Local Files And Generated Resources
 

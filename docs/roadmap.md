@@ -6,8 +6,8 @@ milestone scope, exit criteria, and verification.
 
 ## Current State
 
-ClearPodcast has completed its MVP, portable packaging foundation, and first
-post-MVP residual cleanup pass:
+ClearPodcast has completed its MVP, portable packaging foundation, residual
+cleanup pass, and first design-led UI/UX redesign:
 
 - Offline one-file speech restoration works through the desktop app.
 - WAV, MP3, and M4A inputs are supported.
@@ -18,36 +18,27 @@ post-MVP residual cleanup pass:
 - Product language, diagnostics, compatibility smoke entry points, original
   preview-copy playback, and generated-resource hygiene are aligned with the
   current app shape.
-
-The next work is the Milestone 7 UI/UX redesign around the proven restoration
-pipeline, using a design brief, current-experience audit, selected visual
-direction, frontend modularization, and visual/interaction QA as the execution
-path.
+- The primary desktop surface is now a redesigned Restoration Desk workspace
+  for source selection, current-run restoration, before/after comparison, WAV
+  export, secondary exact model settings, and secondary diagnostics.
+- The frontend is split into focused state, backend command, presentation, and
+  styling modules.
 
 ## Active Productization
 
-The active post-MVP phase is productization:
+The active post-MVP phase is productization. The current product baseline is:
 
-- Redesign the UI/UX around the normal restoration workflow.
-- Use the proven MVP behavior as a functional reference while establishing an
-  independent visual foundation.
-- Ground the redesign in a concise product-design brief, comparable-workflow
-  research where useful, a current-experience audit, and one selected visual
-  direction before implementation.
-- Build layout and product surfaces from the root one-file restoration need and
-  the current user-visible capability model.
-- Focus the product surface on one source file and one active restoration.
-  Queues, batch processing, job history, projects, accounts, and cloud sync
-  remain future milestone topics.
-- Use a cel-shaded-inspired visual direction as the default aesthetic target
-  while keeping the app ergonomic as a focused desktop restoration workspace.
-- Redesign the product mark, app icon, in-app iconography, and visual motifs as
-  part of the application-level visual system.
-- Keep exact model controls and the secondary Diagnostics surface available
-  while improving the primary workspace.
+- A one-file, one-active-restoration desktop workflow.
+- A cel-shaded-inspired Restoration Desk visual system with aligned product
+  mark, app icon assets, in-app iconography, empty-state artwork, and
+  audio/status motifs.
+- Exact Resemble Enhance controls preserved in secondary Model Settings.
+- Diagnostics and developer overrides preserved as secondary surfaces.
+- Browser visual fixtures for state QA of the redesigned surface.
 
-Milestone 6, Residual Cleanup, is complete. Milestone 7, UI/UX Redesign, is the
-next executable productization milestone in `docs/implementation-plan.md`.
+Milestone 7, UI/UX Redesign, is complete. The next executable productization
+work should be written as a new milestone, issue, PRD, or ADR before it becomes
+implementation scope.
 
 ## Future Themes
 

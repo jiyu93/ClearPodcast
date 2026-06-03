@@ -1,0 +1,152 @@
+.app-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: 22px;
+  background:
+    linear-gradient(90deg, rgba(20, 33, 31, 0.06) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(20, 33, 31, 0.06) 1px, transparent 1px),
+    #f3ead9;
+  background-size: 28px 28px;
+}
+
+.workspace {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.workspace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-width: 0;
+}
+
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+.desk-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(260px, 0.95fr)
+    minmax(300px, 1fr)
+    minmax(300px, 1fr);
+  gap: 16px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.secondary-drawers {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  min-width: 0;
+}
+
+.desk-panel,
+.drawer-panel {
+  border: 3px solid #14211f;
+  border-radius: 8px;
+  background: #fff8ec;
+  box-shadow: 7px 7px 0 #14211f;
+}
+
+.desk-panel {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 14px;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px;
+}
+
+.source-panel,
+.compare-panel {
+  align-content: start;
+}
+
+.run-panel {
+  grid-template-rows: auto auto auto minmax(118px, 1fr) auto;
+}
+
+.drawer-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 1080px) {
+  html,
+  body,
+  #root {
+    height: auto;
+    overflow: auto;
+  }
+
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .workspace {
+    height: auto;
+    min-height: 0;
+  }
+
+  .desk-grid {
+    grid-template-columns: 1fr;
+    overflow: visible;
+  }
+
+  .desk-panel {
+    overflow: visible;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    padding: 14px;
+  }
+
+  .workspace-header,
+  .brand-lockup,
+  .header-meta,
+  .panel-heading,
+  .secondary-drawers,
+  .split-actions,
+  .runtime-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-header,
+  .brand-lockup,
+  .header-meta {
+    display: grid;
+    justify-items: start;
+  }
+
+  .secondary-drawers {
+    display: grid;
+  }
+}

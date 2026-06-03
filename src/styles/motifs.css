@@ -1,0 +1,108 @@
+.app-mark {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 auto;
+}
+
+.app-mark rect {
+  fill: #f4bf45;
+  stroke: #14211f;
+  stroke-width: 7;
+}
+
+.app-mark .mark-field {
+  fill: #fff8ec;
+  stroke: #14211f;
+  stroke-width: 5;
+}
+
+.app-mark .mark-shadow {
+  fill: #ef6b57;
+  stroke: #14211f;
+  stroke-width: 5;
+}
+
+.app-mark .mark-capsule {
+  fill: #0f7664;
+  stroke: #14211f;
+  stroke-width: 5;
+}
+
+.app-mark .mark-rough,
+.app-mark .mark-clear {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 6;
+}
+
+.app-mark .mark-rough {
+  stroke: #ef6b57;
+}
+
+.app-mark .mark-clear {
+  stroke: #a7e7c3;
+}
+
+.app-mark .mark-spark {
+  fill: #81c7e8;
+  stroke: #14211f;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.source-artwork {
+  width: 100%;
+  min-height: 150px;
+}
+
+.source-artwork .art-plane,
+.source-artwork .art-fold,
+.source-artwork .art-badge,
+.source-artwork .art-spark {
+  stroke: #14211f;
+  stroke-linejoin: round;
+  stroke-width: 6;
+}
+
+.source-artwork .art-plane.back {
+  fill: #81c7e8;
+}
+
+.source-artwork .art-plane.front {
+  fill: #fff8ec;
+}
+
+.source-artwork .art-fold {
+  fill: #f4bf45;
+}
+
+.source-artwork .art-badge {
+  fill: #ef6b57;
+}
+
+.source-artwork .art-divider {
+  stroke: #14211f;
+  stroke-dasharray: 7 7;
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+
+.source-artwork .art-wave {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 8;
+}
+
+.source-artwork .art-wave.rough {
+  stroke: #ef6b57;
+}
+
+.source-artwork .art-wave.clear {
+  stroke: #0f7664;
+}
+
+.source-artwork .art-spark {
+  fill: #a7e7c3;
+}

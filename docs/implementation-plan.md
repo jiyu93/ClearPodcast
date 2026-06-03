@@ -1106,6 +1106,42 @@ Verification:
 - Visual QA with screenshots or browser/app inspection for the supported desktop
   window sizes before marking the milestone complete.
 
+Completion state as of June 3, 2026:
+
+- The M7 design record lives at
+  `docs/milestone-records/milestone-7-ui-ux-redesign.md` and captures the
+  product-design brief, public comparable-product research signal and
+  limitation, current-experience audit, information architecture, three design
+  directions, selected Restoration Desk direction, visual system, and state
+  matrix.
+- The React surface is now a three-panel Restoration Desk workspace organized
+  around Source, Current Run, and Compare And Export. The first screen remains
+  the usable restoration workflow, not a landing page.
+- Backend `queued` is presented as current-run preparation in the product
+  surface, while job IDs, raw paths, runtime detail, and device detail remain in
+  Diagnostics.
+- Exact Resemble Enhance controls for solver, CFM steps, prior temperature, and
+  denoising remain available in secondary Model Settings and still pass through
+  to the backend request unchanged, with reset to `midpoint`, `nfe=64`,
+  `tau=0.5`, and `lambd=0.1`.
+- Diagnostics remains a secondary surface and still owns Python runtime/model
+  overrides, raw paths, job IDs, preview/export paths, runtime details, and
+  device-detection detail.
+- Frontend code is split into focused modules under `src/backend/`,
+  `src/domain/`, `src/hooks/`, `src/components/`, `src/dev/`, and
+  `src/styles/`.
+- The application-level visual system uses a cel-shaded-inspired product mark,
+  regenerated Tauri desktop icon assets, in-app utility icons, empty-state
+  artwork, audio/status motifs, confident outlines, and layered color blocks.
+- Browser visual fixtures cover empty, selected, running, cancelled, failed,
+  completed, exported, advanced-settings, and diagnostics states for
+  frontend-only QA.
+- Milestone 7 preserved backend processing, packaged resource lookup,
+  cancellation, device detection, and WAV export semantics. Release artifact
+  rebuilds remain owned by the release workflow.
+- Milestone 7 has no deferred exit criteria. See
+  `docs/milestone-records/milestone-7-ui-ux-redesign.md`.
+
 ## Open Questions
 
 - Model weight storage and release-cache policy.
