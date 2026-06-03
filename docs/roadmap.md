@@ -29,13 +29,20 @@ path.
 The active post-MVP phase is productization:
 
 - Redesign the UI/UX around the normal restoration workflow.
-- Use the MVP-era plain styling only as a functional prototype reference; the
-  redesign establishes an independent visual foundation.
+- Use the proven MVP behavior as a functional reference while establishing an
+  independent visual foundation.
 - Ground the redesign in a concise product-design brief, comparable-workflow
   research where useful, a current-experience audit, and one selected visual
   direction before implementation.
+- Build layout and product surfaces from the root one-file restoration need and
+  the current user-visible capability model.
+- Focus the product surface on one source file and one active restoration.
+  Queues, batch processing, job history, projects, accounts, and cloud sync
+  remain future milestone topics.
 - Use a cel-shaded-inspired visual direction as the default aesthetic target
   while keeping the app ergonomic as a focused desktop restoration workspace.
+- Redesign the product mark, app icon, in-app iconography, and visual motifs as
+  part of the application-level visual system.
 - Keep exact model controls and the secondary Diagnostics surface available
   while improving the primary workspace.
 
