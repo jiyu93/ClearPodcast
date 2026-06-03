@@ -892,11 +892,51 @@ Verification:
 - `npm run check`.
 - `cargo test --manifest-path src-tauri/Cargo.toml`.
 - `git diff --check`.
-- Manual desktop smoke for import, restore, cancellation, before/after playback,
-  export, and at least one developer override path.
+- Use Browser smoke for React UI language, layout, diagnostics, advanced
+  settings, button states, and frontend-only workflow behavior.
+- Use Rust tests and the smoke CLI for Tauri command behavior, backend
+  job-manager behavior, preview-copy lifecycle, export behavior, and developer
+  override behavior.
+- Reserve real Tauri GUI smoke for changes to native file dialogs, Tauri
+  drag/drop, asset-protocol playback, packaged resource lookup, or explicitly
+  requested GUI behavior.
 - Review `git status --ignored` and confirm generated resources remain ignored
   and non-required for ordinary checks.
 - Release packaging is reserved for explicit release-artifact requests.
+
+Completion state as of June 3, 2026:
+
+- The React desktop surface uses current product language for offline speech
+  restoration, the restoration job state, device status, before/after playback,
+  and WAV export.
+- Python runtime and model directory overrides live in the collapsed
+  Diagnostics panel. Diagnostics also owns raw paths, job ids, preview/export
+  paths, runtime detail, and device-detection detail.
+- The primary status panel shows concise user-facing summaries for common input,
+  audio, runtime, model, sidecar, cancellation, export, and device-detection
+  failures, while Diagnostics keeps technical detail available.
+- Sidecar help and validation errors describe the current internal WAV handoff
+  boundary. Compatibility command comments clarify that
+  `enhance_audio_command`, `enhance_wav_command`, and the `enhance_wav` binary
+  are diagnostic and release-smoke entry points aligned with the current
+  WAV/MP3/M4A input contract.
+- Original playback uses app-managed temporary preview copies prepared by Rust,
+  while the selected source remains the processing input. Preview cleanup
+  rejects unmanaged paths and only removes managed ClearPodcast preview
+  directories.
+- `README.md` and `docs/release-workflow.md` document the current diagnostic
+  boundary, generated-resource boundary, ordinary-check expectations, and shared
+  macOS/Windows staging maintenance points.
+- Browser smoke covers the frontend-only M6 changes: product language,
+  Diagnostics, Advanced settings, default values, and button states.
+- Rust tests cover the preview-copy lifecycle, job manager, export behavior,
+  cancellation cleanup, packaged lookup, audio contract, and compatibility paths.
+- A developer override smoke CLI passes with the local macOS runtime and model,
+  producing a 44.1 kHz mono WAV and CPU device metadata.
+- `git status --ignored --short` confirms generated/private roots remain
+  ignored and non-required for ordinary checks.
+- Milestone 6 has no deferred exit criteria. See
+  `docs/milestone-records/milestone-6-residual-cleanup.md`.
 
 ### Milestone 7: UI/UX Redesign
 

@@ -46,6 +46,12 @@ type ExportResult = {
   output_metadata: AudioMetadata;
 };
 
+type PreparedAudioPreview = {
+  input_audio: string;
+  preview_audio: string;
+  metadata: AudioMetadata;
+};
+
 type RuntimeSettings = {
   python: string;
   model_dir: string;
@@ -59,6 +65,19 @@ type EnhancementSettings = {
   lambd: number;
   tau: number;
 };
+
+type DisplayError = {
+  summary: string;
+  detail: string;
+};
+
+type ErrorContext =
+  | "input"
+  | "enhancement"
+  | "device-detection"
+  | "backend"
+  | "cancellation"
+  | "export";
 
 const DEFAULT_RUNTIME: RuntimeSettings = {
   python: "",
@@ -96,6 +115,7 @@ const TERMINAL_STATES: EnhancementJobState[] = [
 
 export default function App() {
   const [selectedPath, setSelectedPath] = useState("");
+  const [originalPreviewPath, setOriginalPreviewPath] = useState("");
   const [metadata, setMetadata] = useState<AudioMetadata | undefined>();
   const [runtimeSettings, setRuntimeSettings] =
     useState<RuntimeSettings>(DEFAULT_RUNTIME);
@@ -104,7 +124,9 @@ export default function App() {
   const [job, setJob] = useState<EnhancementJobSnapshot | undefined>();
   const [isDragActive, setIsDragActive] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [notice, setNotice] = useState("Ready");
+  const [diagnosticsOpen, setDiagnosticsOpen] = useState(false);
+  const [notice, setNotice] = useState("Choose a WAV, MP3, or M4A file");
+  const [appError, setAppError] = useState<DisplayError>();
   const [exportMessage, setExportMessage] = useState("");
   const [detectedDeviceInfo, setDetectedDeviceInfo] =
     useState<EnhancementDeviceInfo>();
@@ -116,7 +138,10 @@ export default function App() {
     () => (selectedPath ? fileNameFromPath(selectedPath) : "No file"),
     [selectedPath],
   );
-  const originalAudioSrc = useMemo(() => toAssetSrc(selectedPath), [selectedPath]);
+  const originalAudioSrc = useMemo(
+    () => toAssetSrc(originalPreviewPath || selectedPath),
+    [originalPreviewPath, selectedPath],
+  );
   const enhancedAudioSrc = useMemo(
     () => toAssetSrc(job?.preview_wav),
     [job?.preview_wav],
@@ -127,6 +152,28 @@ export default function App() {
   const settingsLocked = isActiveJob(job);
   const displayedDeviceInfo = job?.device_info ?? detectedDeviceInfo;
   const deviceInfoIsActual = Boolean(job?.device_info);
+  const displayError =
+    job?.state === "failed" && job.error
+      ? describeError(job.error, "enhancement")
+      : appError;
+
+  const showError = useCallback((error: unknown, context: ErrorContext) => {
+    const display = describeError(error, context);
+    setAppError(display);
+    setNotice(display.summary);
+  }, []);
+
+  const cleanupPreview = useCallback(async (previewPath: string) => {
+    if (!previewPath || !tauriAvailable()) {
+      return;
+    }
+
+    try {
+      await invoke("cleanup_audio_preview_command", { previewAudio: previewPath });
+    } catch {
+      // Preview cleanup is best-effort; stale files remain under the app temp root.
+    }
+  }, []);
 
   const refreshJob = useCallback(async (jobId: string) => {
     const snapshot = await invoke<EnhancementJobSnapshot>(
@@ -140,27 +187,46 @@ export default function App() {
       setDeviceError("");
     }
     if (snapshot.state === "failed" && snapshot.error) {
-      setNotice(snapshot.error);
+      const display = describeError(snapshot.error, "enhancement");
+      setAppError(display);
+      setNotice(display.summary);
     } else {
-      setNotice(snapshot.message);
+      setNotice(productNoticeForJob(snapshot));
     }
   }, []);
 
   const selectAudioPath = useCallback(async (path: string) => {
     setSelectedPath(path);
+    setOriginalPreviewPath("");
     setMetadata(undefined);
     setJob(undefined);
     setExportMessage("");
-    setNotice("Reading metadata");
+    setAppError(undefined);
+    setNotice("Reading source audio");
 
     try {
-      const probed = await invoke<AudioMetadata>("probe_audio_command", { path });
-      setMetadata(probed);
-      setNotice("Ready");
+      const prepared = await invoke<PreparedAudioPreview>(
+        "prepare_audio_preview_command",
+        { path },
+      );
+      setSelectedPath(prepared.input_audio);
+      setOriginalPreviewPath(prepared.preview_audio);
+      setMetadata(prepared.metadata);
+      setNotice("Ready to restore");
     } catch (error) {
-      setNotice(String(error));
+      setSelectedPath("");
+      setOriginalPreviewPath("");
+      showError(error, "input");
     }
-  }, []);
+  }, [showError]);
+
+  useEffect(() => {
+    return () => {
+      if (originalPreviewPath) {
+        void cleanupPreview(originalPreviewPath);
+      }
+    };
+  }, [cleanupPreview, originalPreviewPath]);
 
   useEffect(() => {
     if (!tauriAvailable()) {
@@ -187,7 +253,7 @@ export default function App() {
         if (path) {
           void selectAudioPath(path);
         } else {
-          setNotice("Unsupported file type");
+          showError("Unsupported file type", "input");
         }
       })
       .then((unlisten) => {
@@ -197,13 +263,13 @@ export default function App() {
           cleanup = unlisten;
         }
       })
-      .catch((error) => setNotice(String(error)));
+      .catch((error) => showError(error, "backend"));
 
     return () => {
       cancelled = true;
       cleanup?.();
     };
-  }, [selectAudioPath]);
+  }, [selectAudioPath, showError]);
 
   useEffect(() => {
     if (!tauriAvailable()) {
@@ -256,7 +322,7 @@ export default function App() {
 
   async function chooseAudio() {
     if (!tauriAvailable()) {
-      setNotice("Tauri runtime is not available");
+      showError("Tauri runtime is not available", "backend");
       return;
     }
 
@@ -268,12 +334,13 @@ export default function App() {
 
   async function runEnhancement() {
     if (!selectedPath) {
-      setNotice("No input file selected");
+      setNotice("Choose an audio file first");
       return;
     }
 
     setExportMessage("");
-    setNotice("Queued");
+    setAppError(undefined);
+    setNotice("Restoration queued");
 
     try {
       const snapshot = await invoke<EnhancementJobSnapshot>(
@@ -290,7 +357,7 @@ export default function App() {
       );
       setJob(snapshot);
     } catch (error) {
-      setNotice(String(error));
+      showError(error, "enhancement");
     }
   }
 
@@ -305,9 +372,10 @@ export default function App() {
         { jobId: job.job_id },
       );
       setJob(snapshot);
-      setNotice(snapshot.message);
+      setAppError(undefined);
+      setNotice("Cancelling restoration");
     } catch (error) {
-      setNotice(String(error));
+      showError(error, "cancellation");
     }
   }
 
@@ -324,14 +392,14 @@ export default function App() {
     }
 
     try {
-      const result = await invoke<ExportResult>("export_enhanced_wav_command", {
+      await invoke<ExportResult>("export_enhanced_wav_command", {
         jobId: job.job_id,
         destination,
       });
-      setExportMessage(`Exported ${result.exported_wav}`);
+      setExportMessage("Export complete");
       await refreshJob(job.job_id);
     } catch (error) {
-      setNotice(String(error));
+      showError(error, "export");
     }
   }
 
@@ -355,7 +423,7 @@ export default function App() {
       <section className="workspace">
         <header className="app-header">
           <div>
-            <p className="eyebrow">Desktop MVP</p>
+            <p className="eyebrow">Offline speech restoration</p>
             <h1>ClearPodcast</h1>
           </div>
           <StatusPill state={job?.state ?? "idle"} />
@@ -550,8 +618,8 @@ export default function App() {
 
             <section className="status-panel">
               <div className="section-heading">
-                <span>Job</span>
-                <span className="job-id">{job?.job_id ?? "Not started"}</span>
+                <span>Restoration</span>
+                <span className="job-id">{job ? labelForState(job.state) : "Not started"}</span>
               </div>
 
               <ol className="state-list">
@@ -575,8 +643,8 @@ export default function App() {
               />
 
               <div className="message-panel">
-                <strong>{job?.message ?? notice}</strong>
-                {job?.error ? <span>{job.error}</span> : <span>{notice}</span>}
+                <strong>{statusTitle(job, displayError, notice)}</strong>
+                <span>{statusDetail(job, displayError, notice)}</span>
                 {exportMessage ? <span>{exportMessage}</span> : null}
               </div>
 
@@ -604,28 +672,17 @@ export default function App() {
             />
           </section>
 
-          <section className="runtime-panel">
-            <label>
-              Python override
-              <input
-                value={runtimeSettings.python}
-                onChange={(event) => updateRuntimeField("python", event.target.value)}
-                placeholder="Packaged runtime"
-                spellCheck={false}
-              />
-            </label>
-            <label>
-              Model override
-              <input
-                value={runtimeSettings.model_dir}
-                onChange={(event) =>
-                  updateRuntimeField("model_dir", event.target.value)
-                }
-                placeholder="Packaged model"
-                spellCheck={false}
-              />
-            </label>
-          </section>
+          <DiagnosticsPanel
+            open={diagnosticsOpen}
+            onToggle={() => setDiagnosticsOpen((open) => !open)}
+            runtimeSettings={runtimeSettings}
+            updateRuntimeField={updateRuntimeField}
+            selectedPath={selectedPath}
+            originalPreviewPath={originalPreviewPath}
+            job={job}
+            displayError={displayError}
+            deviceError={deviceError}
+          />
         </div>
       </section>
     </main>
@@ -678,6 +735,96 @@ function PlaybackColumn({
   );
 }
 
+function DiagnosticsPanel({
+  open,
+  onToggle,
+  runtimeSettings,
+  updateRuntimeField,
+  selectedPath,
+  originalPreviewPath,
+  job,
+  displayError,
+  deviceError,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  runtimeSettings: RuntimeSettings;
+  updateRuntimeField: (field: keyof RuntimeSettings, value: string) => void;
+  selectedPath: string;
+  originalPreviewPath: string;
+  job?: EnhancementJobSnapshot;
+  displayError?: DisplayError;
+  deviceError?: string;
+}) {
+  const deviceDisplayError = deviceError
+    ? describeError(deviceError, "device-detection")
+    : undefined;
+
+  return (
+    <section className="diagnostics-panel">
+      <button
+        type="button"
+        className="advanced-toggle secondary-action"
+        onClick={onToggle}
+        aria-expanded={open}
+        aria-controls="diagnostics-content"
+      >
+        <span>Diagnostics</span>
+        <span className="advanced-toggle-state">{open ? "Hide" : "Show"}</span>
+      </button>
+
+      {open ? (
+        <div id="diagnostics-content" className="diagnostics-content">
+          <div className="runtime-fields">
+            <label>
+              Python runtime override
+              <input
+                value={runtimeSettings.python}
+                onChange={(event) => updateRuntimeField("python", event.target.value)}
+                placeholder="Packaged runtime"
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              Model directory override
+              <input
+                value={runtimeSettings.model_dir}
+                onChange={(event) =>
+                  updateRuntimeField("model_dir", event.target.value)
+                }
+                placeholder="Packaged model"
+                spellCheck={false}
+              />
+            </label>
+          </div>
+
+          <dl className="diagnostic-list">
+            <DiagnosticRow label="Input path" value={selectedPath} />
+            <DiagnosticRow label="Preview copy" value={originalPreviewPath} />
+            <DiagnosticRow label="Job id" value={job?.job_id} />
+            <DiagnosticRow label="Preview WAV" value={job?.preview_wav} />
+            <DiagnosticRow label="Exported WAV" value={job?.exported_wav} />
+            <DiagnosticRow label="Runtime detail" value={displayError?.detail} />
+            <DiagnosticRow
+              label="Device detail"
+              value={deviceDisplayError?.detail}
+            />
+          </dl>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function DiagnosticRow({ label, value }: { label: string; value?: string }) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{value || "--"}</dd>
+    </div>
+  );
+}
+
 function StatusPill({ state }: { state: EnhancementJobState | "idle" }) {
   return <span className={`status-pill ${state}`}>{labelForState(state)}</span>;
 }
@@ -693,6 +840,10 @@ function DeviceNotice({
   error?: string;
   actual: boolean;
 }) {
+  const displayError = error
+    ? describeError(error, "device-detection")
+    : undefined;
+
   if (!deviceInfo) {
     if (status === "checking") {
       return (
@@ -709,7 +860,7 @@ function DeviceNotice({
         <div className="device-notice error">
           <span>Processing device</span>
           <strong>Detection failed</strong>
-          <small>{error}</small>
+          <small>{displayError?.summary}</small>
         </div>
       );
     }
@@ -824,20 +975,204 @@ function cpuDeviceDetail(deviceInfo: EnhancementDeviceInfo) {
     : "CUDA unavailable";
 }
 
+function productNoticeForJob(job: EnhancementJobSnapshot) {
+  switch (job.state) {
+    case "queued":
+      return "Restoration queued";
+    case "running":
+      return "Restoring speech";
+    case "completed":
+      return "Enhanced WAV is ready";
+    case "failed":
+      return "Restoration needs attention";
+    case "cancelled":
+      return "Restoration cancelled";
+  }
+}
+
+function statusTitle(
+  job: EnhancementJobSnapshot | undefined,
+  error: DisplayError | undefined,
+  notice: string,
+) {
+  if (error) {
+    return error.summary;
+  }
+
+  if (job) {
+    return productNoticeForJob(job);
+  }
+
+  return notice;
+}
+
+function statusDetail(
+  job: EnhancementJobSnapshot | undefined,
+  error: DisplayError | undefined,
+  notice: string,
+) {
+  if (error) {
+    return "Open Diagnostics for technical details.";
+  }
+
+  if (!job) {
+    return notice === "Ready to restore"
+      ? "Run restoration locally, then compare the original and enhanced audio."
+      : "Choose a supported spoken-word recording to begin.";
+  }
+
+  switch (job.state) {
+    case "queued":
+      return "The local restoration job is waiting to start.";
+    case "running":
+      return "Processing stays on this machine and can take a while on CPU.";
+    case "completed":
+      return "Listen to the result, then export the enhanced WAV when it is ready.";
+    case "failed":
+      return "The job stopped before producing a preview WAV.";
+    case "cancelled":
+      return "No partial enhanced output was kept.";
+  }
+}
+
+function describeError(error: unknown, context: ErrorContext): DisplayError {
+  const detail = error instanceof Error ? error.message : String(error ?? "Unknown error");
+  const normalized = detail.toLowerCase();
+
+  if (context === "cancellation" || normalized.includes("cancelled")) {
+    return {
+      summary: "Restoration was cancelled.",
+      detail,
+    };
+  }
+
+  if (context === "device-detection") {
+    return {
+      summary: "Processing device could not be checked.",
+      detail,
+    };
+  }
+
+  if (
+    normalized.includes("unsupported audio input extension") ||
+    normalized.includes("unsupported file type") ||
+    normalized.includes("unsupported_input")
+  ) {
+    return {
+      summary: "Choose a WAV, MP3, or M4A file.",
+      detail,
+    };
+  }
+
+  if (
+    normalized.includes("audio file was not found") ||
+    normalized.includes("input audio file was not found") ||
+    normalized.includes("missing_input_wav")
+  ) {
+    return {
+      summary: "The selected audio file could not be found.",
+      detail,
+    };
+  }
+
+  if (
+    normalized.includes("failed to probe audio") ||
+    normalized.includes("failed to decode audio") ||
+    normalized.includes("failed to read wav") ||
+    normalized.includes("failed to open audio") ||
+    normalized.includes("no default audio track") ||
+    normalized.includes("no usable sample-rate") ||
+    normalized.includes("no usable channel") ||
+    normalized.includes("decoded to no samples")
+  ) {
+    return {
+      summary: "ClearPodcast could not read this audio file.",
+      detail,
+    };
+  }
+
+  if (
+    normalized.includes("python runtime was not found") ||
+    normalized.includes("packaged python runtime was not found") ||
+    normalized.includes("local python runtime was not found") ||
+    normalized.includes("tauri runtime is not available")
+  ) {
+    return {
+      summary: "The local restoration runtime is missing.",
+      detail,
+    };
+  }
+
+  if (
+    normalized.includes("model directory was not found") ||
+    normalized.includes("required model file") ||
+    normalized.includes("missing_model") ||
+    normalized.includes("model_checkpoint_mismatch") ||
+    normalized.includes("model latest")
+  ) {
+    return {
+      summary: "The bundled speech restoration model is missing or incomplete.",
+      detail,
+    };
+  }
+
+  if (
+    normalized.includes("sidecar failed") ||
+    normalized.includes("sidecar did not write") ||
+    normalized.includes("failed to launch sidecar") ||
+    normalized.includes("missing_runtime_dependency") ||
+    normalized.includes("unexpected_sidecar_error")
+  ) {
+    return {
+      summary: "Restoration failed inside the local AI runtime.",
+      detail,
+    };
+  }
+
+  if (
+    normalized.includes("export path must end in .wav") ||
+    normalized.includes("output path must end in .wav")
+  ) {
+    return {
+      summary: "Choose a .wav export location.",
+      detail,
+    };
+  }
+
+  if (context === "export") {
+    return {
+      summary: "The enhanced WAV could not be exported.",
+      detail,
+    };
+  }
+
+  if (context === "input") {
+    return {
+      summary: "The selected file could not be imported.",
+      detail,
+    };
+  }
+
+  return {
+    summary: "ClearPodcast hit a local processing error.",
+    detail,
+  };
+}
+
 function labelForState(state: EnhancementJobState | "idle") {
   switch (state) {
     case "queued":
       return "Queued";
     case "running":
-      return "Running";
+      return "Restoring";
     case "completed":
-      return "Completed";
+      return "Restored";
     case "failed":
-      return "Failed";
+      return "Needs attention";
     case "cancelled":
       return "Cancelled";
     default:
-      return "Idle";
+      return "Ready";
   }
 }
 

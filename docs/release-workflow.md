@@ -15,6 +15,10 @@ During ordinary development, UI iteration, debugging, review, or commit prep,
 use normal checks such as `npm run check`, `cargo test`, and `git diff --check`
 instead of release packaging.
 
+The desktop app resolves packaged runtime and model paths by default.
+Diagnostics provides Python runtime and model directory overrides for local
+smoke testing.
+
 ## Release Matrix
 
 | Artifact | Status | Command |
@@ -166,9 +170,14 @@ runtime.
 
 - Keep large generated artifacts under `localfiles/` or the ignored staged
   resource tree.
+- Treat `src-tauri/resources/clearpodcast/` as generated staging output except
+  for `.gitkeep`.
 - Do not commit staged runtimes, model weights, generated zips, extracted apps,
   smoke outputs, or private samples.
 - Keep third-party license notices in the packaged artifact.
+- The macOS and Windows staging scripts intentionally share the same manifest,
+  resource-root, directory digest, model validation, and license-notice shape,
+  while keeping platform-specific Python runtime copying separate.
 - Use `docs/milestone-records/milestone-4-macos-portable-release.md` for deeper
   macOS packaging context and the original portable packaging contract.
 - Use `docs/milestone-records/milestone-5-windows-portable-cuda.md` for deeper

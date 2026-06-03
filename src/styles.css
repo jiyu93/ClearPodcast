@@ -181,7 +181,7 @@ h1 {
 .import-panel,
 .status-panel,
 .playback-panel,
-.runtime-panel {
+.diagnostics-panel {
   border: 1px solid #d5dcdf;
   border-radius: 8px;
   background: #ffffff;
@@ -613,11 +613,53 @@ h1 {
   font-weight: 800;
 }
 
-.runtime-panel {
+.diagnostics-panel {
+  display: grid;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.diagnostics-content {
+  display: grid;
+  gap: 14px;
+  border-top: 1px solid #dbe2e4;
+  padding-top: 14px;
+}
+
+.runtime-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  padding: 14px 16px;
+}
+
+.diagnostic-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.diagnostic-list div {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 10px;
+  min-width: 0;
+}
+
+.diagnostic-list dt {
+  color: #65736f;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.diagnostic-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #30403c;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    monospace;
+  font-size: 0.78rem;
 }
 
 label {
@@ -652,7 +694,7 @@ label {
   .app-header,
   .mvp-grid,
   .playback-panel,
-  .runtime-panel {
+  .runtime-fields {
     grid-template-columns: 1fr;
   }
 
@@ -712,7 +754,8 @@ label {
   }
 
   .metadata-grid,
-  .state-list {
+  .state-list,
+  .diagnostic-list div {
     grid-template-columns: 1fr;
   }
 

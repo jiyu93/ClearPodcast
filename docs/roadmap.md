@@ -6,7 +6,8 @@ milestone scope, exit criteria, and verification.
 
 ## Current State
 
-ClearPodcast has completed its MVP and portable packaging foundation:
+ClearPodcast has completed its MVP, portable packaging foundation, and first
+post-MVP residual cleanup pass:
 
 - Offline one-file speech restoration works through the desktop app.
 - WAV, MP3, and M4A inputs are supported.
@@ -14,22 +15,23 @@ ClearPodcast has completed its MVP and portable packaging foundation:
 - macOS arm64 CPU packaging is available as a portable app zip.
 - Windows x64 packaging is available as one CUDA-capable portable zip with CPU
   fallback.
+- Product language, diagnostics, compatibility smoke entry points, original
+  preview-copy playback, and generated-resource hygiene are aligned with the
+  current app shape.
 
-The next work is about turning the proven pipeline into a more coherent
-product.
+The next work is the Milestone 7 UI/UX redesign around the proven restoration
+pipeline.
 
 ## Active Productization
 
 The active post-MVP phase is productization:
 
-- Align the user-facing app, documentation, commands, and diagnostics with the
-  current product shape.
 - Redesign the UI/UX around the normal restoration workflow.
-- Keep exact model controls available while moving developer-only controls out
-  of the primary path.
+- Keep exact model controls and the secondary Diagnostics surface available
+  while improving the primary workspace.
 
-These items are tracked as Milestone 6, Residual Cleanup, and Milestone 7,
-UI/UX Redesign, in `docs/implementation-plan.md`.
+Milestone 6, Residual Cleanup, is complete. Milestone 7, UI/UX Redesign, is the
+next executable productization milestone in `docs/implementation-plan.md`.
 
 ## Future Themes
 

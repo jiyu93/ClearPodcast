@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """ClearPodcast-owned Resemble Enhance sidecar.
 
-This entrypoint intentionally avoids the upstream CLI and demo server. It takes
-one WAV file, an explicit local model directory, and writes one enhanced WAV.
+This product-owned entrypoint takes the desktop app's internal WAV handoff, an
+explicit local model directory, and writes one enhanced WAV handoff for Rust to
+turn into the user-visible export.
 """
 
 from __future__ import annotations
@@ -27,7 +28,7 @@ EXPECTED_MODEL_FILES = (
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Run ClearPodcast WAV enhancement through Resemble Enhance."
+        description="Run ClearPodcast's internal WAV handoff through Resemble Enhance."
     )
     parser.add_argument("--model-dir", required=True, type=Path)
     parser.add_argument("--input-wav", required=True, type=Path)
@@ -119,10 +120,16 @@ def validate_paths(args: argparse.Namespace) -> None:
         raise SidecarError("missing_input_wav", f"input WAV not found: {args.input_wav}")
 
     if args.input_wav.suffix.lower() != ".wav":
-        raise SidecarError("unsupported_input", "milestone 1 sidecar accepts WAV input only")
+        raise SidecarError(
+            "unsupported_input",
+            "ClearPodcast sidecar receives an internal WAV handoff from the desktop app.",
+        )
 
     if args.output_wav.suffix.lower() != ".wav":
-        raise SidecarError("unsupported_output", "ClearPodcast milestone 1 writes WAV output only")
+        raise SidecarError(
+            "unsupported_output",
+            "ClearPodcast sidecar writes an internal WAV handoff for the desktop app.",
+        )
 
     if not args.model_dir.is_dir():
         raise SidecarError("missing_model_dir", f"model directory not found: {args.model_dir}")

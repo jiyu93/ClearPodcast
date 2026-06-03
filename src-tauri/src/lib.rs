@@ -2,6 +2,7 @@ pub mod audio;
 pub mod dialogs;
 pub mod jobs;
 pub mod packaging;
+pub mod previews;
 pub mod runtime;
 
 use audio::AudioMetadata;
@@ -9,15 +10,19 @@ use jobs::{
     EnhancementJobManager, EnhancementJobSnapshot, ExportResult, StartEnhancementJobRequest,
 };
 use packaging::PackagedResourcePaths;
+use previews::PreparedAudioPreview;
 use runtime::{DeviceDetectionRequest, EnhanceRequest, EnhancementDeviceInfo, EnhancementResult};
 use std::path::PathBuf;
 use tauri::{Manager, State};
 
+/// Diagnostic and release-smoke entry point for the current WAV/MP3/M4A input
+/// contract.
 #[tauri::command]
 fn enhance_audio_command(request: EnhanceRequest) -> Result<EnhancementResult, String> {
     runtime::enhance_audio(request).map_err(|error| error.to_string())
 }
 
+/// Compatibility wrapper for the `enhance_wav` smoke command surface.
 #[tauri::command]
 fn enhance_wav_command(request: EnhanceRequest) -> Result<EnhancementResult, String> {
     enhance_audio_command(request)
@@ -26,6 +31,16 @@ fn enhance_wav_command(request: EnhanceRequest) -> Result<EnhancementResult, Str
 #[tauri::command]
 fn probe_audio_command(path: PathBuf) -> Result<AudioMetadata, String> {
     audio::probe_audio(runtime::resolve_repo_relative_path(path)).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn prepare_audio_preview_command(path: PathBuf) -> Result<PreparedAudioPreview, String> {
+    previews::prepare_audio_preview(path).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn cleanup_audio_preview_command(preview_audio: PathBuf) -> Result<(), String> {
+    previews::cleanup_audio_preview(preview_audio).map_err(|error| error.to_string())
 }
 
 #[tauri::command]
@@ -114,6 +129,8 @@ pub fn run() {
             enhance_audio_command,
             enhance_wav_command,
             probe_audio_command,
+            prepare_audio_preview_command,
+            cleanup_audio_preview_command,
             start_enhancement_job_command,
             get_enhancement_job_command,
             cancel_enhancement_job_command,
