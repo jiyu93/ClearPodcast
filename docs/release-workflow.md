@@ -169,7 +169,7 @@ runtime.
 - Do not commit staged runtimes, model weights, generated zips, extracted apps,
   smoke outputs, or private samples.
 - Keep third-party license notices in the packaged artifact.
-- Use `docs/milestone-4-macos-portable-release.md` for deeper macOS packaging
-  context and the original portable packaging contract.
-- Use `docs/milestone-5-windows-portable-cuda.md` for deeper Windows CUDA,
-  CPU-fallback, size, and validation context.
+- Use `docs/milestone-records/milestone-4-macos-portable-release.md` for deeper
+  macOS packaging context and the original portable packaging contract.
+- Use `docs/milestone-records/milestone-5-windows-portable-cuda.md` for deeper
+  Windows CUDA, CPU-fallback, size, and validation context.

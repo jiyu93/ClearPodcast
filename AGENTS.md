@@ -14,7 +14,7 @@ This is a single-context repo with `CONTEXT.md` at the root and ADRs in `docs/ad
 
 ### Documentation hygiene
 
-During development, actively judge whether each meaningful code, architecture, packaging, or product-scope change should update the project docs. Keep `README.md`, `CONTEXT.md`, `docs/implementation-plan.md`, ADRs, and `docs/agents/` aligned with the current state of the project.
+During development, actively judge whether each meaningful code, architecture, packaging, or product-scope change should update the project docs. Keep `README.md`, `CONTEXT.md`, `docs/roadmap.md`, `docs/implementation-plan.md`, ADRs, and `docs/agents/` aligned with the current state of the project.
 
 ### Release workflow
 
@@ -32,6 +32,10 @@ milestone source of truth. Treat one milestone as one goal, follow its scope and
 out-of-scope boundaries, and only mark the goal complete when its exit criteria
 and verification expectations are satisfied or explicitly documented as
 deferred.
+
+Use `docs/roadmap.md` for phase context and broad future themes. Roadmap themes
+become executable scope when they are written as a milestone, issue, PRD, or
+ADR.
 
 ### Local files
 

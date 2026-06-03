@@ -19,12 +19,9 @@ a zip archive.
 
 Start here:
 
+- [Roadmap](docs/roadmap.md)
 - [Implementation plan](docs/implementation-plan.md)
-- [Milestone 1 runtime spine](docs/milestone-1-runtime-spine.md)
-- [Milestone 2 audio contract](docs/milestone-2-audio-contract.md)
-- [Milestone 3 desktop MVP](docs/milestone-3-desktop-mvp.md)
-- [Milestone 4 macOS portable release](docs/milestone-4-macos-portable-release.md)
-- [Milestone 5 Windows portable CUDA release](docs/milestone-5-windows-portable-cuda.md)
+- [Milestone records](docs/milestone-records/)
 - [Release workflow](docs/release-workflow.md)
 - [Domain context](CONTEXT.md)
 - [Architecture decisions](docs/adr/)
@@ -44,7 +41,7 @@ PYTHON_BIN=/path/to/python3.12 scripts/bootstrap-macos-cpu-runtime.sh
 ```
 
 On Windows, create a local CUDA-capable Python runtime for smoke tests,
-packaging, or the desktop MVP's optional Python override. The packaged app uses
+packaging, or the desktop app's optional developer override. The packaged app uses
 CUDA automatically when available and falls back to CPU when CUDA is unavailable
 or disabled:
 
@@ -79,9 +76,9 @@ Start the Tauri dev app:
 npm run tauri dev
 ```
 
-Milestone 3 adds the desktop MVP workflow: choose or drop a WAV/MP3/M4A file,
-use official-demo-aligned enhancement defaults, run a cancellable enhancement
-job, compare original/enhanced audio, and export the enhanced WAV.
+The desktop workflow can choose or drop a WAV/MP3/M4A file, use
+official-demo-aligned enhancement defaults, run a cancellable enhancement job,
+compare original/enhanced audio, and export the enhanced WAV.
 
 ## macOS Portable Packaging
 
@@ -100,8 +97,8 @@ npm run package:macos-cpu
 
 The local artifact is written to `localfiles/releases/`. Use the
 [release workflow](docs/release-workflow.md) for routine release builds; see the
-Milestone 4 document for the original macOS packaging contract and deeper
-resource-layout details.
+[Milestone 4 record](docs/milestone-records/milestone-4-macos-portable-release.md)
+for the original macOS packaging contract and deeper resource-layout details.
 
 ## Windows Portable Packaging
 
@@ -114,4 +111,5 @@ npm run package:windows-x64
 The local artifact is written to `localfiles/releases/`. The Windows package
 bundles PyTorch CUDA runtime files and selects CUDA automatically when a
 compatible NVIDIA GPU is available; otherwise the same app runs on CPU. See the
-Milestone 5 document for the validation record and Windows resource layout.
+[Milestone 5 record](docs/milestone-records/milestone-5-windows-portable-cuda.md)
+for the validation record and Windows resource layout.

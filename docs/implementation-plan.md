@@ -1,14 +1,24 @@
 # ClearPodcast Implementation Plan
 
-## Goal
+## Role
 
-Build an offline desktop application that restores poor spoken-word podcast
-recordings captured through Bluetooth headsets, laptop microphones, meeting
-software, phone recordings, and remote-call workflows.
+This document is the executable milestone plan for ClearPodcast. Use
+`docs/roadmap.md` for the broader product phase map and future themes.
 
-The first product version should let a user import a WAV or MP3 recording,
-process it locally with Resemble Enhance, apply basic podcast-oriented output
-normalization, and export a WAV file.
+Milestones 1 through 5 record the completed MVP and portable packaging
+foundation. Milestone 6 and later are post-MVP productization work. Keep each
+future milestone scoped enough to execute and verify without absorbing every
+future product idea.
+
+## Product Goal
+
+ClearPodcast is an offline desktop application that restores poor spoken-word
+podcast recordings captured through Bluetooth headsets, laptop microphones,
+meeting software, phone recordings, and remote-call workflows.
+
+The current product path lets a user import a WAV, MP3, or M4A recording,
+process it locally with Resemble Enhance, compare the result, and export a WAV
+file.
 
 ## Fixed Decisions
 
@@ -57,7 +67,7 @@ inference, and return enhanced PCM/WAV output.
 ## Audio Pipeline
 
 ```text
-User selects .wav or .mp3
+User selects .wav, .mp3, or .m4a
 -> Rust validates extension and probes audio metadata
 -> Rust decodes to mono f32 PCM
 -> Rust writes a temporary normalized WAV or streams PCM to sidecar
@@ -235,17 +245,17 @@ Use `localfiles/` for private local inputs, model files, runtime experiments, an
 generated outputs. This directory is intentionally not part of the repository
 history.
 
-MVP fixture set:
+Baseline fixture set:
 
 - `localfiles/samples/low_quality_voice_sample_1.wav`
 - `localfiles/samples/low_quality_voice_sample_1.mp3`
 - `localfiles/samples/low_quality_voice_sample_1.m4a`
 
 These files should represent the same short low-quality spoken voice sample in
-each supported input format. This is enough for Runtime Spine, Audio Contract,
-and early Desktop MVP smoke tests.
+each supported input format. This is enough for runtime, audio-contract, and
+desktop smoke checks.
 
-The MVP fixture set centers on one representative short spoken-word sample.
+The baseline fixture set centers on one representative short spoken-word sample.
 Scenario-specific and long-file samples belong to later quality, stability, and
 performance tuning passes.
 
@@ -274,10 +284,10 @@ f9d035f318de3e6d919bc70cf7ad7d32b4fe92ec5cbe0b30029a27f5db07d9d6
 The sidecar should treat missing or mismatched model files as actionable setup
 errors. It should not silently download replacements during normal app runtime.
 
-## MVP Feature Checklist
+## Completed First Product Surface Checklist
 
-This checklist defines the first usable product surface. It is not the execution
-order; use the goal-mode milestones below for implementation order.
+This checklist defines the completed first usable product surface. It is not the
+execution order; use the goal-mode milestones below for implementation order.
 
 1. Tauri app scaffold.
 2. File picker and drag/drop for WAV, MP3, and M4A.
@@ -299,9 +309,9 @@ order; use the goal-mode milestones below for implementation order.
 ## Goal-Mode Milestones
 
 Use one milestone as one Codex goal. Start a new goal by reading `AGENTS.md`,
-`CONTEXT.md`, relevant ADRs, and this plan. Treat the milestone objective as the
-goal objective. Do not mark the goal complete until every exit criterion is met
-or explicitly documented as deferred with a reason.
+`CONTEXT.md`, `docs/roadmap.md`, relevant ADRs, and this plan. Treat the
+milestone objective as the goal objective. Do not mark the goal complete until
+every exit criterion is met or explicitly documented as deferred with a reason.
 
 Each milestone should leave the repo in a coherent state: checks run, docs
 updated when the behavior or plan changed, and the next milestone able to start
@@ -360,7 +370,7 @@ Completion state as of June 2, 2026:
   `sidecars/resemble/clearpodcast_resemble.py` and validates local model files
   before importing inference dependencies.
 - Local runtime bootstrap and smoke commands are documented in
-  `docs/milestone-1-runtime-spine.md`.
+  `docs/milestone-records/milestone-1-runtime-spine.md`.
 - Full WAV -> enhanced WAV smoke verification passes on macOS CPU with the
   local 9.216 second WAV fixture. The output is a 44.1 kHz mono PCM16 WAV and
   the observed CPU processing time was about 39 seconds.
@@ -442,7 +452,7 @@ Completion state as of June 2, 2026:
   `localfiles/samples/low_quality_voice_sample_1.m4a`. All three outputs are
   44.1 kHz mono PCM16 WAV files with standard PCM headers.
 - Milestone 2 has no deferred exit criteria. See
-  `docs/milestone-2-audio-contract.md`.
+  `docs/milestone-records/milestone-2-audio-contract.md`.
 
 ### Milestone 3: Desktop MVP
 
@@ -553,7 +563,7 @@ Completion state as of June 3, 2026:
   AppleScript with AppleEvent `-1712`; Milestone 4 should resolve the DMG path
   or intentionally use zip as the first macOS wrapper.
 - Milestone 3 has no deferred exit criteria. See
-  `docs/milestone-3-desktop-mvp.md`.
+  `docs/milestone-records/milestone-3-desktop-mvp.md`.
 
 ### Milestone 4: macOS Portable Release And Packaging Contract
 
@@ -678,9 +688,9 @@ Completion state as of June 3, 2026:
   original playback is documented as a future preview-path improvement if it
   becomes a release blocker.
 - Windows handoff requirements for Milestone 5 are documented in
-  `docs/milestone-4-macos-portable-release.md`.
+  `docs/milestone-records/milestone-4-macos-portable-release.md`.
 - Milestone 4 has no deferred exit criteria. See
-  `docs/milestone-4-macos-portable-release.md`.
+  `docs/milestone-records/milestone-4-macos-portable-release.md`.
 
 ### Milestone 5: Windows Portable Release And CUDA Validation
 
@@ -814,14 +824,153 @@ Completion state as of June 3, 2026:
 - Windows cancellation behavior is covered by the job-manager fake sidecar
   tests, and packaged lookup tests cover both Windows and macOS runtime paths.
 - Milestone 5 has no deferred exit criteria. See
-  `docs/milestone-5-windows-portable-cuda.md`.
+  `docs/milestone-records/milestone-5-windows-portable-cuda.md`.
+
+### Milestone 6: Residual Cleanup
+
+Objective:
+
+Establish a clean post-MVP baseline for the working import, restore, compare,
+and export path by aligning product language, diagnostics, command entry
+points, generated-resource hygiene, and documentation.
+
+Scope:
+
+- Use current product language across the app surface, command entry points, and
+  active docs. Historical completion evidence lives in `docs/milestone-records/`.
+- Place Python runtime and model path overrides in diagnostic or developer
+  surfaces. Keep the smoke CLI available for local verification.
+- Clarify compatibility command names such as `enhance_wav` and
+  `enhance_wav_command` as diagnostic or release-smoke entry points aligned with
+  the current WAV/MP3/M4A input contract.
+- Add concise user-facing summaries for backend, sidecar, and device-detection
+  failures. Diagnostics own stdout, stderr, tracebacks, paths, raw IDs,
+  checkpoints, and sidecar internals.
+- Align sidecar and runtime errors with the current internal WAV handoff
+  boundary and packaged runtime model.
+- Present job progress and results with product-facing status language.
+- Make original and enhanced playback coherent for normal user-selected files,
+  including any app-managed preview-copy lifecycle needed by the Tauri asset
+  protocol.
+- Confirm generated-output and staging boundaries for `localfiles/`,
+  `src-tauri/resources/clearpodcast/`, `dist/`, `node_modules/`, and
+  `src-tauri/target/`.
+- Review macOS and Windows staging scripts for shared maintenance points.
+- Refresh README and release-workflow wording so current product behavior and
+  historical records have clear homes.
+
+Exit criteria:
+
+- The primary desktop UI presents the current restoration workflow in product
+  language, with diagnostics as a secondary surface.
+- Packaged runtime and model lookup remain the default behavior. Developer
+  overrides are intentionally placed and covered by at least one smoke or unit
+  path.
+- Common failure modes have understandable user-facing messages: unsupported
+  input, corrupt or unreadable audio, missing packaged runtime, missing model
+  files, sidecar failure, cancellation, and device-detection failure.
+- Sidecar and runtime error text describes current behavior when those errors
+  can reach the desktop UI.
+- Original and enhanced playback behave coherently for normal user-selected
+  files, including any app-managed preview-copy lifecycle.
+- Current docs describe the app as a working offline desktop restoration tool.
+  Historical milestone completion notes remain intact under
+  `docs/milestone-records/`.
+- Generated resources, ignored files, ordinary checks, and documented local
+  inputs have a clear relationship.
+
+Boundaries:
+
+- This milestone owns residual cleanup for the current workflow, diagnostics,
+  command entry points, generated-resource hygiene, and documentation.
+- Milestone 7 owns the full UI/UX redesign.
+- The roadmap owns future themes for audio strategy, QA methodology, release
+  readiness, public versioning, and product expansion.
+
+Verification:
+
+- `npm run check`.
+- `cargo test --manifest-path src-tauri/Cargo.toml`.
+- `git diff --check`.
+- Manual desktop smoke for import, restore, cancellation, before/after playback,
+  export, and at least one developer override path.
+- Review `git status --ignored` and confirm generated resources remain ignored
+  and non-required for ordinary checks.
+- Release packaging is reserved for explicit release-artifact requests.
+
+### Milestone 7: UI/UX Redesign
+
+Objective:
+
+Redesign the desktop experience into a polished one-file spoken-word
+restoration workspace while preserving the proven backend pipeline and exact
+Resemble Enhance parameter access.
+
+Scope:
+
+- Redesign the primary desktop workflow around import, source understanding,
+  restore, processing state, before/after comparison, and WAV export.
+- Make the first screen the usable restoration workspace.
+- Split the current monolithic React and CSS surface into maintainable UI
+  modules for input, metadata, processing status, device status, playback,
+  export, advanced enhancement settings, and diagnostics.
+- Keep exact enhancement controls for solver, CFM steps, prior temperature, and
+  denoising strength in an advanced settings surface.
+- Preserve reset-to-public-demo defaults:
+  `midpoint`, `nfe=64`, `tau=0.5`, and `lambd=0.1`.
+- Improve empty, loading, running, cancelled, failed, completed, and exported
+  states so the user always knows what action is available next.
+- Present processing-device information in product language while retaining
+  CUDA/CPU details where useful.
+- Improve accessibility and desktop ergonomics: keyboard focus, clear disabled
+  states, predictable tab order, text that fits, window-size behavior, and
+  robust drag/drop affordances.
+- Keep diagnostic and developer controls available as secondary surfaces.
+- Update current docs and screenshots or descriptions that become inaccurate
+  after the redesign.
+
+Exit criteria:
+
+- A non-technical user can import WAV, MP3, or M4A audio, run restoration,
+  compare original/enhanced playback, and export a WAV through product-facing
+  language and controls.
+- Advanced model parameters remain available and are passed through to the
+  backend exactly as before.
+- The redesigned UI preserves the current exact model-control surface in a
+  secondary location.
+- The interface remains usable on the supported desktop window sizes for macOS
+  and Windows, with no overlapping text or controls.
+- The frontend code is organized into focused modules with clear ownership for
+  app state, workflow panels, diagnostics, and styling.
+- Existing backend behavior, packaged resource lookup, cancellation, device
+  detection, and export semantics remain intact.
+
+Boundaries:
+
+- This milestone owns interface design, information architecture, frontend
+  structure, and desktop workflow ergonomics for the current one-file
+  restoration path.
+- The roadmap owns future themes for audio-quality exploration, preset
+  validation, QA methodology, release readiness, additional formats, batch
+  workflows, realtime recording, and model expansion.
+
+Verification:
+
+- `npm run check`.
+- `cargo test --manifest-path src-tauri/Cargo.toml`.
+- `git diff --check`.
+- Frontend build verification with `npm run build`.
+- Manual desktop smoke on macOS and Windows where practical for import, restore,
+  cancellation, before/after playback, export, advanced settings, and developer
+  diagnostics.
+- Visual QA with screenshots or browser/app inspection for the supported desktop
+  window sizes before marking the milestone complete.
 
 ## Open Questions
 
-- Whether to store model weights in the repository, Git LFS, release artifacts,
-  or a release build cache.
-- Whether to keep the temporary WAV handoff long-term or move to direct PCM IPC
-  after the MVP path is stable.
+- Model weight storage and release-cache policy.
+- Long-term sidecar audio handoff strategy: temporary WAV boundary or direct PCM
+  IPC.
 - Final loudness target for exported podcast WAV.
-- Whether to add optional deterministic post-processing before the first public
-  build or defer it until after the model path is stable.
+- Deterministic preprocessing and post-processing strategy for future
+  audio-quality exploration.

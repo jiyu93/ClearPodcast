@@ -11,8 +11,12 @@ Read these files before planning or editing code:
 
 - `CONTEXT.md` at the repo root.
 - Relevant ADRs under `docs/adr/`.
-- `docs/implementation-plan.md` when working on initial product scaffolding,
-  packaging, audio I/O, or sidecar integration.
+- `docs/roadmap.md` when planning post-MVP product direction or deciding which
+  broad theme a request belongs to.
+- `docs/implementation-plan.md` when executing a concrete milestone or changing
+  milestone scope, exit criteria, or verification.
+- `docs/milestone-records/` when historical milestone evidence or packaging
+  details are needed.
 
 If one of these files is missing, proceed silently. Do not suggest creating it
 upfront unless the user's task specifically asks for documentation work.
@@ -53,6 +57,8 @@ Goal-mode work:
 
 - Use the `Goal-Mode Milestones` section in `docs/implementation-plan.md` as the
   execution plan.
+- Use `docs/roadmap.md` for phase context. Broad roadmap themes become
+  executable scope when they are written as a milestone, issue, PRD, or ADR.
 - Treat each milestone as one Codex goal with its own scope, exit criteria, and
   verification evidence.
 - Do not expand a goal with later-milestone work unless the milestone explicitly

@@ -115,6 +115,6 @@ As of June 2, 2026:
 ## Milestone 2 Follow-Up
 
 Milestone 2 is complete. See
-[`docs/milestone-2-audio-contract.md`](milestone-2-audio-contract.md) for the
+[`docs/milestone-records/milestone-2-audio-contract.md`](milestone-2-audio-contract.md) for the
 current WAV/MP3/M4A input contract, temporary sidecar handoff behavior, Rust WAV
 output writer, and audio-contract tests.

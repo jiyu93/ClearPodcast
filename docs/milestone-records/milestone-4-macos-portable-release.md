@@ -179,4 +179,4 @@ Expected Windows smoke checklist:
 Milestone 5 completed this handoff with the platform-specific Windows runtime
 path `runtimes/windows-x64/` while preserving the macOS runtime path
 `runtimes/macos-arm64-cpu/`. See
-`docs/milestone-5-windows-portable-cuda.md`.
+`docs/milestone-records/milestone-5-windows-portable-cuda.md`.
