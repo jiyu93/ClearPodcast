@@ -942,18 +942,45 @@ Completion state as of June 3, 2026:
 
 Objective:
 
-Redesign the desktop experience into a polished one-file spoken-word
-restoration workspace while preserving the proven backend pipeline and exact
-Resemble Enhance parameter access.
+Turn the current working desktop app into a polished one-file spoken-word
+restoration workspace through a design-led, verifiable frontend redesign while
+preserving the proven backend pipeline and exact Resemble Enhance parameter
+access.
 
 Scope:
 
+- Start from a concise product-design brief for the one-file restoration
+  workspace: user goal, primary workflow, visual direction, interaction level,
+  supported desktop sizes, and non-goals.
+- Treat the MVP-era UI as a functional prototype artifact. The redesign
+  preserves the working behavior while establishing an independent, polished
+  visual system.
+- Use a cel-shaded-inspired visual direction as the default aesthetic target:
+  crisp illustrated planes, confident outlines, layered color blocks,
+  expressive audio/status motifs, and enough restraint for a focused desktop
+  productivity workflow.
+- Research comparable speech-restoration, podcast-cleanup, and audio-enhancement
+  workflows where useful, separating observed public user friction from
+  inference. Use research to sharpen workflow clarity and prioritization while
+  keeping the product surface scoped to M7.
+- Audit the current ClearPodcast experience across import, source understanding,
+  restore, processing state, cancellation, before/after comparison, WAV export,
+  advanced settings, diagnostics, empty states, error states, and supported
+  desktop window sizes.
+- Explore three credible visual and information-architecture directions before
+  implementation. Keep those directions inside or adjacent to the cel-shaded
+  brief unless there is strong evidence that the style would harm usability.
+  Pick one working target, with an agent-recommended default absent an explicit
+  user choice.
+- Make the first screen the usable restoration workspace.
 - Redesign the primary desktop workflow around import, source understanding,
   restore, processing state, before/after comparison, and WAV export.
-- Make the first screen the usable restoration workspace.
 - Split the current monolithic React and CSS surface into maintainable UI
   modules for input, metadata, processing status, device status, playback,
   export, advanced enhancement settings, and diagnostics.
+- Separate product-facing state, backend command integration, presentation
+  components, diagnostics, and styling enough to keep future workflow changes
+  localized.
 - Keep exact enhancement controls for solver, CFM steps, prior temperature, and
   denoising strength in an advanced settings surface.
 - Preserve reset-to-public-demo defaults:
@@ -966,14 +993,38 @@ Scope:
   states, predictable tab order, text that fits, window-size behavior, and
   robust drag/drop affordances.
 - Keep diagnostic and developer controls available as secondary surfaces.
+- Capture visual and interaction QA evidence before completion, using Browser or
+  app screenshots where practical.
 - Update current docs and screenshots or descriptions that become inaccurate
   after the redesign.
+
+Execution flow:
+
+1. Definition: write the M7 design brief and state matrix before changing the
+   production UI, including the cel-shaded-inspired aesthetic target and the
+   independent visual foundation.
+2. Evidence: run a lightweight comparable-product research scan when source
+   access is available, then audit the current app against the brief.
+3. Direction: produce three design directions and choose a single target. If the
+   user has not asked to review visual options, proceed with the strongest
+   agent-recommended cel-shaded direction and document the choice.
+4. Implementation: refactor the frontend into focused modules while preserving
+   the current Tauri command contract and backend behavior.
+5. QA: verify state coverage, accessibility, desktop sizing, interaction flow,
+   model-parameter passthrough, diagnostics, and export semantics before marking
+   the milestone complete.
 
 Exit criteria:
 
 - A non-technical user can import WAV, MP3, or M4A audio, run restoration,
   compare original/enhanced playback, and export a WAV through product-facing
   language and controls.
+- The milestone records the design brief, comparable-product research signal or
+  documented research limitation, current-experience audit, selected design
+  direction, and state matrix used for implementation.
+- The redesigned interface visibly leaves behind the MVP-era plain styling and
+  consistently expresses the selected cel-shaded-inspired direction without
+  compromising workflow clarity.
 - Advanced model parameters remain available and are passed through to the
   backend exactly as before.
 - The redesigned UI preserves the current exact model-control surface in a
@@ -981,15 +1032,33 @@ Exit criteria:
 - The interface remains usable on the supported desktop window sizes for macOS
   and Windows, with no overlapping text or controls.
 - The frontend code is organized into focused modules with clear ownership for
-  app state, workflow panels, diagnostics, and styling.
+  app state, backend integration, workflow panels, diagnostics, and styling.
 - Existing backend behavior, packaged resource lookup, cancellation, device
   detection, and export semantics remain intact.
+- Visual and interaction QA evidence covers empty, selected, running,
+  cancelled, failed, completed, exported, advanced-settings, and diagnostics
+  states.
+
+User participation:
+
+- The milestone should be executable without midstream user decisions by using
+  conservative product assumptions, the existing implementation plan, and the
+  cel-shaded-inspired visual direction.
+- User review is valuable but optional for visual-direction selection, wording
+  preferences, and final acceptance screenshots.
+- Stop for user input only when continuing would change the product promise,
+  abandon the cel-shaded-inspired direction, remove existing model controls,
+  expand beyond the one-file workflow, or create a new release/distribution
+  commitment.
 
 Boundaries:
 
 - This milestone owns interface design, information architecture, frontend
   structure, and desktop workflow ergonomics for the current one-file
   restoration path.
+- This milestone may use Product Design research, audit, ideation, and visual
+  QA workflows as supporting tools, but the implementation plan remains the
+  milestone source of truth.
 - The roadmap owns future themes for audio-quality exploration, preset
   validation, QA methodology, release readiness, additional formats, batch
   workflows, realtime recording, and model expansion.
@@ -1000,6 +1069,7 @@ Verification:
 - `cargo test --manifest-path src-tauri/Cargo.toml`.
 - `git diff --check`.
 - Frontend build verification with `npm run build`.
+- Design-brief and state-matrix review against the implemented UI.
 - Manual desktop smoke on macOS and Windows where practical for import, restore,
   cancellation, before/after playback, export, advanced settings, and developer
   diagnostics.
