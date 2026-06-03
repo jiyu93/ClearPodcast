@@ -146,6 +146,10 @@
     justify-items: start;
   }
 
+  .brand-wordmark {
+    font-size: 2.5rem;
+  }
+
   .secondary-drawers {
     display: grid;
   }

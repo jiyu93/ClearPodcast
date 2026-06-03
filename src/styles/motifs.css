@@ -1,54 +1,41 @@
 .app-mark {
+  display: block;
   width: 72px;
   height: 72px;
   flex: 0 0 auto;
+  object-fit: contain;
 }
 
-.app-mark rect {
-  fill: #f4bf45;
-  stroke: #14211f;
-  stroke-width: 7;
+.brand-title {
+  display: block;
+  margin: 0;
+  min-width: 0;
+  line-height: 1;
 }
 
-.app-mark .mark-field {
-  fill: #fff8ec;
-  stroke: #14211f;
-  stroke-width: 5;
+.brand-wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  max-width: 100%;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  color: #14211f;
+  font-size: 3.05rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 0.92;
+  text-rendering: geometricPrecision;
+  white-space: nowrap;
+  -webkit-font-smoothing: antialiased;
 }
 
-.app-mark .mark-shadow {
-  fill: #ef6b57;
-  stroke: #14211f;
-  stroke-width: 5;
+.brand-wordmark-clear {
+  color: #0f7664;
 }
 
-.app-mark .mark-capsule {
-  fill: #0f7664;
-  stroke: #14211f;
-  stroke-width: 5;
-}
-
-.app-mark .mark-rough,
-.app-mark .mark-clear {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 6;
-}
-
-.app-mark .mark-rough {
-  stroke: #ef6b57;
-}
-
-.app-mark .mark-clear {
-  stroke: #a7e7c3;
-}
-
-.app-mark .mark-spark {
-  fill: #81c7e8;
-  stroke: #14211f;
-  stroke-linejoin: round;
-  stroke-width: 4;
+.brand-wordmark-podcast {
+  color: #14211f;
 }
 
 .source-artwork {
