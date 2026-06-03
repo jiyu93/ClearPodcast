@@ -185,15 +185,15 @@ Selected direction:
 
 Product mark:
 
-- A rounded square badge with ink outline, warm yellow restoration field, teal
-  speech capsule, and contrasting before/after wave paths.
-- The mark is used in the app header, SVG source, and regenerated Tauri icon
-  raster assets.
+- A rounded square badge with warm yellow field, teal microphone body,
+  mint grille detail, and strong ink structural strokes.
+- `src-tauri/icons/app-icon.svg` is the shared source artwork for the app
+  header and regenerated Tauri desktop icon assets.
 
 In-app motifs:
 
-- Source artwork uses a split before/after waveform: rough input on one side,
-  clear restored output on the other.
+- Source panel artwork uses simple document, waveform, and restoration accent
+  motifs without redefining the product mark.
 - Status chips use shape and copy, not color alone.
 - Current-run states use preparation, restoring, restored, cancelled, and needs
   attention language.
@@ -222,7 +222,8 @@ Palette:
 - Added browser visual fixtures for state QA in non-Tauri preview URLs:
   `?fixture=empty`, `selected`, `running`, `cancelled`, `failed`,
   `completed`, `exported`, `advanced`, and `diagnostics`.
-- Updated the product mark and regenerated Tauri icon assets from the new SVG.
+- Updated the product mark and regenerated Tauri icon assets from the source
+  SVG.
 
 ## Verification
 

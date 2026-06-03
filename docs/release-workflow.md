@@ -38,6 +38,32 @@ src-tauri/tauri.conf.json
 Generated archives use the version from `package.json`; app bundle metadata uses
 the version from `src-tauri/tauri.conf.json`.
 
+## Desktop Icon Assets
+
+`src-tauri/icons/app-icon.svg` is the source artwork for both the app header and
+the Tauri desktop icons. After changing it, regenerate the desktop icon assets:
+
+```sh
+npm run tauri icon src-tauri/icons/app-icon.svg
+```
+
+Keep the committed desktop icon set aligned with `src-tauri/tauri.conf.json`:
+`32x32.png`, `128x128.png`, `128x128@2x.png`, `icon.icns`, `icon.ico`,
+`icon.png`, and the source SVG. Remove Appx, iOS, and Android icon files emitted
+by the Tauri icon command unless the bundle config starts using them.
+
+During `npm run tauri dev`, the Dock icon comes from rebuilt Cargo/Tauri package
+outputs. If it is stale after regenerating icons, quit the dev app and clean
+this package before rerunning:
+
+```sh
+cargo clean --manifest-path src-tauri/Cargo.toml -p clearpodcast-tauri
+```
+
+For dev icon mismatches, use the package clean path above. LaunchServices
+registration is only relevant to an actual `.app` bundle, not the normal
+`tauri dev` refresh path.
+
 ## macOS Arm64 CPU Zip
 
 Use this workflow when asked to build a new macOS release zip, portable macOS
