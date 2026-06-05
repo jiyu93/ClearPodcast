@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 
 import {
   createWaveformColumns,
+  WAVEFORM_PEAK_COUNT,
   normalizeWaveformPeaks,
   waveformBarHalfHeight,
 } from "../src/components/audioWaveform.ts";
@@ -32,15 +33,18 @@ assert.equal(
 );
 
 assert.equal(
-  createWaveformColumns(Array.from({ length: 1024 }, () => 0), 1707, 120)
-    .length,
+  createWaveformColumns(
+    Array.from({ length: WAVEFORM_PEAK_COUNT }, () => 0),
+    1707,
+    120,
+  ).length,
   0,
   "silent waveform columns do not draw phantom bars",
 );
 
 for (const width of [720, 1385, 1707, 1964]) {
   const columns = createWaveformColumns(
-    Array.from({ length: 1024 }, () => 0.6),
+    Array.from({ length: WAVEFORM_PEAK_COUNT }, () => 0.6),
     width,
     120,
   );

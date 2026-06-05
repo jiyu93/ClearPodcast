@@ -3,7 +3,9 @@ import {
   useMemo,
   useRef,
   useState,
+  type MutableRefObject,
   type PointerEvent,
+  type Ref,
   type ReactNode,
 } from "react";
 
@@ -36,16 +38,20 @@ export function AudioPreviewLane({
   title,
   src,
   metadata,
+  spacePlaybackActive = false,
   showHeader = true,
   showMetadata = true,
+  onActivate,
   startAction,
   endAction,
 }: {
   title: string;
   src?: string;
   metadata?: AudioMetadata;
+  spacePlaybackActive?: boolean;
   showHeader?: boolean;
   showMetadata?: boolean;
+  onActivate?: () => void;
   startAction?: ReactNode;
   endAction?: ReactNode;
 }) {
@@ -53,14 +59,18 @@ export function AudioPreviewLane({
   const audioRef = useRef<HTMLAudioElement>(null);
   const waveformCanvasRef = useRef<HTMLCanvasElement>(null);
   const playedWaveformCanvasRef = useRef<HTMLCanvasElement>(null);
+  const timelineCanvasRef = useRef<HTMLCanvasElement>(null);
+  const waveformFrameRef = useRef<HTMLDivElement>(null);
   const playheadRef = useRef<HTMLSpanElement>(null);
   const rangeRef = useRef<HTMLInputElement>(null);
-  const clockRef = useRef<HTMLSpanElement>(null);
+  const currentClockRef = useRef<HTMLSpanElement>(null);
+  const durationClockRef = useRef<HTMLSpanElement>(null);
   const scrubberRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | undefined>(undefined);
   const currentTimeRef = useRef(0);
   const durationRef = useRef(0);
-  const displayedClockRef = useRef("");
+  const displayedCurrentClockRef = useRef("");
+  const displayedDurationClockRef = useRef("");
   const pauseAnchorRef = useRef<number | undefined>(undefined);
   const fallbackPeaks = useMemo(() => createFallbackPeaks(title), [title]);
   const [peaks, setPeaks] = useState(fallbackPeaks);
@@ -86,18 +96,21 @@ export function AudioPreviewLane({
 
     currentTimeRef.current = boundedTime;
 
-    const nextClock = `${formatClock(boundedTime)} / ${formatClock(
-      nextDuration,
-    )}`;
+    updateClockValue({
+      element: currentClockRef.current,
+      seconds: boundedTime,
+      valueRef: displayedCurrentClockRef,
+    });
+    updateClockValue({
+      element: durationClockRef.current,
+      seconds: nextDuration,
+      valueRef: displayedDurationClockRef,
+    });
 
-    if (clockRef.current && displayedClockRef.current !== nextClock) {
-      clockRef.current.textContent = nextClock;
-      displayedClockRef.current = nextClock;
-    }
     if (playheadRef.current) {
-      const scrubberWidth = scrubberRef.current?.clientWidth ?? 0;
+      const frameWidth = waveformFrameRef.current?.clientWidth ?? 0;
       playheadRef.current.style.transform = `translateX(${
-        nextProgress * scrubberWidth
+        nextProgress * frameWidth
       }px) translateX(-50%)`;
     }
     if (playedWaveformCanvasRef.current) {
@@ -163,20 +176,20 @@ export function AudioPreviewLane({
   }, [metadata?.duration_seconds, src]);
 
   useEffect(() => {
-    const scrubber = scrubberRef.current;
-    if (!scrubber) {
+    const frame = waveformFrameRef.current;
+    if (!frame) {
       return;
     }
 
     const updateSize = () => {
-      const rect = scrubber.getBoundingClientRect();
+      const rect = frame.getBoundingClientRect();
       setCanvasSize({
-        width: Math.round(rect.width),
-        height: Math.round(rect.height),
+        width: rect.width,
+        height: rect.height,
       });
     };
     const observer = new ResizeObserver(updateSize);
-    observer.observe(scrubber);
+    observer.observe(frame);
     updateSize();
 
     return () => observer.disconnect();
@@ -223,6 +236,12 @@ export function AudioPreviewLane({
       height: canvasSize.height,
       peaks: visiblePeaks,
       waveformColor: "#0f7664",
+      width: canvasSize.width,
+    });
+    drawWaveformTimeline({
+      canvas: timelineCanvasRef.current,
+      duration: durationForDisplay,
+      height: canvasSize.height,
       width: canvasSize.width,
     });
     syncPlaybackPosition(currentTimeRef.current);
@@ -277,6 +296,25 @@ export function AudioPreviewLane({
     }
   };
 
+  useEffect(() => {
+    if (!spacePlaybackActive || !src) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!shouldHandleSpacePlayback(event)) {
+        return;
+      }
+
+      event.preventDefault();
+      void togglePlayback();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
+
   const toggleMute = () => {
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
@@ -328,12 +366,15 @@ export function AudioPreviewLane({
       return;
     }
 
-    const scrubber = event.currentTarget;
-    const rect = scrubber.getBoundingClientRect();
-    const left = rect.left + scrubber.clientLeft;
-    const width = scrubber.clientWidth;
+    const frame = waveformFrameRef.current ?? event.currentTarget;
+    const rect = frame.getBoundingClientRect();
+    const width = frame.clientWidth;
+    if (width <= 0) {
+      return;
+    }
+
     const nextProgress = Math.min(
-      Math.max((event.clientX - left) / width, 0),
+      Math.max((event.clientX - rect.left) / width, 0),
       1,
     );
     seekToTime(nextProgress * durationForDisplay);
@@ -343,7 +384,11 @@ export function AudioPreviewLane({
   const VolumeModeIcon = isMuted ? MutedIcon : VolumeIcon;
 
   return (
-    <div className={`playback-lane ${src ? "has-audio" : "is-empty"}`}>
+    <div
+      className={`playback-lane ${src ? "has-audio" : "is-empty"}`}
+      onFocusCapture={onActivate}
+      onPointerDownCapture={onActivate}
+    >
       {showHeader ? (
         <div className="lane-header">
           <span>{title}</span>
@@ -384,6 +429,7 @@ export function AudioPreviewLane({
               setIsPlaying(false);
             }}
             onPlay={(event) => {
+              onActivate?.();
               syncPlaybackPosition(event.currentTarget.currentTime, true);
               startPlaybackAnimation();
               setIsPlaying(true);
@@ -405,6 +451,13 @@ export function AudioPreviewLane({
             }}
           />
         ) : null}
+        <PlayerClock
+          ariaLabel={t.audio.playbackTime(title)}
+          currentClockRef={currentClockRef}
+          currentTime={currentTime}
+          durationClockRef={durationClockRef}
+          duration={durationForDisplay}
+        />
         <div
           className="waveform-scrubber"
           aria-disabled={!src}
@@ -412,6 +465,7 @@ export function AudioPreviewLane({
           onPointerDown={
             src
               ? (event) => {
+                  onActivate?.();
                   event.currentTarget.setPointerCapture(event.pointerId);
                   seekFromPointer(event);
                 }
@@ -427,7 +481,7 @@ export function AudioPreviewLane({
               : undefined
           }
         >
-          <div className="waveform-canvas-frame">
+          <div className="waveform-canvas-frame" ref={waveformFrameRef}>
             <canvas
               ref={waveformCanvasRef}
               className="waveform-canvas"
@@ -436,6 +490,18 @@ export function AudioPreviewLane({
             <canvas
               ref={playedWaveformCanvasRef}
               className="waveform-canvas waveform-canvas-played"
+              aria-hidden="true"
+            />
+            {src ? (
+              <span
+                ref={playheadRef}
+                className="waveform-playhead"
+                aria-hidden="true"
+              />
+            ) : null}
+            <canvas
+              ref={timelineCanvasRef}
+              className="waveform-canvas waveform-timeline-canvas"
               aria-hidden="true"
             />
           </div>
@@ -452,11 +518,6 @@ export function AudioPreviewLane({
                 value={Math.round(progress * SEEK_MAX)}
                 onChange={(event) => seekTo(Number(event.currentTarget.value))}
               />
-              <span
-                ref={playheadRef}
-                className="waveform-playhead"
-                aria-hidden="true"
-              />
             </>
           ) : null}
         </div>
@@ -465,11 +526,6 @@ export function AudioPreviewLane({
             {startAction}
           </div>
           <div className="player-controls">
-            <span className="player-clock" aria-label={t.audio.playbackTime(title)}>
-              <span ref={clockRef}>
-                {formatClock(currentTime)} / {formatClock(durationForDisplay)}
-              </span>
-            </span>
             <div
               className="transport-cluster"
               aria-label={t.audio.transportControls(title)}
@@ -491,6 +547,7 @@ export function AudioPreviewLane({
                   type="button"
                   className="icon-button player-icon-button transport-play-button"
                   onClick={() => {
+                    onActivate?.();
                     void togglePlayback();
                   }}
                   aria-label={
@@ -558,19 +615,153 @@ export function AudioPreviewLane({
   );
 }
 
-function formatClock(seconds: number) {
-  if (!Number.isFinite(seconds) || seconds <= 0) {
-    return "0:00.00";
+function shouldHandleSpacePlayback(event: KeyboardEvent) {
+  if (event.defaultPrevented || event.repeat || event.key !== " ") {
+    return false;
   }
 
-  const minutes = Math.floor(seconds / 60);
+  if (event.metaKey || event.ctrlKey || event.altKey) {
+    return false;
+  }
+
+  return !isNativeSpaceTarget(event.target);
+}
+
+function isNativeSpaceTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  if (target.isContentEditable) {
+    return true;
+  }
+
+  const tagName = target.tagName.toLowerCase();
+  if (tagName === "textarea" || tagName === "select" || tagName === "button") {
+    return true;
+  }
+
+  if (tagName !== "input") {
+    return false;
+  }
+
+  const input = target as HTMLInputElement;
+  return input.type !== "range";
+}
+
+function PlayerClock({
+  ariaLabel,
+  currentClockRef,
+  currentTime,
+  duration,
+  durationClockRef,
+}: {
+  ariaLabel: string;
+  currentClockRef: Ref<HTMLSpanElement>;
+  currentTime: number;
+  duration: number;
+  durationClockRef: Ref<HTMLSpanElement>;
+}) {
+  return (
+    <span className="player-clock" aria-label={ariaLabel}>
+      <ClockText
+        elementRef={currentClockRef}
+        kind="current"
+        seconds={currentTime}
+      />
+      <span className="clock-separator" aria-hidden="true" />
+      <ClockText
+        elementRef={durationClockRef}
+        kind="duration"
+        seconds={duration}
+      />
+    </span>
+  );
+}
+
+function ClockText({
+  elementRef,
+  kind,
+  seconds,
+}: {
+  elementRef?: Ref<HTMLSpanElement>;
+  kind: "current" | "duration";
+  seconds: number;
+}) {
+  const clock = formatClockParts(seconds);
+
+  return (
+    <span className={`clock-value clock-value-${kind}`} ref={elementRef}>
+      <span className="clock-main">{clock.main}</span>
+      <span className="clock-hundredths">.{clock.hundredths}</span>
+    </span>
+  );
+}
+
+function updateClockValue({
+  element,
+  seconds,
+  valueRef,
+}: {
+  element: HTMLSpanElement | null;
+  seconds: number;
+  valueRef: MutableRefObject<string>;
+}) {
+  if (!element) {
+    return;
+  }
+
+  const clock = formatClockParts(seconds);
+  const nextValue = `${clock.main}.${clock.hundredths}`;
+  if (valueRef.current === nextValue) {
+    return;
+  }
+
+  const [main, hundredths] = element.children;
+  main.textContent = clock.main;
+  hundredths.textContent = `.${clock.hundredths}`;
+  valueRef.current = nextValue;
+}
+
+function formatClock(seconds: number) {
+  const clock = formatClockParts(seconds);
+  return `${clock.main}.${clock.hundredths}`;
+}
+
+function formatClockParts(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return { hundredths: "00", main: "00:00:00" };
+  }
+
+  const hours = Math.floor(seconds / 3600).toString().padStart(2, "0");
+  const minutes = Math.floor((seconds % 3600) / 60)
+    .toString()
+    .padStart(2, "0");
   const wholeSeconds = Math.floor(seconds % 60)
     .toString()
     .padStart(2, "0");
   const hundredths = Math.floor((seconds % 1) * 100)
     .toString()
     .padStart(2, "0");
-  return `${minutes}:${wholeSeconds}.${hundredths}`;
+  return {
+    hundredths,
+    main: `${hours}:${minutes}:${wholeSeconds}`,
+  };
+}
+
+function formatTimelineClock(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return "00:00:00";
+  }
+
+  const hours = Math.floor(seconds / 3600).toString().padStart(2, "0");
+  const minutes = Math.floor((seconds % 3600) / 60)
+    .toString()
+    .padStart(2, "0");
+  const wholeSeconds = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, "0");
+  return `${hours}:${minutes}:${wholeSeconds}`;
 }
 
 function clampPlaybackTime(time: number, duration: number) {
@@ -663,11 +854,6 @@ function drawWaveform({
     context.lineTo(x, height - 8);
     context.stroke();
 
-    if (duration > 0 && tick % 2 === 0) {
-      context.fillStyle = "rgba(66, 83, 79, 0.9)";
-      context.font = "700 10px Inter, system-ui, sans-serif";
-      context.fillText(formatClock((duration * tick) / tickCount), x + 4, 13);
-    }
   }
 
   context.fillStyle = waveformColor;
@@ -677,6 +863,53 @@ function drawWaveform({
       centerY - column.halfHeight,
       column.width,
       column.halfHeight * 2,
+    );
+  }
+}
+
+function drawWaveformTimeline({
+  canvas,
+  duration,
+  height,
+  width,
+}: {
+  canvas: HTMLCanvasElement | null;
+  duration: number;
+  height: number;
+  width: number;
+}) {
+  if (!canvas || width <= 0 || height <= 0) {
+    return;
+  }
+
+  const scale = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.floor(width * scale));
+  canvas.height = Math.max(1, Math.floor(height * scale));
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+
+  const context = canvas.getContext("2d");
+  if (!context) {
+    return;
+  }
+
+  context.setTransform(scale, 0, 0, scale, 0, 0);
+  context.clearRect(0, 0, width, height);
+
+  if (duration <= 0) {
+    return;
+  }
+
+  const tickCount = 8;
+  context.fillStyle = "rgba(66, 83, 79, 0.9)";
+  context.font = "700 10px Inter, system-ui, sans-serif";
+
+  for (let tick = 0; tick <= tickCount; tick += 2) {
+    const x = (tick / tickCount) * width;
+    context.fillText(
+      formatTimelineClock((duration * tick) / tickCount),
+      x + 4,
+      13,
     );
   }
 }

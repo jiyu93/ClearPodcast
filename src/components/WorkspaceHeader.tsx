@@ -1,4 +1,4 @@
-import { Check, Languages } from "lucide-react";
+import { Languages } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 
 import { AppMark } from "./AppMark";
@@ -100,11 +100,6 @@ export function WorkspaceHeader({
                       setLanguageMenuOpen(false);
                     }}
                   >
-                    <Check
-                      className="language-menu-check lucide-button-icon"
-                      strokeWidth={3}
-                      aria-hidden="true"
-                    />
                     <span>{option.nativeName}</span>
                   </button>
                 );

@@ -14,6 +14,7 @@ import { useI18n } from "../i18n/I18nProvider";
 import { StopIcon } from "./icons";
 
 export type WorkspaceMode = "audio" | "parameters" | "log";
+type AudioLaneId = "original" | "enhanced";
 
 export function WorkspaceContent({
   originalSrc,
@@ -56,6 +57,8 @@ export function WorkspaceContent({
   const { t } = useI18n();
   const [logSnapshot, setLogSnapshot] = useState<AppLogSnapshot | undefined>();
   const [logError, setLogError] = useState("");
+  const [activeAudioLane, setActiveAudioLane] =
+    useState<AudioLaneId>("original");
 
   const showLog = useCallback(async () => {
     setLogError("");
@@ -99,6 +102,27 @@ export function WorkspaceContent({
     };
   }, [mode, showLog]);
 
+  useEffect(() => {
+    if (mode !== "audio") {
+      return;
+    }
+
+    if (activeAudioLane === "enhanced" && enhancedSrc) {
+      return;
+    }
+
+    if (activeAudioLane === "original" && originalSrc) {
+      return;
+    }
+
+    if (enhancedSrc) {
+      setActiveAudioLane("enhanced");
+      return;
+    }
+
+    setActiveAudioLane("original");
+  }, [activeAudioLane, enhancedSrc, mode, originalSrc]);
+
   const actionIsCancel = canCancel;
   const actionLabel = actionIsCancel ? t.workspace.cancel : t.workspace.enhance;
   const actionClass = actionIsCancel ? "secondary-action" : "primary-action";
@@ -119,6 +143,8 @@ export function WorkspaceContent({
             title={t.workspace.original}
             src={originalSrc}
             metadata={originalMetadata}
+            spacePlaybackActive={activeAudioLane === "original"}
+            onActivate={() => setActiveAudioLane("original")}
             startAction={
               <ButtonHitArea>
                 <button
@@ -157,6 +183,8 @@ export function WorkspaceContent({
             title={t.workspace.enhanced}
             src={enhancedSrc}
             metadata={enhancedMetadata}
+            spacePlaybackActive={activeAudioLane === "enhanced"}
+            onActivate={() => setActiveAudioLane("enhanced")}
             startAction={
               <ButtonHitArea>
                 <button

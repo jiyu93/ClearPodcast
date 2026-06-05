@@ -233,8 +233,10 @@ Palette:
 - Kept the original preview above the enhanced preview inside the single Audio
   panel, with both waveform players using the same size and control layout.
 - Upgraded the waveform renderer from coarse DOM bars to a canvas waveform with
-  1024 peaks, timeline tick labels, a visible playhead, hundredth-second time
+  4096 peaks, timeline tick labels, a visible playhead, hundredth-second time
   display, and requestAnimationFrame playback refresh.
+- Added spacebar playback for the active waveform player, with ownership moving
+  to the original or enhanced lane as the user interacts with either player.
 - Moved model/log tools out of absolute overlay positioning and into the top
   Controls section's upper-right tool group.
 - Tightened desktop and narrow fallback layout behavior so 1280 px, 960 px, and

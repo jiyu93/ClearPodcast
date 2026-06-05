@@ -1,4 +1,4 @@
-export const WAVEFORM_PEAK_COUNT = 1024;
+export const WAVEFORM_PEAK_COUNT = 4096;
 const VISUAL_SILENCE_THRESHOLD = 0.01;
 
 export type WaveformColumn = {
@@ -23,14 +23,16 @@ export function createFallbackPeaks(seed: string) {
 }
 
 export function createPeaksFromAudioBuffer(buffer: AudioBuffer) {
-  const samplesPerPeak = Math.max(
-    1,
-    Math.floor(buffer.length / WAVEFORM_PEAK_COUNT),
-  );
   const peaks = Array.from({ length: WAVEFORM_PEAK_COUNT }, (_, peakIndex) => {
     let peak = 0;
-    const start = peakIndex * samplesPerPeak;
-    const end = Math.min(start + samplesPerPeak, buffer.length);
+    const start = Math.floor((peakIndex / WAVEFORM_PEAK_COUNT) * buffer.length);
+    const end = Math.min(
+      buffer.length,
+      Math.max(
+        start + 1,
+        Math.ceil(((peakIndex + 1) / WAVEFORM_PEAK_COUNT) * buffer.length),
+      ),
+    );
 
     for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
       const data = buffer.getChannelData(channel);
