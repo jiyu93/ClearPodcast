@@ -147,3 +147,9 @@ bundles PyTorch CUDA runtime files and selects CUDA automatically when a
 compatible NVIDIA GPU is available; otherwise the same app runs on CPU. See the
 [Milestone 5 record](docs/milestone-records/milestone-5-windows-portable-cuda.md)
 for the validation record and Windows resource layout.
+
+## License
+
+ClearPodcast is licensed under the [Apache License 2.0](LICENSE). Project
+attribution notices are in [NOTICE](NOTICE), and third-party dependency and
+runtime notices are packaged separately under `packaging/licenses/`.

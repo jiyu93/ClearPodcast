@@ -3,6 +3,7 @@ name = "clearpodcast-tauri"
 version = "0.1.0"
 description = "ClearPodcast desktop runtime"
 authors = ["ClearPodcast"]
+license = "Apache-2.0"
 edition = "2021"
 default-run = "clearpodcast-tauri"
 
