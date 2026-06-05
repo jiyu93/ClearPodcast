@@ -25,6 +25,7 @@
   --language-button-size: 30px;
   --section-divider-color: var(--neutral);
   --section-divider-height: 2px;
+  --section-divider-padding-block: 5px;
   --section-divider-width: 100%;
 
   color: var(--ink);

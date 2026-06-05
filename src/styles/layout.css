@@ -127,10 +127,17 @@
 .section-divider {
   justify-self: center;
   width: var(--section-divider-width);
+  padding-block: var(--section-divider-padding-block);
+  pointer-events: none;
+}
+
+.section-divider::before {
+  display: block;
+  width: 100%;
   height: var(--section-divider-height);
   border-radius: 999px;
   background: var(--section-divider-color);
-  pointer-events: none;
+  content: "";
 }
 
 .workspace-content .audio-lanes,
