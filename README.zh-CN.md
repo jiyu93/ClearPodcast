@@ -2,16 +2,10 @@
 
 [English](README.md) | 简体中文
 
-ClearPodcast 是一款离线桌面应用，用于修复受损的播客人声录音。
+ClearPodcast 是一款离线桌面应用，用于修复来自蓝牙耳机、会议软件、
+远程通话、手机录音和普通电脑麦克风的受损播客人声录音。
 
-它面向已经拿到低质量音频的播客创作者：这些音频可能来自蓝牙耳机、
-会议软件、远程通话、手机录音或普通电脑麦克风。应用会把第一个产品
-工作流保持得很窄：导入一段录音，在本地修复，对比结果，然后导出可
-发布的 WAV。
-
-ClearPodcast 不是 DAW、多轨编辑器、云处理服务，也不是音乐母带工具。
-
-## 产品能力
+## 功能
 
 - 一次修复一个 WAV、MP3 或 M4A 格式的播客人声录音。
 - 通过打包的 Python + PyTorch sidecar 在本地运行 Resemble Enhance。
@@ -87,12 +81,12 @@ git diff --check
 ## 文档
 
 - [领域上下文](CONTEXT.md)：产品问题、用户、语言、约束、非目标和质量标准。
-- [路线图](docs/roadmap.md)：当前产品化阶段和未来主题。
+- [路线图](docs/roadmap.md)：产品阶段概览和后续主题。
 - [实现计划](docs/implementation-plan.md)：可执行里程碑范围、架构和验证预期。
 - [开发文档](docs/development.md)：本地设置、smoke 测试、fixture 和生成文件卫生。
 - [发布工作流](docs/release-workflow.md)：macOS 和 Windows 便携发布命令与验证。
 - [架构决策](docs/adr/)：已接受的技术和产品权衡。
-- [里程碑记录](docs/milestone-records/)：已完成里程碑的历史记录。
+- [里程碑记录](docs/milestone-records/)：已完成里程碑的记录。
 
 ## Issues 与贡献
 

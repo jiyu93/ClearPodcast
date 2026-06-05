@@ -3,17 +3,10 @@
 English | [简体中文](README.zh-CN.md)
 
 ClearPodcast is an offline desktop app for restoring damaged spoken-word podcast
-recordings.
+recordings from Bluetooth headsets, meeting apps, remote calls, phone recordings,
+and ordinary computer microphones.
 
-It is built for podcasters who already have low-quality audio from Bluetooth
-headsets, meeting apps, remote calls, phone recordings, or ordinary computer
-microphones. The app keeps the first product workflow narrow: import one
-recording, restore it locally, compare the result, and export a publishable WAV.
-
-ClearPodcast is not a DAW, multitrack editor, cloud processing service, or music
-mastering tool.
-
-## Product Surface
+## Features
 
 - Restores one WAV, MP3, or M4A spoken-word recording at a time.
 - Runs Resemble Enhance locally through a bundled Python + PyTorch sidecar.
@@ -94,7 +87,7 @@ artifact.
 
 - [Domain context](CONTEXT.md): product problem, users, language, constraints,
   non-goals, and quality bar.
-- [Roadmap](docs/roadmap.md): current productization phase and future themes.
+- [Roadmap](docs/roadmap.md): product phase map and future themes.
 - [Implementation plan](docs/implementation-plan.md): executable milestone
   scope, architecture, and verification expectations.
 - [Development](docs/development.md): local setup, smoke testing, fixtures, and
@@ -102,8 +95,8 @@ artifact.
 - [Release workflow](docs/release-workflow.md): macOS and Windows portable
   release commands and verification.
 - [Architecture decisions](docs/adr/): accepted technical and product tradeoffs.
-- [Milestone records](docs/milestone-records/): historical completion records
-  for completed milestones.
+- [Milestone records](docs/milestone-records/): records for completed
+  milestones.
 
 ## Issues And Contributions
 
