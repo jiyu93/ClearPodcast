@@ -51,7 +51,7 @@ Non-goals:
 
 - Batch processing, queues, job history, multi-file projects, presets, accounts,
   cloud workflows, website branding, and release artifact rebuilds.
-- New model settings beyond the existing exact solver, CFM steps, prior
+- New model controls beyond the existing exact solver, CFM steps, prior
   temperature, and denoising controls.
 
 ## Comparable-Product Research Signal
@@ -126,7 +126,7 @@ The redesigned surface is organized around the root journey:
 2. Original Audio: confirm source metadata and listen to the source waveform.
 3. Enhanced Audio: inspect the restored waveform, compare playback, and save
    the completed WAV.
-4. Model Settings: exact Resemble Enhance controls in a secondary surface.
+4. Model Tuning: exact Resemble Enhance controls in a secondary surface.
 5. Diagnostics: runtime overrides and raw backend details in a secondary surface.
 
 Capability model:
@@ -172,8 +172,8 @@ Selected direction:
 
 | State | User concept | Primary action | Secondary action | Surface behavior |
 | --- | --- | --- | --- | --- |
-| Empty | No source chosen | Choose audio | Inspect diagnostics | Controls show the drop zone and accepted formats; run/save are disabled. |
-| Selected | Source is valid | Enhance | Change source or adjust model settings | Metadata is visible; original playback is available when the preview copy exists. |
+| Empty | No source chosen | Open | Inspect diagnostics | The header shows no source name; run/save remain disabled beside the audio lanes. |
+| Selected | Source is valid | Enhance | Change source or adjust model tuning | Metadata is visible; original playback is available when the preview copy exists. |
 | Preparing | Active restoration is preparing | Cancel | Inspect diagnostics | Backend `queued` is shown as preparation, not a queue. |
 | Running | Local restoration is processing | Cancel | Inspect device details | The workspace header and controls show local processing and honest wait time. |
 | Cancelled | Restoration stopped | Enhance again | Change source | No enhanced preview is presented as successful output. |
@@ -194,8 +194,8 @@ Product mark:
 
 In-app motifs:
 
-- The controls section uses a compact drop zone and restoration action motifs
-  without redefining the product mark.
+- The workspace places file, restoration, and save actions near the audio lane
+  they affect without redefining the product mark.
 - Status chips use shape and copy, not color alone.
 - Current-run states use preparation, restoring, restored, cancelled, and needs
   attention language.
@@ -217,11 +217,11 @@ Palette:
 
 - Split frontend state, types, command integration, and presentation into
   focused modules under `src/`.
-- Rebuilt the first screen as one workspace panel with three horizontal
-  sections: Controls, Original audio, and Enhanced audio. Choose, Enhance, Save,
-  settings, and log actions live in the top section; audio comparison remains
-  stacked below with divider lines inside the single workspace card.
-- Moved exact model controls into a secondary Model Settings drawer while
+- Rebuilt the first screen as one workspace panel with a source summary,
+  Original audio, and Enhanced audio. Open sits with the Original lane,
+  Enhance/Cancel sits at the Original lane output edge, Save sits with the
+  Enhanced lane, and tuning/log stay in the top tool cluster.
+- Moved exact model controls into a secondary Model Tuning drawer while
   preserving defaults and request passthrough.
 - Kept Diagnostics secondary with runtime/model overrides and raw details.
 - Replaced native preview audio controls with the ClearPodcast waveform player:
@@ -242,7 +242,7 @@ Palette:
   overlap.
 - Added browser visual fixtures for state QA in non-Tauri preview URLs:
   `?fixture=empty`, `selected`, `running`, `cancelled`, `failed`,
-  `completed`, and `exported`. Model Settings and Diagnostics are verified from
+  `completed`, and `exported`. Model Tuning and Diagnostics are verified from
   the same workspace through their tool buttons.
 - Updated the product mark and regenerated Tauri icon assets from the source
   SVG.
@@ -254,7 +254,7 @@ Palette:
 - `cargo test --manifest-path src-tauri/Cargo.toml`
 - `git diff --check`
 - Browser visual QA for empty, selected, running, cancelled, failed, completed,
-  exported, model-settings, and diagnostics states at supported desktop sizes.
+  exported, model-tuning, and diagnostics states at supported desktop sizes.
   The M7 visual QA evidence used Browser DOM/layout inspection: no horizontal
   viewport overflow, no key text-container overflow, expected audio-control
   counts, and expected enabled actions across the fixture states.

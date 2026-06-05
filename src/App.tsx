@@ -30,12 +30,25 @@ export default function App() {
             aria-label="ClearPodcast workspace"
           >
             <ControlsPanel
+              selectedPath={workspace.selectedPath}
+              onOpenModelTuning={() => toggleWorkspaceMode("tuning")}
+              onOpenLog={() => toggleWorkspaceMode("log")}
+            />
+
+            <WorkspaceContent
+              originalSrc={workspace.originalAudioSrc}
+              originalMetadata={workspace.metadata}
+              enhancedSrc={workspace.enhancedAudioSrc}
+              enhancedMetadata={workspace.job?.output_metadata}
+              mode={workspaceMode}
+              enhancementSettings={workspace.enhancementSettings}
+              enhancementControlsLocked={workspace.enhancementControlsLocked}
               canRun={workspace.canRun}
               canCancel={workspace.canCancel}
               canExport={workspace.canExport}
-              onChooseAudio={() => {
+              onOpenAudio={() => {
                 showAudioWorkspace();
-                void workspace.chooseAudio();
+                void workspace.openAudio();
               }}
               onRun={() => {
                 showAudioWorkspace();
@@ -49,20 +62,8 @@ export default function App() {
                 showAudioWorkspace();
                 void workspace.exportEnhancedWav();
               }}
-              onOpenSettings={() => toggleWorkspaceMode("model")}
-              onOpenLog={() => toggleWorkspaceMode("log")}
-            />
-
-            <WorkspaceContent
-              originalSrc={workspace.originalAudioSrc}
-              originalMetadata={workspace.metadata}
-              enhancedSrc={workspace.enhancedAudioSrc}
-              enhancedMetadata={workspace.job?.output_metadata}
-              mode={workspaceMode}
-              settings={workspace.enhancementSettings}
-              settingsLocked={workspace.settingsLocked}
-              onUpdateSettings={workspace.updateEnhancementField}
-              onResetSettings={workspace.resetEnhancementSettings}
+              onUpdateTuning={workspace.updateEnhancementField}
+              onResetTuning={workspace.resetEnhancementSettings}
             />
           </section>
         </div>

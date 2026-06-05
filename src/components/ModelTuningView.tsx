@@ -6,16 +6,17 @@ import type {
   EnhancementSettings,
   EnhancementSolver,
 } from "../domain/types";
+import { ButtonHitArea } from "./ButtonHitArea";
 import { ResetIcon } from "./icons";
 
-export function ModelSettingsView({
-  settings,
-  settingsLocked,
+export function ModelTuningView({
+  enhancementSettings,
+  controlsLocked,
   onUpdate,
   onReset,
 }: {
-  settings: EnhancementSettings;
-  settingsLocked: boolean;
+  enhancementSettings: EnhancementSettings;
+  controlsLocked: boolean;
   onUpdate: <K extends keyof EnhancementSettings>(
     field: K,
     value: EnhancementSettings[K],
@@ -23,29 +24,31 @@ export function ModelSettingsView({
   onReset: () => void;
 }) {
   return (
-    <div className="panel-mode model-mode">
+    <div className="panel-mode tuning-mode">
       <div className="model-copy">
         <strong>Resemble Enhance controls</strong>
         <span>Defaults are tuned for one-click cleanup.</span>
       </div>
-      <button
-        type="button"
-        className="icon-button secondary-action reset-action"
-        onClick={onReset}
-        disabled={settingsLocked}
-      >
-        <ResetIcon className="button-icon" />
-        <span>Reset defaults</span>
-      </button>
+      <ButtonHitArea>
+        <button
+          type="button"
+          className="icon-button secondary-action reset-action"
+          onClick={onReset}
+          disabled={controlsLocked}
+        >
+          <ResetIcon className="button-icon" />
+          <span>Reset defaults</span>
+        </button>
+      </ButtonHitArea>
 
       <label className="solver-select" title={ENHANCEMENT_HELP.solver}>
         <span>Solver</span>
         <select
-          value={settings.solver}
+          value={enhancementSettings.solver}
           onChange={(event) =>
             onUpdate("solver", event.target.value as EnhancementSolver)
           }
-          disabled={settingsLocked}
+          disabled={controlsLocked}
         >
           <option value="midpoint">Midpoint</option>
           <option value="rk4">RK4</option>
@@ -71,35 +74,35 @@ export function ModelSettingsView({
       <div className="slider-grid">
         <SliderControl
           label="CFM steps"
-          value={settings.nfe}
-          display={String(settings.nfe)}
+          value={enhancementSettings.nfe}
+          display={String(enhancementSettings.nfe)}
           min={1}
           max={128}
           step={1}
           hint={ENHANCEMENT_HELP.nfe}
-          disabled={settingsLocked}
+          disabled={controlsLocked}
           onChange={(value) => onUpdate("nfe", value)}
         />
         <SliderControl
           label="Prior temperature"
-          value={settings.tau}
-          display={settings.tau.toFixed(2)}
+          value={enhancementSettings.tau}
+          display={enhancementSettings.tau.toFixed(2)}
           min={0}
           max={1}
           step={0.01}
           hint={ENHANCEMENT_HELP.tau}
-          disabled={settingsLocked}
+          disabled={controlsLocked}
           onChange={(value) => onUpdate("tau", value)}
         />
         <SliderControl
           label="Denoising"
-          value={settings.lambd}
-          display={settings.lambd.toFixed(2)}
+          value={enhancementSettings.lambd}
+          display={enhancementSettings.lambd.toFixed(2)}
           min={0}
           max={1}
           step={0.01}
           hint={ENHANCEMENT_HELP.lambd}
-          disabled={settingsLocked}
+          disabled={controlsLocked}
           onChange={(value) => onUpdate("lambd", value)}
         />
       </div>

@@ -14,9 +14,12 @@
   --surface-raised: #fffdf7;
   --surface-muted: #eef7f2;
   --surface-waveform: #f7fbef;
-  --surface-drop: #ffeebc;
+  --surface-source: #fff0bd;
+  --surface-save: #dff3fb;
   --button-hover-shift: -2px;
   --button-hover-shadow: 3px 3px 0 var(--ink);
+  --file-action-width: 96px;
+  --file-action-height: 38px;
   --section-divider-color: var(--neutral);
   --section-divider-height: 3px;
   --section-divider-width: 100%;
@@ -53,6 +56,7 @@ select {
 }
 
 button {
+  position: relative;
   min-height: 42px;
   border: 2px solid var(--ink);
   border-radius: 8px;
@@ -60,6 +64,7 @@ button {
   color: var(--ink);
   font-weight: 800;
   cursor: pointer;
+  overflow: visible;
   box-shadow: none;
   transition:
     transform 120ms ease,
@@ -67,20 +72,46 @@ button {
     background 120ms ease;
 }
 
-button:hover:not(:disabled) {
+.button-hit-area {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  min-width: 0;
+  margin: -2px -1px -1px -2px;
+  padding: 2px 1px 1px 2px;
+  border-radius: 10px;
+}
+
+.button-hit-area::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgba(255, 255, 255, 0.01);
+  content: "";
+}
+
+.button-hit-area > button {
+  z-index: 1;
+  transform: none;
+}
+
+.button-hit-area > button:disabled {
+  transform: none;
+}
+
+.button-hit-area:hover > button:not(:disabled) {
   transform: translate(var(--button-hover-shift), var(--button-hover-shift));
   box-shadow: var(--button-hover-shadow);
 }
 
-button:active:not(:disabled) {
-  transform: translate(0, 0);
+.button-hit-area:active > button:not(:disabled) {
+  transform: none;
   box-shadow: none;
 }
 
 button:disabled {
   cursor: not-allowed;
   opacity: 0.52;
-  transform: none;
 }
 
 button:focus-visible,

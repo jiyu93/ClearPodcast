@@ -2,11 +2,25 @@ type IconProps = {
   className?: string;
 };
 
-export function UploadIcon({ className }: IconProps) {
+export function OpenIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 3 6.5 8.5l1.8 1.8 2.4-2.4V16h2.6V7.9l2.4 2.4 1.8-1.8L12 3Z" />
-      <path d="M5 17.5h14V21H5v-3.5Z" />
+      <path
+        d="M4.25 8.75V6.5c0-.69.56-1.25 1.25-1.25h4.3l1.9 2h6.8c.69 0 1.25.56 1.25 1.25v1.25"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.2"
+      />
+      <path
+        d="M3.75 9.75h16.5l-1.35 7.6a1.75 1.75 0 0 1-1.72 1.4H6.82a1.75 1.75 0 0 1-1.72-1.4l-1.35-7.6Z"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.2"
+      />
     </svg>
   );
 }
@@ -14,8 +28,23 @@ export function UploadIcon({ className }: IconProps) {
 export function EnhanceIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M4 13c2.1-4 4.2-6 6.4-6 3.5 0 4.2 6 7 6 1.3 0 2.5-1 3.6-3v4.8c-1.4 1.6-2.9 2.4-4.5 2.4-3.5 0-4.2-6-7-6-1.3 0-2.5 1-3.6 3H4v-1.2Z" />
-      <path d="M5 19h14v2H5v-2Z" />
+      <path d="m17.8 2.8.7 2.2 2.2.8-2.2.8-.7 2.2-.8-2.2-2.2-.8L17 5l.8-2.2Z" />
+      <path d="m6.4 5.4.5 1.5 1.5.5-1.5.6-.5 1.5L5.8 8l-1.5-.6 1.5-.5.6-1.5Z" />
+      <path
+        d="M4 14.4c1.8-3.1 3.6-4.7 5.3-4.7 2.8 0 3.5 4.7 6.1 4.7 1.4 0 2.7-1 4.1-2.9"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.5"
+      />
+      <path
+        d="M5 19.3h14"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.5"
+      />
     </svg>
   );
 }
@@ -81,11 +110,31 @@ export function MutedIcon({ className }: IconProps) {
   );
 }
 
-export function DownloadIcon({ className }: IconProps) {
+export function SaveIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M10.7 4h2.6v7.9l2.4-2.4 1.8 1.8L12 16.8l-5.5-5.5 1.8-1.8 2.4 2.4V4Z" />
-      <path d="M5 18h14v2.6H5V18Z" />
+      <path
+        d="M5 4.75h11.3L19 7.45V19.25H5V4.75Z"
+        fill="none"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="2.2"
+      />
+      <path
+        d="M8 4.75h7v5.5H8V4.75Z"
+        fill="none"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="2.2"
+      />
+      <path
+        d="M8.25 14.5h7.5v4.75h-7.5V14.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="2.2"
+      />
+      <path d="M13.25 6.75h1.5v1.5h-1.5v-1.5Z" />
     </svg>
   );
 }
@@ -106,10 +155,19 @@ export function BackIcon({ className }: IconProps) {
   );
 }
 
-export function WrenchIcon({ className }: IconProps) {
+export function TuningIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M14.4 4.4a5.2 5.2 0 0 0 .6 5.7L5.4 19.7a1.8 1.8 0 0 0 2.5 2.5l9.6-9.6a5.2 5.2 0 0 0 6.1-6.8l-3.3 3.3-2.6-2.6 3.3-3.3a5.2 5.2 0 0 0-6.6 1.2Z" />
+      <path
+        d="M4.5 7h15M4.5 12h15M4.5 17h15"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.2"
+      />
+      <path
+        d="M9 9.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5ZM15 14.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5ZM11.5 19.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"
+      />
     </svg>
   );
 }
@@ -117,7 +175,21 @@ export function WrenchIcon({ className }: IconProps) {
 export function LogIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M5 3h14v18H5V3Zm3 4v2h8V7H8Zm0 4v2h8v-2H8Zm0 4v2h5v-2H8Z" />
+      <path
+        d="M6 3.5h10.8L19 5.7v14.8H6v-17Z"
+        fill="none"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="2.4"
+      />
+      <path d="M15.7 3.8V7h3.1" />
+      <path
+        d="M9 10h6M9 13.8h6M9 17.6h4"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.1"
+      />
     </svg>
   );
 }

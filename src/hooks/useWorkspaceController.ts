@@ -54,8 +54,8 @@ export type WorkspaceController = {
   canRun: boolean;
   canCancel: boolean;
   canExport: boolean;
-  settingsLocked: boolean;
-  chooseAudio: () => Promise<void>;
+  enhancementControlsLocked: boolean;
+  openAudio: () => Promise<void>;
   runEnhancement: () => Promise<void>;
   cancelJob: () => Promise<void>;
   exportEnhancedWav: () => Promise<void>;
@@ -117,7 +117,7 @@ export function useWorkspaceController(): WorkspaceController {
   const canRun = Boolean(selectedPath) && !isActiveJob(job);
   const canCancel = job?.state === "queued" || job?.state === "running";
   const canExport = job?.state === "completed" && Boolean(job.preview_wav);
-  const settingsLocked = isActiveJob(job);
+  const enhancementControlsLocked = isActiveJob(job);
   const displayedDeviceInfo = job?.device_info ?? detectedDeviceInfo;
 
   const showError = useCallback((error: unknown, context: ErrorContext) => {
@@ -262,7 +262,7 @@ export function useWorkspaceController(): WorkspaceController {
     return () => window.clearInterval(interval);
   }, [fixtureMode, job, refreshJob]);
 
-  const chooseAudio = useCallback(async () => {
+  const openAudio = useCallback(async () => {
     if (!tauriAvailable()) {
       showError("Tauri runtime is not available", "backend");
       return;
@@ -361,8 +361,8 @@ export function useWorkspaceController(): WorkspaceController {
     canRun,
     canCancel,
     canExport,
-    settingsLocked,
-    chooseAudio,
+    enhancementControlsLocked,
+    openAudio,
     runEnhancement,
     cancelJob,
     exportEnhancedWav: exportCurrentEnhancedWav,

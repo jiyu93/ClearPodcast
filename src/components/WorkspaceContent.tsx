@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 
 import { AudioPreviewLane } from "./AudioPreviewLane";
-import { ModelSettingsView } from "./ModelSettingsView";
+import { ButtonHitArea } from "./ButtonHitArea";
+import { ModelTuningView } from "./ModelTuningView";
 import { readAppLog, tauriAvailable } from "../backend/tauriCommands";
 import type {
   AppLogSnapshot,
   AudioMetadata,
   EnhancementSettings,
 } from "../domain/types";
-import { LogIcon } from "./icons";
+import { EnhanceIcon, LogIcon, OpenIcon, SaveIcon, StopIcon } from "./icons";
 
-export type WorkspaceMode = "audio" | "model" | "log";
+export type WorkspaceMode = "audio" | "tuning" | "log";
 
 export function WorkspaceContent({
   originalSrc,
@@ -18,23 +19,37 @@ export function WorkspaceContent({
   enhancedSrc,
   enhancedMetadata,
   mode,
-  settings,
-  settingsLocked,
-  onUpdateSettings,
-  onResetSettings,
+  enhancementSettings,
+  enhancementControlsLocked,
+  canRun,
+  canCancel,
+  canExport,
+  onOpenAudio,
+  onRun,
+  onCancel,
+  onExport,
+  onUpdateTuning,
+  onResetTuning,
 }: {
   originalSrc?: string;
   originalMetadata?: AudioMetadata;
   enhancedSrc?: string;
   enhancedMetadata?: AudioMetadata;
   mode: WorkspaceMode;
-  settings: EnhancementSettings;
-  settingsLocked: boolean;
-  onUpdateSettings: <K extends keyof EnhancementSettings>(
+  enhancementSettings: EnhancementSettings;
+  enhancementControlsLocked: boolean;
+  canRun: boolean;
+  canCancel: boolean;
+  canExport: boolean;
+  onOpenAudio: () => void;
+  onRun: () => void;
+  onCancel: () => void;
+  onExport: () => void;
+  onUpdateTuning: <K extends keyof EnhancementSettings>(
     field: K,
     value: EnhancementSettings[K],
   ) => void;
-  onResetSettings: () => void;
+  onResetTuning: () => void;
 }) {
   const [logSnapshot, setLogSnapshot] = useState<AppLogSnapshot | undefined>();
   const [logError, setLogError] = useState("");
@@ -63,6 +78,11 @@ export function WorkspaceContent({
     }
   }, [logError, logSnapshot, mode]);
 
+  const actionIsCancel = canCancel;
+  const ActionIcon = actionIsCancel ? StopIcon : EnhanceIcon;
+  const actionLabel = actionIsCancel ? "Cancel" : "Enhance";
+  const actionClass = actionIsCancel ? "secondary-action" : "primary-action";
+
   return (
     <div
       className={`panel-section workspace-content ${mode}-mode-active`}
@@ -79,22 +99,60 @@ export function WorkspaceContent({
             title="Original"
             src={originalSrc}
             metadata={originalMetadata}
+            startAction={
+              <ButtonHitArea>
+                <button
+                  type="button"
+                  className="icon-button secondary-action source-open-action file-action-button"
+                  onClick={onOpenAudio}
+                >
+                  <OpenIcon className="button-icon" />
+                  <span>Open</span>
+                </button>
+              </ButtonHitArea>
+            }
+            endAction={
+              <ButtonHitArea>
+                <button
+                  type="button"
+                  className={`icon-button lane-action-button ${actionClass}`}
+                  onClick={actionIsCancel ? onCancel : onRun}
+                  disabled={actionIsCancel ? !canCancel : !canRun}
+                >
+                  <ActionIcon className="button-icon" />
+                  <span>{actionLabel}</span>
+                </button>
+              </ButtonHitArea>
+            }
           />
           <span className="section-divider" aria-hidden="true" />
           <AudioPreviewLane
             title="Enhanced"
             src={enhancedSrc}
             metadata={enhancedMetadata}
+            startAction={
+              <ButtonHitArea>
+                <button
+                  type="button"
+                  className="icon-button save-action export-action lane-action-button file-action-button"
+                  onClick={onExport}
+                  disabled={!canExport}
+                >
+                  <SaveIcon className="button-icon" />
+                  <span>Save</span>
+                </button>
+              </ButtonHitArea>
+            }
           />
         </div>
       ) : null}
 
-      {mode === "model" ? (
-        <ModelSettingsView
-          settings={settings}
-          settingsLocked={settingsLocked}
-          onUpdate={onUpdateSettings}
-          onReset={onResetSettings}
+      {mode === "tuning" ? (
+        <ModelTuningView
+          enhancementSettings={enhancementSettings}
+          controlsLocked={enhancementControlsLocked}
+          onUpdate={onUpdateTuning}
+          onReset={onResetTuning}
         />
       ) : null}
 
@@ -127,14 +185,16 @@ function LogView({
           <span>Log file</span>
           <strong>{snapshot?.path ?? "Loading..."}</strong>
         </div>
-        <button
-          type="button"
-          className="icon-button secondary-action reset-action"
-          onClick={onRefresh}
-        >
-          <LogIcon className="button-icon" />
-          <span>Refresh</span>
-        </button>
+        <ButtonHitArea>
+          <button
+            type="button"
+            className="icon-button secondary-action reset-action"
+            onClick={onRefresh}
+          >
+            <LogIcon className="button-icon" />
+            <span>Refresh</span>
+          </button>
+        </ButtonHitArea>
       </div>
       <pre className="log-viewer">
         {error || snapshot?.text || "No log entries yet."}
