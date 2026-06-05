@@ -5,8 +5,10 @@ import { WorkspaceContent } from "./components/WorkspaceContent";
 import type { WorkspaceMode } from "./components/WorkspaceContent";
 import { WorkspaceHeader } from "./components/WorkspaceHeader";
 import { useWorkspaceController } from "./hooks/useWorkspaceController";
+import { useI18n } from "./i18n/I18nProvider";
 
 export default function App() {
+  const { t } = useI18n();
   const workspace = useWorkspaceController();
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>("audio");
   const showAudioWorkspace = () => setWorkspaceMode("audio");
@@ -27,7 +29,7 @@ export default function App() {
             className={`workspace-card workspace-panel ${
               workspace.isDragActive ? "drag-active" : ""
             }`}
-            aria-label="ClearPodcast workspace"
+            aria-label={t.app.workspaceAriaLabel}
           >
             <ControlsPanel
               selectedPath={workspace.selectedPath}

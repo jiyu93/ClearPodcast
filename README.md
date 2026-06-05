@@ -13,6 +13,8 @@ and ordinary computer microphones.
 - Keeps audio decoding and final WAV writing in Rust.
 - Shows source metadata, current run state, before/after playback, export, model
   settings, and local diagnostics in the desktop app.
+- Supports in-app language switching for English, Simplified Chinese, Japanese,
+  and Korean.
 - Exports standard WAV only.
 - Runs offline from self-contained release artifacts after extraction.
 

@@ -24,6 +24,11 @@ They should be able to drag in a WAV, MP3, or M4A file, run enhancement locally
 with one clear action, compare the result, and export a WAV file suitable for
 further publishing or distribution.
 
+The desktop UI supports English, Simplified Chinese, Japanese, and Korean
+language switching in the app header. The selected language is persisted locally
+and used for controls, status labels, model parameter help, logs, and processing
+error summaries.
+
 Run controls, model parameters, and run logs are three mutually exclusive views of
 the current enhancement workspace. Runtime events are written to a local
 `clearpodcast.log` text file in the app log directory, with bounded rotation for

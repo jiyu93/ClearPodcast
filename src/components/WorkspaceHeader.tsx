@@ -1,3 +1,6 @@
+import { Check, ChevronDown, Languages } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
+
 import { AppMark } from "./AppMark";
 import { ProcessingDeviceIndicator } from "./ProcessingDeviceIndicator";
 import { StatusPill } from "./StatusPill";
@@ -6,6 +9,8 @@ import type {
   EnhancementDeviceInfo,
   EnhancementJobState,
 } from "../domain/types";
+import { useI18n } from "../i18n/I18nProvider";
+import type { AppLanguage } from "../i18n/translations";
 
 export function WorkspaceHeader({
   state,
@@ -16,6 +21,30 @@ export function WorkspaceHeader({
   deviceInfo?: EnhancementDeviceInfo;
   deviceStatus: DeviceDetectionStatus;
 }) {
+  const { language, languages, setLanguage, t } = useI18n();
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const selectorRef = useRef<HTMLDivElement>(null);
+  const listboxId = useId();
+  const selectedLanguage = languages.find((option) => option.code === language);
+
+  useEffect(() => {
+    if (!languageMenuOpen) {
+      return;
+    }
+
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (!selectorRef.current?.contains(event.target as Node)) {
+        setLanguageMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsidePointer);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePointer);
+    };
+  }, [languageMenuOpen]);
+
   return (
     <header className="workspace-header">
       <div className="brand-lockup">
@@ -28,6 +57,70 @@ export function WorkspaceHeader({
         </h1>
       </div>
       <div className="header-meta">
+        <div
+          className="language-selector"
+          ref={selectorRef}
+          title={t.language.label}
+        >
+          <Languages
+            className="language-selector-icon lucide-button-icon"
+            strokeWidth={3}
+            aria-hidden="true"
+          />
+          <button
+            type="button"
+            className="language-selector-button"
+            aria-controls={listboxId}
+            aria-expanded={languageMenuOpen}
+            aria-haspopup="listbox"
+            aria-label={t.language.ariaLabel}
+            onClick={() => setLanguageMenuOpen((current) => !current)}
+          >
+            <span>{selectedLanguage?.nativeName ?? language}</span>
+            <ChevronDown
+              className={`language-selector-chevron ${
+                languageMenuOpen ? "open" : ""
+              }`}
+              strokeWidth={3}
+              aria-hidden="true"
+            />
+          </button>
+          {languageMenuOpen ? (
+            <div
+              className="language-menu"
+              id={listboxId}
+              role="listbox"
+              aria-label={t.language.label}
+            >
+              {languages.map((option) => {
+                const selected = option.code === language;
+
+                return (
+                  <button
+                    type="button"
+                    className={`language-menu-option ${
+                      selected ? "selected" : ""
+                    }`}
+                    key={option.code}
+                    role="option"
+                    aria-selected={selected}
+                    onClick={() => {
+                      setLanguage(option.code as AppLanguage);
+                      setLanguageMenuOpen(false);
+                    }}
+                  >
+                    <Check
+                      className="language-menu-check lucide-button-icon"
+                      strokeWidth={3}
+                      aria-hidden="true"
+                    />
+                    <span>{option.nativeName}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
         <StatusPill state={state} />
         <ProcessingDeviceIndicator
           deviceInfo={deviceInfo}

@@ -164,6 +164,15 @@
     justify-items: start;
   }
 
+  .header-meta {
+    grid-template-columns: repeat(2, max-content);
+    align-items: center;
+  }
+
+  .language-selector {
+    grid-column: 1 / -1;
+  }
+
   .brand-wordmark {
     font-size: 2.5rem;
   }

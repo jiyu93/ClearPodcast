@@ -55,6 +55,126 @@
   background: var(--mint);
 }
 
+.language-selector {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: var(--ink);
+  background: var(--surface-raised);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.language-selector-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.language-selector-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  line-height: 1;
+}
+
+.language-selector-button:hover,
+.language-selector-button:active {
+  transform: none;
+}
+
+.language-selector-button:focus {
+  outline: 0;
+  box-shadow: none;
+}
+
+.language-selector-button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.language-selector-chevron {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  transition: transform 140ms ease;
+}
+
+.language-selector-chevron.open {
+  transform: rotate(180deg);
+}
+
+.language-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -2px;
+  z-index: 20;
+  display: grid;
+  gap: 4px;
+  min-width: 170px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  padding: 6px;
+  background: var(--surface-panel);
+  box-shadow: 0 10px 0 rgba(20, 33, 31, 0.14);
+}
+
+.language-menu-option {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-height: 38px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: var(--ink);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+}
+
+.language-menu-option:hover {
+  background: var(--surface-raised);
+  transform: none;
+}
+
+.language-menu-option:focus {
+  outline: 0;
+  box-shadow: none;
+}
+
+.language-menu-option:focus-visible {
+  border-color: var(--ink);
+}
+
+.language-menu-option.selected {
+  background: var(--mint);
+  border-color: var(--ink);
+}
+
+.language-menu-check {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  opacity: 0;
+}
+
+.language-menu-option.selected .language-menu-check {
+  opacity: 1;
+}
+
 .status-pill.queued,
 .status-pill.running {
   background: var(--gold);

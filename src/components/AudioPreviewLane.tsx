@@ -7,8 +7,9 @@ import {
   type ReactNode,
 } from "react";
 
-import { formatMetadataShort } from "../domain/enhancement";
+import { formatMetadataShortLocalized } from "../domain/enhancement";
 import type { AudioMetadata } from "../domain/types";
+import { useI18n } from "../i18n/I18nProvider";
 import { ButtonHitArea } from "./ButtonHitArea";
 import {
   MutedIcon,
@@ -48,6 +49,7 @@ export function AudioPreviewLane({
   startAction?: ReactNode;
   endAction?: ReactNode;
 }) {
+  const { t } = useI18n();
   const audioRef = useRef<HTMLAudioElement>(null);
   const waveformCanvasRef = useRef<HTMLCanvasElement>(null);
   const playedWaveformCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -345,7 +347,9 @@ export function AudioPreviewLane({
       {showHeader ? (
         <div className="lane-header">
           <span>{title}</span>
-          {showMetadata ? <strong>{formatMetadataShort(metadata)}</strong> : null}
+          {showMetadata ? (
+            <strong>{formatMetadataShortLocalized(metadata, t.common)}</strong>
+          ) : null}
         </div>
       ) : null}
       <div className={`waveform-player ${src ? "has-source" : "no-source"}`}>
@@ -439,7 +443,7 @@ export function AudioPreviewLane({
             <>
               <input
                 ref={rangeRef}
-                aria-label={`Seek ${title} audio`}
+                aria-label={t.audio.seek(title)}
                 className="waveform-range"
                 max={SEEK_MAX}
                 min={0}
@@ -461,22 +465,22 @@ export function AudioPreviewLane({
             {startAction}
           </div>
           <div className="player-controls">
-            <span className="player-clock" aria-label={`${title} playback time`}>
+            <span className="player-clock" aria-label={t.audio.playbackTime(title)}>
               <span ref={clockRef}>
                 {formatClock(currentTime)} / {formatClock(durationForDisplay)}
               </span>
             </span>
             <div
               className="transport-cluster"
-              aria-label={`${title} transport controls`}
+              aria-label={t.audio.transportControls(title)}
             >
               <ButtonHitArea>
                 <button
                   type="button"
                   className="icon-button player-icon-button transport-side-button"
                   onClick={() => seekBy(-5)}
-                  aria-label={`Skip back ${title} 5 seconds`}
-                  title="Back 5 seconds"
+                  aria-label={t.audio.skipBackAriaLabel(title)}
+                  title={t.audio.back5Title}
                   disabled={!src}
                 >
                   <SkipBackIcon className="button-icon" />
@@ -489,8 +493,12 @@ export function AudioPreviewLane({
                   onClick={() => {
                     void togglePlayback();
                   }}
-                  aria-label={isPlaying ? `Pause ${title}` : `Play ${title}`}
-                  title={isPlaying ? "Pause" : "Play"}
+                  aria-label={
+                    isPlaying
+                      ? t.audio.pauseAriaLabel(title)
+                      : t.audio.playAriaLabel(title)
+                  }
+                  title={isPlaying ? t.audio.pauseTitle : t.audio.playTitle}
                   disabled={!src}
                 >
                   <PlayPauseIcon className="button-icon" />
@@ -501,8 +509,8 @@ export function AudioPreviewLane({
                   type="button"
                   className="icon-button player-icon-button transport-side-button"
                   onClick={() => seekBy(5)}
-                  aria-label={`Skip forward ${title} 5 seconds`}
-                  title="Forward 5 seconds"
+                  aria-label={t.audio.skipForwardAriaLabel(title)}
+                  title={t.audio.forward5Title}
                   disabled={!src}
                 >
                   <SkipForwardIcon className="button-icon" />
@@ -515,8 +523,12 @@ export function AudioPreviewLane({
                   type="button"
                   className="icon-button player-icon-button"
                   onClick={toggleMute}
-                  aria-label={isMuted ? `Unmute ${title}` : `Mute ${title}`}
-                  title={isMuted ? "Unmute" : "Mute"}
+                  aria-label={
+                    isMuted
+                      ? t.audio.unmuteAriaLabel(title)
+                      : t.audio.muteAriaLabel(title)
+                  }
+                  title={isMuted ? t.audio.unmuteTitle : t.audio.muteTitle}
                   disabled={!src}
                 >
                   <VolumeModeIcon className="button-icon" />

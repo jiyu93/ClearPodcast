@@ -3,6 +3,7 @@ import { ArrowLeft, FileText, SlidersHorizontal } from "lucide-react";
 import { fileNameFromPath } from "../domain/enhancement";
 import type { WorkspaceMode } from "./WorkspaceContent";
 import { ButtonHitArea } from "./ButtonHitArea";
+import { useI18n } from "../i18n/I18nProvider";
 
 export function ControlsPanel({
   selectedPath,
@@ -17,22 +18,23 @@ export function ControlsPanel({
   onOpenLog: () => void;
   onBack: () => void;
 }) {
+  const { t } = useI18n();
   const hasSelectedFile = Boolean(selectedPath);
   const sourceFileName = selectedPath
     ? fileNameFromPath(selectedPath)
-    : "Open or drop a WAV, MP3, or M4A file";
+    : t.controls.emptySource;
 
   return (
-    <div className="panel-section controls-panel" aria-label="Workspace controls">
+    <div className="panel-section controls-panel" aria-label={t.controls.panelAriaLabel}>
       <div
         className={`source-file-display ${hasSelectedFile ? "has-file" : "empty"}`}
         title={selectedPath || sourceFileName}
       >
-        <span>FILENAME</span>
+        <span>{t.controls.sourceLabel}</span>
         <strong>{sourceFileName}</strong>
       </div>
 
-      <div className="panel-tools" aria-label="Workspace tools">
+      <div className="panel-tools" aria-label={t.controls.toolsAriaLabel}>
         {mode === "audio" ? (
           <>
             <ButtonHitArea>
@@ -40,8 +42,8 @@ export function ControlsPanel({
                 type="button"
                 className="icon-button tool-action"
                 onClick={onOpenModelParameters}
-                aria-label="Open model parameters"
-                title="Model parameters"
+                aria-label={t.controls.openModelParametersAriaLabel}
+                title={t.controls.modelParametersTitle}
               >
                 <SlidersHorizontal
                   className="button-icon lucide-button-icon"
@@ -54,8 +56,8 @@ export function ControlsPanel({
                 type="button"
                 className="icon-button tool-action"
                 onClick={onOpenLog}
-                aria-label="Open log"
-                title="Log"
+                aria-label={t.controls.openLogAriaLabel}
+                title={t.controls.logTitle}
               >
                 <FileText className="button-icon lucide-button-icon" strokeWidth={3} />
               </button>
@@ -67,11 +69,11 @@ export function ControlsPanel({
               type="button"
               className="icon-button tool-action back-action"
               onClick={onBack}
-              aria-label="Back to audio workspace"
-              title="Back"
+              aria-label={t.controls.backToAudioWorkspaceAriaLabel}
+              title={t.controls.backTitle}
             >
               <ArrowLeft className="button-icon lucide-button-icon" strokeWidth={3} />
-              <span>Back</span>
+              <span>{t.controls.back}</span>
             </button>
           </ButtonHitArea>
         )}

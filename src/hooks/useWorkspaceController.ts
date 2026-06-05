@@ -36,6 +36,7 @@ import type {
   RuntimeSettings,
 } from "../domain/types";
 import { getFixtureAudioSrc, readVisualFixture } from "../dev/visualFixtures";
+import { useI18n } from "../i18n/I18nProvider";
 
 export type WorkspaceController = {
   selectedPath: string;
@@ -67,6 +68,7 @@ export type WorkspaceController = {
 };
 
 export function useWorkspaceController(): WorkspaceController {
+  const { t } = useI18n();
   const fixture = useMemo(() => readVisualFixture(), []);
   const fixtureMode = Boolean(fixture);
 
@@ -89,7 +91,7 @@ export function useWorkspaceController(): WorkspaceController {
   );
   const [isDragActive, setIsDragActive] = useState(false);
   const [notice, setNotice] = useState(
-    fixture?.notice ?? "Choose a WAV, MP3, or M4A file",
+    fixture?.notice ?? t.notices.chooseFile,
   );
   const [, setAppError] = useState<DisplayError | undefined>(
     fixture?.appError,
@@ -121,10 +123,10 @@ export function useWorkspaceController(): WorkspaceController {
   const displayedDeviceInfo = job?.device_info ?? detectedDeviceInfo;
 
   const showError = useCallback((error: unknown, context: ErrorContext) => {
-    const display = describeError(error, context);
+    const display = describeError(error, context, t.errors);
     setAppError(display);
     setNotice(display.summary);
-  }, []);
+  }, [t.errors]);
 
   const refreshJob = useCallback(async (jobId: string) => {
     const snapshot = await getEnhancementJob(jobId);
@@ -135,13 +137,13 @@ export function useWorkspaceController(): WorkspaceController {
       setDeviceError("");
     }
     if (snapshot.state === "failed" && snapshot.error) {
-      const display = describeError(snapshot.error, "enhancement");
+      const display = describeError(snapshot.error, "enhancement", t.errors);
       setAppError(display);
       setNotice(display.summary);
     } else {
-      setNotice(productNoticeForJob(snapshot));
+      setNotice(productNoticeForJob(snapshot, t.notices));
     }
-  }, []);
+  }, [t.errors, t.notices]);
 
   const selectAudioPath = useCallback(
     async (path: string) => {
@@ -150,21 +152,21 @@ export function useWorkspaceController(): WorkspaceController {
       setMetadata(undefined);
       setJob(undefined);
       setAppError(undefined);
-      setNotice("Reading source audio");
+      setNotice(t.notices.readingSourceAudio);
 
       try {
         const prepared = await prepareAudioPreview(path);
         setSelectedPath(prepared.input_audio);
         setOriginalPreviewPath(prepared.preview_audio);
         setMetadata(prepared.metadata);
-        setNotice("Ready to enhance");
+        setNotice(t.notices.readyToEnhance);
       } catch (error) {
         setSelectedPath("");
         setOriginalPreviewPath("");
         showError(error, "input");
       }
     },
-    [showError],
+    [showError, t.notices.readingSourceAudio, t.notices.readyToEnhance],
   );
 
   useEffect(() => {
@@ -276,12 +278,12 @@ export function useWorkspaceController(): WorkspaceController {
 
   const runEnhancement = useCallback(async () => {
     if (!selectedPath) {
-      setNotice("Choose an audio file first");
+      setNotice(t.notices.chooseAudioFirst);
       return;
     }
 
     setAppError(undefined);
-    setNotice("Preparing enhancement");
+    setNotice(t.notices.preparingEnhancement);
 
     try {
       const snapshot = await startEnhancementJob({
@@ -295,7 +297,14 @@ export function useWorkspaceController(): WorkspaceController {
     } catch (error) {
       showError(error, "enhancement");
     }
-  }, [enhancementParameters, runtimeSettings, selectedPath, showError]);
+  }, [
+    enhancementParameters,
+    runtimeSettings,
+    selectedPath,
+    showError,
+    t.notices.chooseAudioFirst,
+    t.notices.preparingEnhancement,
+  ]);
 
   const cancelJob = useCallback(async () => {
     if (!job) {
@@ -306,11 +315,11 @@ export function useWorkspaceController(): WorkspaceController {
       const snapshot = await cancelEnhancementJob(job.job_id);
       setJob(snapshot);
       setAppError(undefined);
-      setNotice("Cancelling enhancement");
+      setNotice(t.notices.cancellingEnhancement);
     } catch (error) {
       showError(error, "cancellation");
     }
-  }, [job, showError]);
+  }, [job, showError, t.notices.cancellingEnhancement]);
 
   const exportCurrentEnhancedWav = useCallback(async () => {
     if (!job || !canExport) {

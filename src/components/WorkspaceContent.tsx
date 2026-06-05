@@ -10,6 +10,7 @@ import type {
   AudioMetadata,
   EnhancementParameters,
 } from "../domain/types";
+import { useI18n } from "../i18n/I18nProvider";
 import { StopIcon } from "./icons";
 
 export type WorkspaceMode = "audio" | "parameters" | "log";
@@ -52,6 +53,7 @@ export function WorkspaceContent({
   ) => void;
   onResetParameters: () => void;
 }) {
+  const { t } = useI18n();
   const [logSnapshot, setLogSnapshot] = useState<AppLogSnapshot | undefined>();
   const [logError, setLogError] = useState("");
 
@@ -60,8 +62,8 @@ export function WorkspaceContent({
 
     if (!tauriAvailable()) {
       setLogSnapshot({
-        path: "Tauri runtime unavailable",
-        text: "Persistent logs are available in the desktop app.",
+        path: t.log.tauriUnavailablePath,
+        text: t.log.tauriUnavailableText,
       });
       return;
     }
@@ -71,7 +73,7 @@ export function WorkspaceContent({
     } catch (error) {
       setLogError(String(error));
     }
-  }, []);
+  }, [t.log.tauriUnavailablePath, t.log.tauriUnavailableText]);
 
   useEffect(() => {
     if (mode !== "log") {
@@ -98,13 +100,13 @@ export function WorkspaceContent({
   }, [mode, showLog]);
 
   const actionIsCancel = canCancel;
-  const actionLabel = actionIsCancel ? "Cancel" : "Enhance";
+  const actionLabel = actionIsCancel ? t.workspace.cancel : t.workspace.enhance;
   const actionClass = actionIsCancel ? "secondary-action" : "primary-action";
 
   return (
     <div
       className={`panel-section workspace-content ${mode}-mode-active`}
-      aria-label="Audio workspace"
+      aria-label={t.workspace.audioAriaLabel}
     >
       <span
         className="section-divider workspace-content-divider"
@@ -114,7 +116,7 @@ export function WorkspaceContent({
       {mode === "audio" ? (
         <div className="audio-lanes">
           <AudioPreviewLane
-            title="Original"
+            title={t.workspace.original}
             src={originalSrc}
             metadata={originalMetadata}
             startAction={
@@ -125,7 +127,7 @@ export function WorkspaceContent({
                   onClick={onOpenAudio}
                 >
                   <FolderOpen className="button-icon lucide-button-icon" strokeWidth={3} />
-                  <span>Open</span>
+                  <span>{t.workspace.open}</span>
                 </button>
               </ButtonHitArea>
             }
@@ -152,7 +154,7 @@ export function WorkspaceContent({
           />
           <span className="section-divider" aria-hidden="true" />
           <AudioPreviewLane
-            title="Enhanced"
+            title={t.workspace.enhanced}
             src={enhancedSrc}
             metadata={enhancedMetadata}
             startAction={
@@ -164,7 +166,7 @@ export function WorkspaceContent({
                   disabled={!canExport}
                 >
                   <Save className="button-icon lucide-button-icon" strokeWidth={3} />
-                  <span>Save</span>
+                  <span>{t.workspace.save}</span>
                 </button>
               </ButtonHitArea>
             }
@@ -203,6 +205,7 @@ function LogView({
   error: string;
   onRefresh: () => void;
 }) {
+  const { t } = useI18n();
   const viewerRef = useRef<HTMLDivElement>(null);
   const text = error || snapshot?.text || "";
 
@@ -218,8 +221,8 @@ function LogView({
     <div className="panel-mode log-mode">
       <div className="log-toolbar">
         <div>
-          <span>Log file</span>
-          <strong>{snapshot?.path ?? "Loading..."}</strong>
+          <span>{t.log.fileLabel}</span>
+          <strong>{snapshot?.path ?? t.common.loading}</strong>
         </div>
         <ButtonHitArea>
           <button
@@ -228,12 +231,12 @@ function LogView({
             onClick={onRefresh}
           >
             <RotateCw className="button-icon lucide-button-icon" strokeWidth={3} />
-            <span>Refresh</span>
+            <span>{t.log.refresh}</span>
           </button>
         </ButtonHitArea>
       </div>
       <div className="log-viewer" ref={viewerRef} role="log" aria-live="polite">
-        {text ? renderLogLines(text, Boolean(error)) : "No log entries yet."}
+        {text ? renderLogLines(text, Boolean(error)) : t.log.noEntries}
       </div>
     </div>
   );

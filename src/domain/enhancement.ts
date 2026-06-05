@@ -9,6 +9,7 @@ import type {
   ErrorContext,
   RuntimeSettings,
 } from "./types";
+import type { Translation } from "../i18n/translations";
 
 export const DEFAULT_RUNTIME: RuntimeSettings = {
   python: "",
@@ -102,39 +103,61 @@ export function formatMetadataShort(metadata?: AudioMetadata) {
   ].join(" | ");
 }
 
-export function productNoticeForJob(job: EnhancementJobSnapshot) {
+export function formatMetadataShortLocalized(
+  metadata: AudioMetadata | undefined,
+  copy: Translation["common"],
+) {
+  if (!metadata) {
+    return copy.metadataUnavailable;
+  }
+
+  return [
+    metadata.format.toUpperCase(),
+    `${metadata.source_sample_rate.toLocaleString()} Hz`,
+    `${metadata.channels} ${copy.channels}`,
+  ].join(" | ");
+}
+
+export function productNoticeForJob(
+  job: EnhancementJobSnapshot,
+  copy?: Translation["notices"],
+) {
   switch (job.state) {
     case "queued":
-      return "Preparing enhancement";
+      return copy?.preparingEnhancement ?? "Preparing enhancement";
     case "running":
-      return "Enhancing speech";
+      return copy?.enhancingSpeech ?? "Enhancing speech";
     case "completed":
-      return "Enhanced WAV is ready";
+      return copy?.enhancedReady ?? "Enhanced WAV is ready";
     case "failed":
-      return "Enhancement needs attention";
+      return copy?.enhancementNeedsAttention ?? "Enhancement needs attention";
     case "cancelled":
-      return "Enhancement cancelled";
+      return copy?.enhancementCancelled ?? "Enhancement cancelled";
   }
 }
 
 export function describeError(
   error: unknown,
   context: ErrorContext,
+  copy?: Translation["errors"],
 ): DisplayError {
   const detail =
-    error instanceof Error ? error.message : String(error ?? "Unknown error");
+    error instanceof Error
+      ? error.message
+      : String(error ?? copy?.unknown ?? "Unknown error");
   const normalized = detail.toLowerCase();
 
   if (context === "cancellation" || normalized.includes("cancelled")) {
     return {
-      summary: "Enhancement was cancelled.",
+      summary: copy?.cancelled ?? "Enhancement was cancelled.",
       detail,
     };
   }
 
   if (context === "device-detection") {
     return {
-      summary: "Processing device could not be checked.",
+      summary:
+        copy?.deviceDetection ?? "Processing device could not be checked.",
       detail,
     };
   }
@@ -145,7 +168,7 @@ export function describeError(
     normalized.includes("unsupported_input")
   ) {
     return {
-      summary: "Choose a WAV, MP3, or M4A file.",
+      summary: copy?.unsupportedInput ?? "Choose a WAV, MP3, or M4A file.",
       detail,
     };
   }
@@ -156,7 +179,8 @@ export function describeError(
     normalized.includes("missing_input_wav")
   ) {
     return {
-      summary: "The selected audio file could not be found.",
+      summary:
+        copy?.missingInput ?? "The selected audio file could not be found.",
       detail,
     };
   }
@@ -172,7 +196,9 @@ export function describeError(
     normalized.includes("decoded to no samples")
   ) {
     return {
-      summary: "ClearPodcast could not read this audio file.",
+      summary:
+        copy?.unreadableAudio ??
+        "ClearPodcast could not read this audio file.",
       detail,
     };
   }
@@ -184,7 +210,7 @@ export function describeError(
     normalized.includes("tauri runtime is not available")
   ) {
     return {
-      summary: "The local enhancement runtime is missing.",
+      summary: copy?.missingRuntime ?? "The local enhancement runtime is missing.",
       detail,
     };
   }
@@ -197,7 +223,9 @@ export function describeError(
     normalized.includes("model latest")
   ) {
     return {
-      summary: "The bundled speech enhancement model is missing or incomplete.",
+      summary:
+        copy?.missingModel ??
+        "The bundled speech enhancement model is missing or incomplete.",
       detail,
     };
   }
@@ -210,7 +238,9 @@ export function describeError(
     normalized.includes("unexpected_sidecar_error")
   ) {
     return {
-      summary: "Enhancement failed inside the local AI runtime.",
+      summary:
+        copy?.sidecarFailure ??
+        "Enhancement failed inside the local AI runtime.",
       detail,
     };
   }
@@ -220,45 +250,49 @@ export function describeError(
     normalized.includes("output path must end in .wav")
   ) {
     return {
-      summary: "Choose a .wav export location.",
+      summary: copy?.exportNeedsWav ?? "Choose a .wav export location.",
       detail,
     };
   }
 
   if (context === "export") {
     return {
-      summary: "The enhanced WAV could not be exported.",
+      summary:
+        copy?.exportFailure ?? "The enhanced WAV could not be exported.",
       detail,
     };
   }
 
   if (context === "input") {
     return {
-      summary: "The selected file could not be imported.",
+      summary: copy?.inputFailure ?? "The selected file could not be imported.",
       detail,
     };
   }
 
   return {
-    summary: "ClearPodcast hit a local processing error.",
+    summary: copy?.generic ?? "ClearPodcast hit a local processing error.",
     detail,
   };
 }
 
-export function labelForState(state: EnhancementJobState | "idle") {
+export function labelForState(
+  state: EnhancementJobState | "idle",
+  copy?: Translation["status"],
+) {
   switch (state) {
     case "queued":
-      return "Preparing";
+      return copy?.queued ?? "Preparing";
     case "running":
-      return "Enhancing";
+      return copy?.running ?? "Enhancing";
     case "completed":
-      return "Enhanced";
+      return copy?.completed ?? "Enhanced";
     case "failed":
-      return "Needs attention";
+      return copy?.failed ?? "Needs attention";
     case "cancelled":
-      return "Cancelled";
+      return copy?.cancelled ?? "Cancelled";
     default:
-      return "Ready";
+      return copy?.idle ?? "Ready";
   }
 }
 
