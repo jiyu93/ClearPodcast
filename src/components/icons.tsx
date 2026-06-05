@@ -11,7 +11,7 @@ export function UploadIcon({ className }: IconProps) {
   );
 }
 
-export function RestoreIcon({ className }: IconProps) {
+export function EnhanceIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
       <path d="M4 13c2.1-4 4.2-6 6.4-6 3.5 0 4.2 6 7 6 1.3 0 2.5-1 3.6-3v4.8c-1.4 1.6-2.9 2.4-4.5 2.4-3.5 0-4.2-6-7-6-1.3 0-2.5 1-3.6 3H4v-1.2Z" />
@@ -45,10 +45,10 @@ export function ResetIcon({ className }: IconProps) {
   );
 }
 
-export function ChevronIcon({ className }: IconProps) {
+export function BackIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="m12 15.8-6-6 1.8-1.8 4.2 4.2L16.2 8 18 9.8l-6 6Z" />
+      <path d="m10.4 4.4 1.8 1.8-4.5 4.5H21v2.6H7.7l4.5 4.5-1.8 1.8L2.8 12l7.6-7.6Z" />
     </svg>
   );
 }
@@ -57,6 +57,14 @@ export function WrenchIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
       <path d="M14.4 4.4a5.2 5.2 0 0 0 .6 5.7L5.4 19.7a1.8 1.8 0 0 0 2.5 2.5l9.6-9.6a5.2 5.2 0 0 0 6.1-6.8l-3.3 3.3-2.6-2.6 3.3-3.3a5.2 5.2 0 0 0-6.6 1.2Z" />
+    </svg>
+  );
+}
+
+export function LogIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 3h14v18H5V3Zm3 4v2h8V7H8Zm0 4v2h8v-2H8Zm0 4v2h5v-2H8Z" />
     </svg>
   );
 }
@@ -70,11 +78,40 @@ export function GaugeIcon({ className }: IconProps) {
   );
 }
 
-export function SparkIcon({ className }: IconProps) {
+export function CpuIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="m12 2 2.2 6.1L20 10.5l-5.8 2.4L12 19l-2.2-6.1L4 10.5l5.8-2.4L12 2Z" />
-      <path d="m19 15 1 2.6 2.5 1-2.5 1-1 2.4-1-2.4-2.5-1 2.5-1 1-2.6Z" />
+      <path d="M8 2h2v3h4V2h2v3h1.4A1.6 1.6 0 0 1 19 6.6V8h3v2h-3v4h3v2h-3v1.4a1.6 1.6 0 0 1-1.6 1.6H16v3h-2v-3h-4v3H8v-3H6.6A1.6 1.6 0 0 1 5 17.4V16H2v-2h3v-4H2V8h3V6.6A1.6 1.6 0 0 1 6.6 5H8V2Zm-.4 5.6v8.8h8.8V7.6H7.6Z" />
+      <path d="M10 10h4v4h-4v-4Z" />
+    </svg>
+  );
+}
+
+export function GpuIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M9 17.8v2.7h6v-2.7"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.1"
+      />
+      <path
+        d="M4 3.5v17M4 7h12.9A3.1 3.1 0 0 1 20 10.1v4.8a3.1 3.1 0 0 1-3.1 3.1H4V7Z"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.5"
+      />
+      <path
+        d="M10.1 12.5a1.9 1.9 0 1 1-3.8 0 1.9 1.9 0 0 1 3.8 0ZM16.9 12.5a1.9 1.9 0 1 1-3.8 0 1.9 1.9 0 0 1 3.8 0Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+      />
     </svg>
   );
 }

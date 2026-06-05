@@ -57,6 +57,11 @@ export type RuntimeSettings = {
   model_dir: string;
 };
 
+export type AppLogSnapshot = {
+  path: string;
+  text: string;
+};
+
 export type EnhancementSolver = "midpoint" | "rk4" | "euler";
 
 export type EnhancementSettings = {

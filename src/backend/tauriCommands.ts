@@ -3,6 +3,7 @@ import { getCurrentWebview } from "@tauri-apps/api/webview";
 
 import { isSupportedAudioPath } from "../domain/enhancement";
 import type {
+  AppLogSnapshot,
   EnhancementDeviceInfo,
   EnhancementJobSnapshot,
   ExportResult,
@@ -81,6 +82,10 @@ export async function exportEnhancedWav(jobId: string, destination: string) {
     jobId,
     destination,
   });
+}
+
+export async function readAppLog() {
+  return invoke<AppLogSnapshot>("read_app_log_command");
 }
 
 export async function listenForAudioDrop(callbacks: {

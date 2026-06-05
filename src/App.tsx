@@ -1,7 +1,4 @@
-import { AdvancedSettingsPanel } from "./components/AdvancedSettingsPanel";
-import { DiagnosticsPanel } from "./components/DiagnosticsPanel";
-import { PlaybackExportPanel } from "./components/PlaybackExportPanel";
-import { RestorationPanel } from "./components/RestorationPanel";
+import { EnhancementPanel } from "./components/EnhancementPanel";
 import { SourcePanel } from "./components/SourcePanel";
 import { WorkspaceHeader } from "./components/WorkspaceHeader";
 import { useWorkspaceController } from "./hooks/useWorkspaceController";
@@ -15,11 +12,13 @@ export default function App() {
         <WorkspaceHeader
           state={workspace.job?.state ?? "idle"}
           fixtureName={workspace.fixtureName}
+          deviceInfo={workspace.displayedDeviceInfo}
+          deviceStatus={workspace.deviceStatus}
         />
 
         <div className="desk-grid">
           <SourcePanel
-            selectedFileName={workspace.selectedFileName}
+            originalSrc={workspace.originalAudioSrc}
             metadata={workspace.metadata}
             isDragActive={workspace.isDragActive}
             onChooseAudio={() => {
@@ -27,59 +26,26 @@ export default function App() {
             }}
           />
 
-          <RestorationPanel
-            selectedPath={workspace.selectedPath}
+          <EnhancementPanel
             job={workspace.job}
-            notice={workspace.notice}
-            displayError={workspace.displayError}
-            exportMessage={workspace.exportMessage}
-            deviceInfo={workspace.displayedDeviceInfo}
-            deviceStatus={workspace.deviceStatus}
-            deviceError={workspace.deviceError}
-            deviceInfoIsActual={workspace.deviceInfoIsActual}
+            enhancedSrc={workspace.enhancedAudioSrc}
+            enhancedMetadata={workspace.job?.output_metadata}
             canRun={workspace.canRun}
             canCancel={workspace.canCancel}
+            canExport={workspace.canExport}
+            settings={workspace.enhancementSettings}
+            settingsLocked={workspace.settingsLocked}
             onRun={() => {
               void workspace.runEnhancement();
             }}
             onCancel={() => {
               void workspace.cancelJob();
             }}
-          />
-
-          <PlaybackExportPanel
-            originalSrc={workspace.originalAudioSrc}
-            enhancedSrc={workspace.enhancedAudioSrc}
-            originalMetadata={workspace.metadata}
-            enhancedMetadata={workspace.job?.output_metadata}
-            canExport={workspace.canExport}
-            exportMessage={workspace.exportMessage}
             onExport={() => {
               void workspace.exportEnhancedWav();
             }}
-          />
-        </div>
-
-        <div className="secondary-drawers">
-          <AdvancedSettingsPanel
-            open={workspace.advancedOpen}
-            onToggle={() => workspace.setAdvancedOpen((open) => !open)}
-            settings={workspace.enhancementSettings}
-            settingsLocked={workspace.settingsLocked}
-            onUpdate={workspace.updateEnhancementField}
-            onReset={workspace.resetEnhancementSettings}
-          />
-
-          <DiagnosticsPanel
-            open={workspace.diagnosticsOpen}
-            onToggle={() => workspace.setDiagnosticsOpen((open) => !open)}
-            runtimeSettings={workspace.runtimeSettings}
-            updateRuntimeField={workspace.updateRuntimeField}
-            selectedPath={workspace.selectedPath}
-            originalPreviewPath={workspace.originalPreviewPath}
-            job={workspace.job}
-            displayError={workspace.displayError}
-            deviceError={workspace.deviceError}
+            onUpdateSettings={workspace.updateEnhancementField}
+            onResetSettings={workspace.resetEnhancementSettings}
           />
         </div>
       </section>

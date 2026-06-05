@@ -44,12 +44,6 @@ export const TERMINAL_STATES: EnhancementJobState[] = [
   "cancelled",
 ];
 
-export type WorkflowStep = {
-  id: "source" | "prepare" | "restore" | "compare" | "export";
-  label: string;
-  state: "idle" | "current" | "done" | "muted" | "blocked";
-};
-
 export function isActiveJob(job?: EnhancementJobSnapshot) {
   return job?.state === "queued" || job?.state === "running";
 }
@@ -107,60 +101,15 @@ export function formatMetadataShort(metadata?: AudioMetadata) {
 export function productNoticeForJob(job: EnhancementJobSnapshot) {
   switch (job.state) {
     case "queued":
-      return "Preparing restoration";
+      return "Preparing enhancement";
     case "running":
-      return "Restoring speech";
+      return "Enhancing speech";
     case "completed":
       return "Enhanced WAV is ready";
     case "failed":
-      return "Restoration needs attention";
+      return "Enhancement needs attention";
     case "cancelled":
-      return "Restoration cancelled";
-  }
-}
-
-export function statusTitle(
-  job: EnhancementJobSnapshot | undefined,
-  error: DisplayError | undefined,
-  notice: string,
-) {
-  if (error) {
-    return error.summary;
-  }
-
-  if (job) {
-    return productNoticeForJob(job);
-  }
-
-  return notice;
-}
-
-export function statusDetail(
-  job: EnhancementJobSnapshot | undefined,
-  error: DisplayError | undefined,
-  notice: string,
-) {
-  if (error) {
-    return "Open Diagnostics for technical details.";
-  }
-
-  if (!job) {
-    return notice === "Ready to restore"
-      ? "Restore the source locally, then compare the original and enhanced audio."
-      : "Choose a supported spoken-word recording to begin.";
-  }
-
-  switch (job.state) {
-    case "queued":
-      return "ClearPodcast is preparing the local restoration run.";
-    case "running":
-      return "Processing stays on this machine and can take a while on CPU.";
-    case "completed":
-      return "Listen to the result, then export the enhanced WAV.";
-    case "failed":
-      return "The run stopped before producing a preview WAV.";
-    case "cancelled":
-      return "No partial enhanced output was kept.";
+      return "Enhancement cancelled";
   }
 }
 
@@ -174,7 +123,7 @@ export function describeError(
 
   if (context === "cancellation" || normalized.includes("cancelled")) {
     return {
-      summary: "Restoration was cancelled.",
+      summary: "Enhancement was cancelled.",
       detail,
     };
   }
@@ -231,7 +180,7 @@ export function describeError(
     normalized.includes("tauri runtime is not available")
   ) {
     return {
-      summary: "The local restoration runtime is missing.",
+      summary: "The local enhancement runtime is missing.",
       detail,
     };
   }
@@ -244,7 +193,7 @@ export function describeError(
     normalized.includes("model latest")
   ) {
     return {
-      summary: "The bundled speech restoration model is missing or incomplete.",
+      summary: "The bundled speech enhancement model is missing or incomplete.",
       detail,
     };
   }
@@ -257,7 +206,7 @@ export function describeError(
     normalized.includes("unexpected_sidecar_error")
   ) {
     return {
-      summary: "Restoration failed inside the local AI runtime.",
+      summary: "Enhancement failed inside the local AI runtime.",
       detail,
     };
   }
@@ -297,9 +246,9 @@ export function labelForState(state: EnhancementJobState | "idle") {
     case "queued":
       return "Preparing";
     case "running":
-      return "Restoring";
+      return "Enhancing";
     case "completed":
-      return "Restored";
+      return "Enhanced";
     case "failed":
       return "Needs attention";
     case "cancelled":
@@ -307,72 +256,6 @@ export function labelForState(state: EnhancementJobState | "idle") {
     default:
       return "Ready";
   }
-}
-
-export function workflowSteps(
-  selectedPath: string,
-  job?: EnhancementJobSnapshot,
-): WorkflowStep[] {
-  const hasSource = Boolean(selectedPath);
-  const state = job?.state;
-  const exported = Boolean(job?.exported_wav);
-
-  return [
-    {
-      id: "source",
-      label: "Source",
-      state: hasSource ? "done" : "current",
-    },
-    {
-      id: "prepare",
-      label: "Prepare",
-      state:
-        state === "queued"
-          ? "current"
-          : state === "running" || state === "completed"
-            ? "done"
-            : hasSource
-              ? "idle"
-              : "blocked",
-    },
-    {
-      id: "restore",
-      label: "Restore",
-      state:
-        state === "running"
-          ? "current"
-          : state === "completed"
-            ? "done"
-            : state === "failed" || state === "cancelled"
-              ? "muted"
-              : hasSource
-                ? "idle"
-                : "blocked",
-    },
-    {
-      id: "compare",
-      label: "Compare",
-      state:
-        state === "completed"
-          ? exported
-            ? "done"
-            : "current"
-          : state === "failed" || state === "cancelled"
-            ? "muted"
-            : "blocked",
-    },
-    {
-      id: "export",
-      label: "Export",
-      state: exported
-        ? "done"
-        : state === "completed"
-          ? "idle"
-          : state === "failed" || state === "cancelled"
-            ? "muted"
-            : "blocked",
-    },
-  ];
 }
 
 export function cudaVersionLabel(deviceInfo: EnhancementDeviceInfo) {

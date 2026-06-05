@@ -16,9 +16,7 @@ export type VisualFixtureName =
   | "cancelled"
   | "failed"
   | "completed"
-  | "exported"
-  | "advanced"
-  | "diagnostics";
+  | "exported";
 
 export type VisualFixtureState = {
   fixtureName: VisualFixtureName;
@@ -28,11 +26,8 @@ export type VisualFixtureState = {
   runtimeSettings: RuntimeSettings;
   enhancementSettings: EnhancementSettings;
   job?: EnhancementJobSnapshot;
-  advancedOpen: boolean;
-  diagnosticsOpen: boolean;
   notice: string;
   appError?: DisplayError;
-  exportMessage: string;
   detectedDeviceInfo?: EnhancementDeviceInfo;
   deviceStatus: DeviceDetectionStatus;
   deviceError: string;
@@ -89,17 +84,14 @@ function createVisualFixture(name: VisualFixtureName): VisualFixtureState {
     runtimeSettings: DEFAULT_RUNTIME,
     enhancementSettings: DEFAULT_ENHANCEMENT_SETTINGS,
     job,
-    advancedOpen: name === "advanced",
-    diagnosticsOpen: name === "diagnostics" || name === "failed",
-    notice: selectedPath ? "Ready to restore" : "Choose a WAV, MP3, or M4A file",
+    notice: selectedPath ? "Ready to enhance" : "Choose a WAV, MP3, or M4A file",
     appError:
       name === "failed"
         ? {
-            summary: "Restoration failed inside the local AI runtime.",
+            summary: "Enhancement failed inside the local AI runtime.",
             detail: "visual_fixture_sidecar_error: model output was not produced",
           }
         : undefined,
-    exportMessage: name === "exported" ? "Export complete" : "",
     detectedDeviceInfo: name === "completed" || name === "exported" ? cudaDevice : cpuDevice,
     deviceStatus: "ready",
     deviceError: "",
@@ -109,7 +101,7 @@ function createVisualFixture(name: VisualFixtureName): VisualFixtureState {
 function jobForFixture(
   name: VisualFixtureName,
 ): EnhancementJobSnapshot | undefined {
-  if (name === "empty" || name === "selected" || name === "advanced") {
+  if (name === "empty" || name === "selected") {
     return undefined;
   }
 
@@ -169,7 +161,5 @@ function isFixtureName(value: string): value is VisualFixtureName {
     "failed",
     "completed",
     "exported",
-    "advanced",
-    "diagnostics",
   ].includes(value);
 }

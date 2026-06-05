@@ -1,13 +1,22 @@
 import { AppMark } from "./AppMark";
+import { ProcessingDeviceIndicator } from "./ProcessingDeviceIndicator";
 import { StatusPill } from "./StatusPill";
-import type { EnhancementJobState } from "../domain/types";
+import type {
+  DeviceDetectionStatus,
+  EnhancementDeviceInfo,
+  EnhancementJobState,
+} from "../domain/types";
 
 export function WorkspaceHeader({
   state,
   fixtureName,
+  deviceInfo,
+  deviceStatus,
 }: {
   state: EnhancementJobState | "idle";
   fixtureName?: string;
+  deviceInfo?: EnhancementDeviceInfo;
+  deviceStatus: DeviceDetectionStatus;
 }) {
   return (
     <header className="workspace-header">
@@ -25,6 +34,10 @@ export function WorkspaceHeader({
           <span className="fixture-pill">Visual QA: {fixtureName}</span>
         ) : null}
         <StatusPill state={state} />
+        <ProcessingDeviceIndicator
+          deviceInfo={deviceInfo}
+          status={deviceStatus}
+        />
       </div>
     </header>
   );

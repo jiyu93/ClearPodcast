@@ -1,3 +1,4 @@
+pub mod app_log;
 pub mod audio;
 pub mod dialogs;
 pub mod jobs;
@@ -5,6 +6,7 @@ pub mod packaging;
 pub mod previews;
 pub mod runtime;
 
+use app_log::{AppLog, AppLogSnapshot};
 use audio::AudioMetadata;
 use jobs::{
     EnhancementJobManager, EnhancementJobSnapshot, ExportResult, StartEnhancementJobRequest,
@@ -34,23 +36,72 @@ fn probe_audio_command(path: PathBuf) -> Result<AudioMetadata, String> {
 }
 
 #[tauri::command]
-fn prepare_audio_preview_command(path: PathBuf) -> Result<PreparedAudioPreview, String> {
-    previews::prepare_audio_preview(path).map_err(|error| error.to_string())
+fn prepare_audio_preview_command(
+    app_log: State<AppLog>,
+    path: PathBuf,
+) -> Result<PreparedAudioPreview, String> {
+    app_log.info(
+        "prepare_audio_preview_start",
+        format!("input={}", path.display()),
+    );
+    match previews::prepare_audio_preview(path) {
+        Ok(preview) => {
+            app_log.info(
+                "prepare_audio_preview_completed",
+                format!(
+                    "input={} preview={} format={:?} sample_rate={} channels={}",
+                    preview.input_audio.display(),
+                    preview.preview_audio.display(),
+                    preview.metadata.format,
+                    preview.metadata.source_sample_rate,
+                    preview.metadata.channels
+                ),
+            );
+            Ok(preview)
+        }
+        Err(error) => {
+            app_log.error("prepare_audio_preview_failed", error.to_string());
+            Err(error.to_string())
+        }
+    }
 }
 
 #[tauri::command]
-fn cleanup_audio_preview_command(preview_audio: PathBuf) -> Result<(), String> {
-    previews::cleanup_audio_preview(preview_audio).map_err(|error| error.to_string())
+fn cleanup_audio_preview_command(
+    app_log: State<AppLog>,
+    preview_audio: PathBuf,
+) -> Result<(), String> {
+    match previews::cleanup_audio_preview(preview_audio.clone()) {
+        Ok(()) => {
+            app_log.info(
+                "cleanup_audio_preview_completed",
+                format!("preview={}", preview_audio.display()),
+            );
+            Ok(())
+        }
+        Err(error) => {
+            app_log.warn(
+                "cleanup_audio_preview_failed",
+                format!("preview={} error={}", preview_audio.display(), error),
+            );
+            Err(error.to_string())
+        }
+    }
 }
 
 #[tauri::command]
 fn start_enhancement_job_command(
     manager: State<EnhancementJobManager>,
     packaged_resources: State<PackagedResourcePaths>,
+    app_log: State<AppLog>,
     request: StartEnhancementJobRequest,
 ) -> Result<EnhancementJobSnapshot, String> {
     manager
-        .start_job(request, packaged_resources.inner().clone())
+        .start_job(
+            request,
+            packaged_resources.inner().clone(),
+            app_log.inner().clone(),
+        )
         .map_err(|error| error.to_string())
 }
 
@@ -64,6 +115,7 @@ fn packaged_resource_paths_command(
 #[tauri::command]
 async fn detect_processing_device_command(
     packaged_resources: State<'_, PackagedResourcePaths>,
+    app_log: State<'_, AppLog>,
     request: DeviceDetectionRequest,
 ) -> Result<EnhancementDeviceInfo, String> {
     let python = request
@@ -71,10 +123,27 @@ async fn detect_processing_device_command(
         .map(runtime::resolve_repo_relative_path)
         .unwrap_or_else(|| packaged_resources.python.clone());
 
+    app_log.info(
+        "device_detection_start",
+        format!("python={}", python.display()),
+    );
     tauri::async_runtime::spawn_blocking(move || runtime::detect_processing_device(python))
         .await
         .map_err(|error| format!("processing device detection task failed: {error}"))?
-        .map_err(|error| error.to_string())
+        .map(|info| {
+            app_log.info(
+                "device_detection_completed",
+                format!(
+                    "selected_device={} cuda_available={:?} cuda_device_name={:?}",
+                    info.selected_device, info.cuda_available, info.cuda_device_name
+                ),
+            );
+            info
+        })
+        .map_err(|error| {
+            app_log.warn("device_detection_failed", error.to_string());
+            error.to_string()
+        })
 }
 
 #[tauri::command]
@@ -88,8 +157,10 @@ fn get_enhancement_job_command(
 #[tauri::command]
 fn cancel_enhancement_job_command(
     manager: State<EnhancementJobManager>,
+    app_log: State<AppLog>,
     job_id: String,
 ) -> Result<EnhancementJobSnapshot, String> {
+    app_log.info("cancel_job_requested", format!("job_id={job_id}"));
     manager
         .cancel_job(&job_id)
         .map_err(|error| error.to_string())
@@ -98,12 +169,46 @@ fn cancel_enhancement_job_command(
 #[tauri::command]
 fn export_enhanced_wav_command(
     manager: State<EnhancementJobManager>,
+    app_log: State<AppLog>,
     job_id: String,
     destination: PathBuf,
 ) -> Result<ExportResult, String> {
-    manager
-        .export_job(&job_id, destination)
-        .map_err(|error| error.to_string())
+    app_log.info(
+        "export_requested",
+        format!("job_id={} destination={}", job_id, destination.display()),
+    );
+    match manager.export_job(&job_id, destination.clone()) {
+        Ok(result) => {
+            app_log.info(
+                "export_completed",
+                format!(
+                    "job_id={} destination={} sample_rate={} channels={}",
+                    job_id,
+                    result.exported_wav.display(),
+                    result.output_metadata.source_sample_rate,
+                    result.output_metadata.channels
+                ),
+            );
+            Ok(result)
+        }
+        Err(error) => {
+            app_log.error(
+                "export_failed",
+                format!(
+                    "job_id={} destination={} error={}",
+                    job_id,
+                    destination.display(),
+                    error
+                ),
+            );
+            Err(error.to_string())
+        }
+    }
+}
+
+#[tauri::command]
+fn read_app_log_command(app_log: State<AppLog>) -> AppLogSnapshot {
+    app_log.snapshot()
 }
 
 #[tauri::command]
@@ -122,7 +227,10 @@ pub fn run() {
         .manage(EnhancementJobManager::default())
         .setup(|app| {
             let resource_dir = app.path().resource_dir()?;
+            let app_log = AppLog::new(app.path().app_log_dir()?.join("clearpodcast.log"))?;
+            app_log.info("app_start", "ClearPodcast started");
             app.manage(PackagedResourcePaths::from_resource_dir(resource_dir));
+            app.manage(app_log);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -137,6 +245,7 @@ pub fn run() {
             export_enhanced_wav_command,
             packaged_resource_paths_command,
             detect_processing_device_command,
+            read_app_log_command,
             pick_audio_file_command,
             pick_export_wav_command
         ])

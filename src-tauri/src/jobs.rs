@@ -1,4 +1,5 @@
 use crate::{
+    app_log::{truncate_log_field, AppLog},
     audio::{self, AudioMetadata},
     packaging::PackagedResourcePaths,
     runtime::{
@@ -125,6 +126,7 @@ impl EnhancementJobManager {
         &self,
         request: StartEnhancementJobRequest,
         packaged_resources: PackagedResourcePaths,
+        app_log: AppLog,
     ) -> Result<EnhancementJobSnapshot, JobError> {
         let job_id = next_job_id();
         let job_dir = std::env::temp_dir()
@@ -168,6 +170,16 @@ impl EnhancementJobManager {
             );
         }
 
+        app_log.info(
+            "job_queued",
+            format!(
+                "job_id={} input={} output={}",
+                job_id,
+                runtime::resolve_repo_relative_path(request.input_audio.clone()).display(),
+                preview_wav.display()
+            ),
+        );
+
         let manager = self.clone();
         thread::spawn(move || {
             manager.run_job(
@@ -177,6 +189,7 @@ impl EnhancementJobManager {
                 preview_wav,
                 job_dir,
                 cancellation,
+                app_log,
             );
         });
 
@@ -286,8 +299,10 @@ impl EnhancementJobManager {
         preview_wav: PathBuf,
         job_dir: PathBuf,
         cancellation: CancellationToken,
+        app_log: AppLog,
     ) {
         if cancellation.is_cancelled() {
+            app_log.info("job_cancelled_before_start", format!("job_id={job_id}"));
             self.finish_cancelled(&job_id, &job_dir);
             return;
         }
@@ -301,6 +316,7 @@ impl EnhancementJobManager {
             snapshot.message = "Processing".to_string();
             snapshot.input_metadata = input_metadata;
         });
+        app_log.info("job_running", format!("job_id={job_id}"));
 
         let result = runtime::enhance_audio_with_cancellation(
             request.into_enhance_request(preview_wav.clone(), &packaged_resources),
@@ -308,13 +324,31 @@ impl EnhancementJobManager {
         );
 
         match result {
-            Ok(result) => self.finish_completed(&job_id, result),
-            Err(RuntimeError::Cancelled) => self.finish_cancelled(&job_id, &job_dir),
-            Err(error) => self.finish_failed(&job_id, &job_dir, error.to_string()),
+            Ok(result) => self.finish_completed(&job_id, result, &app_log),
+            Err(RuntimeError::Cancelled) => {
+                app_log.info("job_cancelled", format!("job_id={job_id}"));
+                self.finish_cancelled(&job_id, &job_dir);
+            }
+            Err(error) => self.finish_failed(&job_id, &job_dir, error.to_string(), &app_log),
         }
     }
 
-    fn finish_completed(&self, job_id: &str, result: EnhancementResult) {
+    fn finish_completed(&self, job_id: &str, result: EnhancementResult, app_log: &AppLog) {
+        app_log.info(
+            "job_completed",
+            format!(
+                "job_id={} output={} device={} exit_code={} sidecar_stderr={}",
+                job_id,
+                result.output_wav.display(),
+                result
+                    .device_info
+                    .as_ref()
+                    .map(|device| device.selected_device.as_str())
+                    .unwrap_or("unknown"),
+                result.exit_code,
+                truncate_log_field(&result.stderr)
+            ),
+        );
         self.update_snapshot(job_id, |snapshot| {
             snapshot.state = EnhancementJobState::Completed;
             snapshot.preview_wav = Some(result.output_wav);
@@ -326,7 +360,11 @@ impl EnhancementJobManager {
         });
     }
 
-    fn finish_failed(&self, job_id: &str, job_dir: &Path, error: String) {
+    fn finish_failed(&self, job_id: &str, job_dir: &Path, error: String, app_log: &AppLog) {
+        app_log.error(
+            "job_failed",
+            format!("job_id={} error={}", job_id, truncate_log_field(&error)),
+        );
         let _ = fs::remove_dir_all(job_dir);
         self.update_snapshot(job_id, |snapshot| {
             snapshot.state = EnhancementJobState::Failed;
@@ -475,6 +513,7 @@ mod tests {
             .start_job(
                 request_for(&runtime_env, &input),
                 runtime_env.packaged_resources(),
+                test_log(&runtime_env),
             )
             .expect("start job");
         let completed = wait_for_terminal(&manager, &snapshot.job_id);
@@ -521,6 +560,7 @@ mod tests {
             .start_job(
                 request_for(&runtime_env, &input),
                 runtime_env.packaged_resources(),
+                test_log(&runtime_env),
             )
             .expect("start job");
         wait_for_state(&manager, &snapshot.job_id, EnhancementJobState::Running);
@@ -548,7 +588,11 @@ mod tests {
 
         let manager = EnhancementJobManager::default();
         let snapshot = manager
-            .start_job(request, runtime_env.packaged_resources())
+            .start_job(
+                request,
+                runtime_env.packaged_resources(),
+                test_log(&runtime_env),
+            )
             .expect("start job");
         let completed = wait_for_terminal(&manager, &snapshot.job_id);
 
@@ -685,6 +729,10 @@ mod tests {
             tau: None,
             expected_checkpoint_sha256: None,
         }
+    }
+
+    fn test_log(runtime_env: &FakeRuntimeEnv) -> AppLog {
+        AppLog::new(runtime_env.dir.path().join("test.log")).expect("create test log")
     }
 
     fn synthetic_audio() -> AudioBuffer {

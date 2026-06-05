@@ -20,7 +20,6 @@ import {
   EXPECTED_CHECKPOINT_SHA256,
   TERMINAL_STATES,
   describeError,
-  fileNameFromPath,
   isActiveJob,
   productNoticeForJob,
   runtimeOverrides,
@@ -43,23 +42,16 @@ const FIXTURE_AUDIO_SRC =
 
 export type WorkspaceController = {
   selectedPath: string;
-  selectedFileName: string;
   originalPreviewPath: string;
   metadata?: AudioMetadata;
-  runtimeSettings: RuntimeSettings;
   enhancementSettings: EnhancementSettings;
   job?: EnhancementJobSnapshot;
   isDragActive: boolean;
-  advancedOpen: boolean;
-  diagnosticsOpen: boolean;
   notice: string;
-  displayError?: DisplayError;
-  exportMessage: string;
   detectedDeviceInfo?: EnhancementDeviceInfo;
   deviceStatus: DeviceDetectionStatus;
   deviceError: string;
   displayedDeviceInfo?: EnhancementDeviceInfo;
-  deviceInfoIsActual: boolean;
   originalAudioSrc?: string;
   enhancedAudioSrc?: string;
   canRun: boolean;
@@ -71,14 +63,11 @@ export type WorkspaceController = {
   runEnhancement: () => Promise<void>;
   cancelJob: () => Promise<void>;
   exportEnhancedWav: () => Promise<void>;
-  updateRuntimeField: (field: keyof RuntimeSettings, value: string) => void;
   updateEnhancementField: <K extends keyof EnhancementSettings>(
     field: K,
     value: EnhancementSettings[K],
   ) => void;
   resetEnhancementSettings: () => void;
-  setAdvancedOpen: (open: boolean | ((open: boolean) => boolean)) => void;
-  setDiagnosticsOpen: (open: boolean | ((open: boolean) => boolean)) => void;
 };
 
 export function useWorkspaceController(): WorkspaceController {
@@ -103,20 +92,11 @@ export function useWorkspaceController(): WorkspaceController {
     fixture?.job,
   );
   const [isDragActive, setIsDragActive] = useState(false);
-  const [advancedOpen, setAdvancedOpen] = useState(
-    fixture?.advancedOpen ?? false,
-  );
-  const [diagnosticsOpen, setDiagnosticsOpen] = useState(
-    fixture?.diagnosticsOpen ?? false,
-  );
   const [notice, setNotice] = useState(
     fixture?.notice ?? "Choose a WAV, MP3, or M4A file",
   );
-  const [appError, setAppError] = useState<DisplayError | undefined>(
+  const [, setAppError] = useState<DisplayError | undefined>(
     fixture?.appError,
-  );
-  const [exportMessage, setExportMessage] = useState(
-    fixture?.exportMessage ?? "",
   );
   const [detectedDeviceInfo, setDetectedDeviceInfo] = useState<
     EnhancementDeviceInfo | undefined
@@ -126,10 +106,6 @@ export function useWorkspaceController(): WorkspaceController {
   );
   const [deviceError, setDeviceError] = useState(fixture?.deviceError ?? "");
 
-  const selectedFileName = useMemo(
-    () => (selectedPath ? fileNameFromPath(selectedPath) : "No source selected"),
-    [selectedPath],
-  );
   const originalAudioSrc = useMemo(
     () =>
       fixtureMode && selectedPath
@@ -147,11 +123,6 @@ export function useWorkspaceController(): WorkspaceController {
   const canExport = job?.state === "completed" && Boolean(job.preview_wav);
   const settingsLocked = isActiveJob(job);
   const displayedDeviceInfo = job?.device_info ?? detectedDeviceInfo;
-  const deviceInfoIsActual = Boolean(job?.device_info);
-  const displayError =
-    job?.state === "failed" && job.error
-      ? describeError(job.error, "enhancement")
-      : appError;
 
   const showError = useCallback((error: unknown, context: ErrorContext) => {
     const display = describeError(error, context);
@@ -182,7 +153,6 @@ export function useWorkspaceController(): WorkspaceController {
       setOriginalPreviewPath("");
       setMetadata(undefined);
       setJob(undefined);
-      setExportMessage("");
       setAppError(undefined);
       setNotice("Reading source audio");
 
@@ -191,7 +161,7 @@ export function useWorkspaceController(): WorkspaceController {
         setSelectedPath(prepared.input_audio);
         setOriginalPreviewPath(prepared.preview_audio);
         setMetadata(prepared.metadata);
-        setNotice("Ready to restore");
+        setNotice("Ready to enhance");
       } catch (error) {
         setSelectedPath("");
         setOriginalPreviewPath("");
@@ -314,9 +284,8 @@ export function useWorkspaceController(): WorkspaceController {
       return;
     }
 
-    setExportMessage("");
     setAppError(undefined);
-    setNotice("Preparing restoration");
+    setNotice("Preparing enhancement");
 
     try {
       const snapshot = await startEnhancementJob({
@@ -341,7 +310,7 @@ export function useWorkspaceController(): WorkspaceController {
       const snapshot = await cancelEnhancementJob(job.job_id);
       setJob(snapshot);
       setAppError(undefined);
-      setNotice("Cancelling restoration");
+      setNotice("Cancelling enhancement");
     } catch (error) {
       showError(error, "cancellation");
     }
@@ -359,19 +328,11 @@ export function useWorkspaceController(): WorkspaceController {
 
     try {
       await exportEnhancedWav(job.job_id, destination);
-      setExportMessage("Export complete");
       await refreshJob(job.job_id);
     } catch (error) {
       showError(error, "export");
     }
   }, [canExport, job, refreshJob, selectedPath, showError]);
-
-  const updateRuntimeField = useCallback(
-    (field: keyof RuntimeSettings, value: string) => {
-      setRuntimeSettings((current) => ({ ...current, [field]: value }));
-    },
-    [],
-  );
 
   const updateEnhancementField = useCallback(
     <K extends keyof EnhancementSettings>(
@@ -389,23 +350,16 @@ export function useWorkspaceController(): WorkspaceController {
 
   return {
     selectedPath,
-    selectedFileName,
     originalPreviewPath,
     metadata,
-    runtimeSettings,
     enhancementSettings,
     job,
     isDragActive,
-    advancedOpen,
-    diagnosticsOpen,
     notice,
-    displayError,
-    exportMessage,
     detectedDeviceInfo,
     deviceStatus,
     deviceError,
     displayedDeviceInfo,
-    deviceInfoIsActual,
     originalAudioSrc,
     enhancedAudioSrc,
     canRun,
@@ -417,10 +371,7 @@ export function useWorkspaceController(): WorkspaceController {
     runEnhancement,
     cancelJob,
     exportEnhancedWav: exportCurrentEnhancedWav,
-    updateRuntimeField,
     updateEnhancementField,
     resetEnhancementSettings,
-    setAdvancedOpen,
-    setDiagnosticsOpen,
   };
 }

@@ -24,6 +24,11 @@ They should be able to drag in a WAV, MP3, or M4A file, run enhancement locally
 with one clear action, compare the result, and export a WAV file suitable for
 further publishing or distribution.
 
+Run controls, model settings, and run logs are three mutually exclusive views of
+the current enhancement workspace. Runtime events are written to a local
+`clearpodcast.log` text file in the app log directory and can be reviewed from
+the Log view in the second panel.
+
 ## Core Domain Language
 
 - Bad recording: A real-world speech recording with noise, codec damage,
