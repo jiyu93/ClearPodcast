@@ -451,13 +451,6 @@ export function AudioPreviewLane({
             }}
           />
         ) : null}
-        <PlayerClock
-          ariaLabel={t.audio.playbackTime(title)}
-          currentClockRef={currentClockRef}
-          currentTime={currentTime}
-          durationClockRef={durationClockRef}
-          duration={durationForDisplay}
-        />
         <div
           className="waveform-scrubber"
           aria-disabled={!src}
@@ -526,6 +519,19 @@ export function AudioPreviewLane({
             {startAction}
           </div>
           <div className="player-controls">
+            <span className="player-clock" aria-label={t.audio.playbackTime(title)}>
+              <ClockText
+                elementRef={currentClockRef}
+                kind="current"
+                seconds={currentTime}
+              />
+              <span className="clock-separator" aria-hidden="true" />
+              <ClockText
+                elementRef={durationClockRef}
+                kind="duration"
+                seconds={durationForDisplay}
+              />
+            </span>
             <div
               className="transport-cluster"
               aria-label={t.audio.transportControls(title)}
@@ -647,36 +653,6 @@ function isNativeSpaceTarget(target: EventTarget | null) {
 
   const input = target as HTMLInputElement;
   return input.type !== "range";
-}
-
-function PlayerClock({
-  ariaLabel,
-  currentClockRef,
-  currentTime,
-  duration,
-  durationClockRef,
-}: {
-  ariaLabel: string;
-  currentClockRef: Ref<HTMLSpanElement>;
-  currentTime: number;
-  duration: number;
-  durationClockRef: Ref<HTMLSpanElement>;
-}) {
-  return (
-    <span className="player-clock" aria-label={ariaLabel}>
-      <ClockText
-        elementRef={currentClockRef}
-        kind="current"
-        seconds={currentTime}
-      />
-      <span className="clock-separator" aria-hidden="true" />
-      <ClockText
-        elementRef={durationClockRef}
-        kind="duration"
-        seconds={duration}
-      />
-    </span>
-  );
 }
 
 function ClockText({

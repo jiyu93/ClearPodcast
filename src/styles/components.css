@@ -379,8 +379,8 @@
 
 .waveform-player {
   display: grid;
-  grid-template-rows: auto minmax(96px, 1fr) auto;
-  gap: 7px;
+  grid-template-rows: minmax(96px, 1fr) auto;
+  gap: 9px;
   min-width: 0;
   min-height: 0;
   height: 100%;
@@ -488,10 +488,9 @@
 
 .player-controls {
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
   width: 100%;
   padding: 0 2px;
@@ -575,8 +574,7 @@
 .player-clock {
   display: inline-flex;
   align-items: center;
-  justify-self: center;
-  align-self: center;
+  justify-self: end;
   gap: 8px;
   min-height: 30px;
   padding: 4px 9px 4px 10px;
@@ -987,7 +985,7 @@
   }
 
   .waveform-player {
-    grid-template-rows: auto minmax(150px, 24vh) auto;
+    grid-template-rows: minmax(150px, 24vh) auto;
   }
 
   .player-controls {
