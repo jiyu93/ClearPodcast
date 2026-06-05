@@ -28,6 +28,59 @@ export function StopIcon({ className }: IconProps) {
   );
 }
 
+export function PlayIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M8 5.2 18.4 12 8 18.8V5.2Z" />
+    </svg>
+  );
+}
+
+export function PauseIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7 5h3.4v14H7V5Zm6.6 0H17v14h-3.4V5Z" />
+    </svg>
+  );
+}
+
+export function SkipBackIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 5h2.4v14H6V5Z" />
+      <path d="M18.8 5.4 9.8 12l9 6.6V5.4Z" />
+    </svg>
+  );
+}
+
+export function SkipForwardIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M15.6 5H18v14h-2.4V5Z" />
+      <path d="m5.2 5.4 9 6.6-9 6.6V5.4Z" />
+    </svg>
+  );
+}
+
+export function VolumeIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 9h4l5-4v14l-5-4H4V9Z" />
+      <path d="M16 8.2a5.2 5.2 0 0 1 0 7.6l-1.6-1.6a3 3 0 0 0 0-4.4L16 8.2Z" />
+      <path d="M18.8 5.4a9 9 0 0 1 0 13.2L17.2 17a6.7 6.7 0 0 0 0-10l1.6-1.6Z" />
+    </svg>
+  );
+}
+
+export function MutedIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 9h4l5-4v14l-5-4H4V9Z" />
+      <path d="m16.2 9 1.8 1.8L19.8 9l1.2 1.2-1.8 1.8 1.8 1.8-1.2 1.2-1.8-1.8-1.8 1.8-1.2-1.2 1.8-1.8-1.8-1.8L16.2 9Z" />
+    </svg>
+  );
+}
+
 export function DownloadIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">

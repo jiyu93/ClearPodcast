@@ -121,10 +121,11 @@ Findings:
 
 The redesigned surface is organized around the root journey:
 
-1. Source: choose or drop one file, see accepted formats, confirm metadata.
-2. Current Run: understand preparation/running/done/error/cancelled states,
-   launch or cancel restoration, and see processing-device status.
-3. Compare And Export: listen to original and enhanced audio, then export WAV.
+1. Controls: choose or drop one file, launch or cancel enhancement, save the
+   enhanced WAV, and open secondary tools.
+2. Original Audio: confirm source metadata and listen to the source waveform.
+3. Enhanced Audio: inspect the restored waveform, compare playback, and save
+   the completed WAV.
 4. Model Settings: exact Resemble Enhance controls in a secondary surface.
 5. Diagnostics: runtime overrides and raw backend details in a secondary surface.
 
@@ -140,8 +141,9 @@ Capability model:
 
 Direction A: Restoration Desk
 
-- Three-column desktop workbench: Source, Current Run, Compare And Export.
-- Cel-shaded paper planes, ink borders, waveform cards, and clear action zones.
+- Single desktop workbench panel with horizontal Controls, Original Audio, and
+  Enhanced Audio sections.
+- Cel-shaded paper plane, ink border, waveform lanes, and clear action zones.
 - Best fit for the current product because the journey is obvious and does not
   imply future batch or project features.
 
@@ -170,14 +172,14 @@ Selected direction:
 
 | State | User concept | Primary action | Secondary action | Surface behavior |
 | --- | --- | --- | --- | --- |
-| Empty | No source chosen | Choose audio | Inspect diagnostics | Source panel shows empty artwork and accepted formats; run/export are disabled. |
-| Selected | Source is valid | Restore speech | Change source or adjust model settings | Metadata is visible; original playback is available when the preview copy exists. |
+| Empty | No source chosen | Choose audio | Inspect diagnostics | Controls show the drop zone and accepted formats; run/save are disabled. |
+| Selected | Source is valid | Enhance | Change source or adjust model settings | Metadata is visible; original playback is available when the preview copy exists. |
 | Preparing | Active restoration is preparing | Cancel | Inspect diagnostics | Backend `queued` is shown as preparation, not a queue. |
-| Running | Local restoration is processing | Cancel | Inspect device details | Current Run panel highlights local processing and honest wait time. |
-| Cancelled | Restoration stopped | Restore again | Change source | No enhanced preview is presented as successful output. |
-| Failed | Restoration needs attention | Restore again after fixing issue | Open diagnostics | Product summary appears in the run panel; raw detail stays in diagnostics. |
-| Completed | Enhanced preview is ready | Export WAV | Compare playback | Enhanced player and output metadata are visible. |
-| Exported | WAV has been saved | Export again | Compare playback | Export confirmation appears near the export action and diagnostics records the path. |
+| Running | Local restoration is processing | Cancel | Inspect device details | The workspace header and controls show local processing and honest wait time. |
+| Cancelled | Restoration stopped | Enhance again | Change source | No enhanced preview is presented as successful output. |
+| Failed | Restoration needs attention | Enhance again after fixing issue | Open diagnostics | Product summary appears in the workspace; raw detail stays in diagnostics. |
+| Completed | Enhanced preview is ready | Save | Compare playback | Enhanced player and output metadata are visible. |
+| Exported | WAV has been saved | Save again | Compare playback | Save confirmation appears near the action and diagnostics records the path. |
 | Advanced Open | Model controls visible | Reset defaults | Adjust exact parameters | Solver, CFM steps, prior temperature, and denoising remain exact and locked while active. |
 | Diagnostics Open | Technical details visible | Edit overrides when needed | Copy/read raw paths manually | Overrides, job id, preview/export paths, and backend/device detail are grouped away from the main journey. |
 
@@ -192,8 +194,8 @@ Product mark:
 
 In-app motifs:
 
-- Source panel artwork uses simple document, waveform, and restoration accent
-  motifs without redefining the product mark.
+- The controls section uses a compact drop zone and restoration action motifs
+  without redefining the product mark.
 - Status chips use shape and copy, not color alone.
 - Current-run states use preparation, restoring, restored, cancelled, and needs
   attention language.
@@ -201,8 +203,9 @@ In-app motifs:
 Palette:
 
 - Ink: `#14211f`
-- Paper: `#fff8ec`
-- Workbench: `#f3ead9`
+- Paper: `#fffffc`
+- Workbench: `#f8f7f0`
+- Waveform surface: `#f7fbef`
 - Teal: `#0f7664`
 - Mint: `#a7e7c3`
 - Gold: `#f4bf45`
@@ -214,14 +217,33 @@ Palette:
 
 - Split frontend state, types, command integration, and presentation into
   focused modules under `src/`.
-- Rebuilt the first screen as a three-panel Restoration Desk workspace:
-  Source, Current Run, and Compare And Export.
+- Rebuilt the first screen as one workspace panel with three horizontal
+  sections: Controls, Original audio, and Enhanced audio. Choose, Enhance, Save,
+  settings, and log actions live in the top section; audio comparison remains
+  stacked below with divider lines inside the single workspace card.
 - Moved exact model controls into a secondary Model Settings drawer while
   preserving defaults and request passthrough.
 - Kept Diagnostics secondary with runtime/model overrides and raw details.
+- Replaced native preview audio controls with the ClearPodcast waveform player:
+  a full-width waveform scrubber, centered play/pause transport with skip
+  controls, elapsed/total time, and compact mute/volume controls backed by the
+  real audio element.
+- Rebalanced the workspace so both audio lanes dedicate their full width to the
+  waveform player, while all operation controls are grouped above them.
+- Kept the original preview above the enhanced preview inside the single Audio
+  panel, with both waveform players using the same size and control layout.
+- Upgraded the waveform renderer from coarse DOM bars to a canvas waveform with
+  1024 peaks, timeline tick labels, a visible playhead, hundredth-second time
+  display, and requestAnimationFrame playback refresh.
+- Moved model/log tools out of absolute overlay positioning and into the top
+  Controls section's upper-right tool group.
+- Tightened desktop and narrow fallback layout behavior so 1280 px, 960 px, and
+  720 px widths preserve the same product language without panel or text
+  overlap.
 - Added browser visual fixtures for state QA in non-Tauri preview URLs:
   `?fixture=empty`, `selected`, `running`, `cancelled`, `failed`,
-  `completed`, `exported`, `advanced`, and `diagnostics`.
+  `completed`, and `exported`. Model Settings and Diagnostics are verified from
+  the same workspace through their tool buttons.
 - Updated the product mark and regenerated Tauri icon assets from the source
   SVG.
 
@@ -232,10 +254,17 @@ Palette:
 - `cargo test --manifest-path src-tauri/Cargo.toml`
 - `git diff --check`
 - Browser visual QA for empty, selected, running, cancelled, failed, completed,
-  exported, advanced-settings, and diagnostics fixture states at supported
-  desktop sizes. The M7 visual QA evidence used Browser DOM/layout inspection:
-  no horizontal viewport overflow, no key text-container overflow, expected
-  audio-control counts, and expected enabled actions across the fixture states.
+  exported, model-settings, and diagnostics states at supported desktop sizes.
+  The M7 visual QA evidence used Browser DOM/layout inspection: no horizontal
+  viewport overflow, no key text-container overflow, expected audio-control
+  counts, and expected enabled actions across the fixture states.
+- Waveform-player QA at 1280 x 800, 960 x 720, and 720 x 720 confirmed no
+  horizontal viewport overflow, zero native `audio[controls]` elements, and
+  waveform players present for fixture states with source or enhanced previews.
+- Follow-up waveform QA confirmed the 1280 x 800 completed state has one
+  workspace panel containing Controls, Original, and Enhanced sections separated
+  by horizontal rules. Both player lanes use the same waveform and transport
+  dimensions, with no native `audio[controls]` elements or horizontal overflow.
 
 ## Deferred Items
 

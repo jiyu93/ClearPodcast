@@ -95,7 +95,11 @@ export function formatMetadataShort(metadata?: AudioMetadata) {
     return "--";
   }
 
-  return `${metadata.format.toUpperCase()} | ${metadata.source_sample_rate.toLocaleString()} Hz`;
+  return [
+    metadata.format.toUpperCase(),
+    `${metadata.source_sample_rate.toLocaleString()} Hz`,
+    `${metadata.channels} ch`,
+  ].join(" | ");
 }
 
 export function productNoticeForJob(job: EnhancementJobSnapshot) {

@@ -33,12 +33,26 @@ export type VisualFixtureState = {
   deviceError: string;
 };
 
+let fixtureAudioSrc: string | undefined;
+
 const fixtureMetadata: AudioMetadata = {
   format: "m4a",
   source_sample_rate: 48000,
   channels: 2,
   duration_seconds: 582.4,
 };
+
+export function getFixtureAudioSrc() {
+  if (!fixtureAudioSrc) {
+    fixtureAudioSrc = createToneWavObjectUrl({
+      durationSeconds: 6,
+      frequency: 440,
+      sampleRate: 16_000,
+    });
+  }
+
+  return fixtureAudioSrc;
+}
 
 const outputMetadata: AudioMetadata = {
   format: "wav",
@@ -109,7 +123,7 @@ function jobForFixture(
     job_id: `visual-${name}`,
     input_audio: basePath,
     input_metadata: fixtureMetadata,
-    message: "Visual QA fixture",
+    message: "Fixture state loaded",
     created_at_ms: 1780491000000,
     updated_at_ms: 1780491120000,
   };
@@ -162,4 +176,52 @@ function isFixtureName(value: string): value is VisualFixtureName {
     "completed",
     "exported",
   ].includes(value);
+}
+
+function createToneWavObjectUrl({
+  durationSeconds,
+  frequency,
+  sampleRate,
+}: {
+  durationSeconds: number;
+  frequency: number;
+  sampleRate: number;
+}) {
+  const sampleCount = Math.floor(durationSeconds * sampleRate);
+  const bytesPerSample = 2;
+  const dataSize = sampleCount * bytesPerSample;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+
+  writeAscii(view, 0, "RIFF");
+  view.setUint32(4, 36 + dataSize, true);
+  writeAscii(view, 8, "WAVE");
+  writeAscii(view, 12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * bytesPerSample, true);
+  view.setUint16(32, bytesPerSample, true);
+  view.setUint16(34, 16, true);
+  writeAscii(view, 36, "data");
+  view.setUint32(40, dataSize, true);
+
+  for (let index = 0; index < sampleCount; index += 1) {
+    const time = index / sampleRate;
+    const envelope =
+      Math.min(1, index / 500) * Math.min(1, (sampleCount - index) / 500);
+    const sample = Math.round(
+      Math.sin(2 * Math.PI * frequency * time) * 0.24 * envelope * 32767,
+    );
+    view.setInt16(44 + index * bytesPerSample, sample, true);
+  }
+
+  return URL.createObjectURL(new Blob([buffer], { type: "audio/wav" }));
+}
+
+function writeAscii(view: DataView, offset: number, value: string) {
+  for (let index = 0; index < value.length; index += 1) {
+    view.setUint8(offset + index, value.charCodeAt(index));
+  }
 }

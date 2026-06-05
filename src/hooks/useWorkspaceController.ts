@@ -35,10 +35,7 @@ import type {
   ErrorContext,
   RuntimeSettings,
 } from "../domain/types";
-import { readVisualFixture } from "../dev/visualFixtures";
-
-const FIXTURE_AUDIO_SRC =
-  "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+import { getFixtureAudioSrc, readVisualFixture } from "../dev/visualFixtures";
 
 export type WorkspaceController = {
   selectedPath: string;
@@ -58,7 +55,6 @@ export type WorkspaceController = {
   canCancel: boolean;
   canExport: boolean;
   settingsLocked: boolean;
-  fixtureName?: string;
   chooseAudio: () => Promise<void>;
   runEnhancement: () => Promise<void>;
   cancelJob: () => Promise<void>;
@@ -109,13 +105,13 @@ export function useWorkspaceController(): WorkspaceController {
   const originalAudioSrc = useMemo(
     () =>
       fixtureMode && selectedPath
-        ? FIXTURE_AUDIO_SRC
+        ? getFixtureAudioSrc()
         : toAssetSrc(originalPreviewPath || selectedPath),
     [fixtureMode, originalPreviewPath, selectedPath],
   );
   const enhancedAudioSrc = useMemo(
     () =>
-      fixtureMode && job?.preview_wav ? FIXTURE_AUDIO_SRC : toAssetSrc(job?.preview_wav),
+      fixtureMode && job?.preview_wav ? getFixtureAudioSrc() : toAssetSrc(job?.preview_wav),
     [fixtureMode, job?.preview_wav],
   );
   const canRun = Boolean(selectedPath) && !isActiveJob(job);
@@ -366,7 +362,6 @@ export function useWorkspaceController(): WorkspaceController {
     canCancel,
     canExport,
     settingsLocked,
-    fixtureName: fixture?.fixtureName,
     chooseAudio,
     runEnhancement,
     cancelJob,

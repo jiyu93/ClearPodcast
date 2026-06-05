@@ -9,12 +9,10 @@ import type {
 
 export function WorkspaceHeader({
   state,
-  fixtureName,
   deviceInfo,
   deviceStatus,
 }: {
   state: EnhancementJobState | "idle";
-  fixtureName?: string;
   deviceInfo?: EnhancementDeviceInfo;
   deviceStatus: DeviceDetectionStatus;
 }) {
@@ -30,9 +28,6 @@ export function WorkspaceHeader({
         </h1>
       </div>
       <div className="header-meta">
-        {fixtureName ? (
-          <span className="fixture-pill">Visual QA: {fixtureName}</span>
-        ) : null}
         <StatusPill state={state} />
         <ProcessingDeviceIndicator
           deviceInfo={deviceInfo}

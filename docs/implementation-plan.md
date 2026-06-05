@@ -1060,8 +1060,8 @@ Exit criteria:
 - Existing backend behavior, packaged resource lookup, cancellation, device
   detection, and export semantics remain intact.
 - Visual and interaction QA evidence covers empty, selected, running,
-  cancelled, failed, completed, exported, advanced-settings, and diagnostics
-  states.
+  cancelled, failed, completed, exported, secondary model settings, and
+  diagnostics states.
 
 User participation:
 
@@ -1111,12 +1111,12 @@ Completion state as of June 3, 2026:
 - The M7 design record lives at
   `docs/milestone-records/milestone-7-ui-ux-redesign.md` and captures the
   product-design brief, public comparable-product research signal and
-  limitation, current-experience audit, information architecture, three design
+  limitation, current-experience audit, information architecture, design
   directions, selected Restoration Desk direction, visual system, and state
   matrix.
-- The React surface is now a three-panel Restoration Desk workspace organized
-  around Source, Current Run, and Compare And Export. The first screen remains
-  the usable restoration workflow, not a landing page.
+- The React surface is a single-panel Restoration Desk workspace organized
+  around Controls, Original Audio, and Enhanced Audio sections. The first screen
+  remains the usable restoration workflow, not a landing page.
 - Backend `queued` is presented as current-run preparation in the product
   surface, while job IDs, raw paths, runtime detail, and device detail remain in
   Diagnostics.
@@ -1134,8 +1134,8 @@ Completion state as of June 3, 2026:
   regenerated Tauri desktop icon assets, in-app utility icons, empty-state
   artwork, audio/status motifs, confident outlines, and layered color blocks.
 - Browser visual fixtures cover empty, selected, running, cancelled, failed,
-  completed, exported, advanced-settings, and diagnostics states for
-  frontend-only QA.
+  completed, and exported workflow states for frontend-only QA; model settings
+  and diagnostics are verified through the workspace tool buttons.
 - Milestone 7 preserved backend processing, packaged resource lookup,
   cancellation, device detection, and WAV export semantics. Release artifact
   rebuilds remain owned by the release workflow.

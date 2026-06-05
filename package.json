@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "check:audio-playback": "node --experimental-strip-types scripts/check-audio-playback-timing.mjs",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
