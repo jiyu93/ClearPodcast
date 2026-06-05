@@ -123,8 +123,8 @@ const english = {
   },
   status: {
     queued: "Preparing",
-    running: "Enhancing",
-    completed: "Enhanced",
+    running: "Processing",
+    completed: "Done",
     failed: "Needs attention",
     cancelled: "Cancelled",
     idle: "Ready",
@@ -264,8 +264,8 @@ const chinese: Translation = {
   },
   status: {
     queued: "准备中",
-    running: "增强中",
-    completed: "已增强",
+    running: "处理中",
+    completed: "已完成",
     failed: "需要处理",
     cancelled: "已取消",
     idle: "就绪",
@@ -403,8 +403,8 @@ const japanese: Translation = {
   },
   status: {
     queued: "準備中",
-    running: "強化中",
-    completed: "強化済み",
+    running: "処理中",
+    completed: "完了",
     failed: "確認が必要",
     cancelled: "キャンセル済み",
     idle: "準備完了",
@@ -542,8 +542,8 @@ const korean: Translation = {
   },
   status: {
     queued: "준비 중",
-    running: "향상 중",
-    completed: "향상 완료",
+    running: "처리 중",
+    completed: "완료",
     failed: "확인 필요",
     cancelled: "취소됨",
     idle: "준비됨",
