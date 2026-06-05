@@ -20,6 +20,9 @@
   --button-hover-shadow: 3px 3px 0 var(--ink);
   --file-action-width: 96px;
   --file-action-height: 38px;
+  --header-pill-width: 116px;
+  --header-pill-height: 34px;
+  --language-button-size: 30px;
   --section-divider-color: var(--neutral);
   --section-divider-height: 2px;
   --section-divider-width: 100%;

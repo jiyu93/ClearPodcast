@@ -1,44 +1,50 @@
 .status-pill,
 .device-indicator {
-  display: inline-grid;
-  min-width: 112px;
-  min-height: 38px;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--header-pill-width);
+  min-width: var(--header-pill-width);
+  height: var(--header-pill-height);
+  min-height: var(--header-pill-height);
   border: 2px solid var(--ink);
   border-radius: 999px;
-  padding: 7px 12px;
+  padding: 0 10px;
   color: var(--ink);
   background: var(--surface-raised);
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   font-weight: 900;
   text-align: center;
 }
 
 .status-pill {
-  grid-auto-flow: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  column-gap: 4px;
+  justify-items: center;
 }
 
 .status-dot {
   position: relative;
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border: 2px solid var(--ink);
   border-radius: 999px;
   background: var(--mint);
 }
 
 .device-indicator {
-  grid-auto-flow: column;
-  gap: 8px;
-  min-width: 128px;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  column-gap: 4px;
+  justify-items: center;
   color: var(--ink);
   background: var(--surface-raised);
 }
 
 .device-mode-icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   fill: currentColor;
 }
 
@@ -57,34 +63,33 @@
 
 .language-selector {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 38px;
-  border: 2px solid var(--ink);
-  border-radius: 999px;
-  padding: 6px 10px;
+  box-sizing: border-box;
+  width: var(--language-button-size);
+  height: var(--language-button-size);
   color: var(--ink);
-  background: var(--surface-raised);
   font-size: 0.82rem;
   font-weight: 900;
 }
 
 .language-selector-icon {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   flex: 0 0 auto;
 }
 
 .language-selector-button {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 0;
+  justify-content: center;
+  width: var(--language-button-size);
+  height: var(--language-button-size);
+  min-height: var(--language-button-size);
   padding: 0;
-  border: 0;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
   color: inherit;
-  background: transparent;
+  background: var(--surface-raised);
   font: inherit;
   line-height: 1;
 }
@@ -102,17 +107,6 @@
 .language-selector-button:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 4px;
-}
-
-.language-selector-chevron {
-  width: 16px;
-  height: 16px;
-  flex: 0 0 auto;
-  transition: transform 140ms ease;
-}
-
-.language-selector-chevron.open {
-  transform: rotate(180deg);
 }
 
 .language-menu {

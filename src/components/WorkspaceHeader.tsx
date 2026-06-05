@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Languages } from "lucide-react";
+import { Check, Languages } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 
 import { AppMark } from "./AppMark";
@@ -25,7 +25,6 @@ export function WorkspaceHeader({
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const selectorRef = useRef<HTMLDivElement>(null);
   const listboxId = useId();
-  const selectedLanguage = languages.find((option) => option.code === language);
 
   useEffect(() => {
     if (!languageMenuOpen) {
@@ -62,11 +61,6 @@ export function WorkspaceHeader({
           ref={selectorRef}
           title={t.language.label}
         >
-          <Languages
-            className="language-selector-icon lucide-button-icon"
-            strokeWidth={3}
-            aria-hidden="true"
-          />
           <button
             type="button"
             className="language-selector-button"
@@ -76,11 +70,8 @@ export function WorkspaceHeader({
             aria-label={t.language.ariaLabel}
             onClick={() => setLanguageMenuOpen((current) => !current)}
           >
-            <span>{selectedLanguage?.nativeName ?? language}</span>
-            <ChevronDown
-              className={`language-selector-chevron ${
-                languageMenuOpen ? "open" : ""
-              }`}
+            <Languages
+              className="language-selector-icon lucide-button-icon"
               strokeWidth={3}
               aria-hidden="true"
             />
