@@ -20,8 +20,12 @@ import {
   resolvePauseAnchor,
   shouldRestorePlaybackTime,
 } from "./audioPlaybackTiming";
+import {
+  createFallbackPeaks,
+  createPeaksFromAudioBuffer,
+  waveformBarHalfHeight,
+} from "./audioWaveform";
 
-const WAVEFORM_PEAK_COUNT = 1024;
 const SEEK_MAX = 10000;
 const EMPTY_WAVEFORM_PEAKS: number[] = [];
 
@@ -547,21 +551,6 @@ function clampPlaybackTime(time: number, duration: number) {
   return Math.min(Math.max(time, 0), duration);
 }
 
-function createFallbackPeaks(seed: string) {
-  const seedValue = Array.from(seed).reduce(
-    (sum, character) => sum + character.charCodeAt(0),
-    0,
-  );
-
-  return Array.from({ length: WAVEFORM_PEAK_COUNT }, (_, index) => {
-    const slow = Math.sin((index + seedValue) * 0.031) * 0.32;
-    const mid = Math.sin((index + seedValue) * 0.097) * 0.16;
-    const fast = Math.sin((index + seedValue) * 0.31) * 0.08;
-    const lift = index % 73 === 0 ? 0.14 : 0;
-    return Math.min(Math.max(0.34 + slow + mid + fast + lift, 0.08), 1);
-  });
-}
-
 async function buildWaveformPeaks(src: string) {
   const response = await fetch(src);
   const audioData = await response.arrayBuffer();
@@ -584,27 +573,6 @@ async function buildWaveformPeaks(src: string) {
   } finally {
     void context.close();
   }
-}
-
-function createPeaksFromAudioBuffer(buffer: AudioBuffer) {
-  const samplesPerPeak = Math.max(1, Math.floor(buffer.length / WAVEFORM_PEAK_COUNT));
-  const peaks = Array.from({ length: WAVEFORM_PEAK_COUNT }, (_, peakIndex) => {
-    let peak = 0;
-    const start = peakIndex * samplesPerPeak;
-    const end = Math.min(start + samplesPerPeak, buffer.length);
-
-    for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
-      const data = buffer.getChannelData(channel);
-      for (let index = start; index < end; index += 1) {
-        peak = Math.max(peak, Math.abs(data[index] ?? 0));
-      }
-    }
-
-    return peak;
-  });
-  const maxPeak = Math.max(...peaks, 0.001);
-
-  return peaks.map((peak) => Math.max(peak / maxPeak, 0.08));
 }
 
 function drawWaveform({
@@ -674,7 +642,10 @@ function drawWaveform({
   for (let index = 0; index < peaks.length; index += sampleStep) {
     const peak = peaks[index] ?? 0;
     const x = (index / (peaks.length - 1)) * width;
-    const barHeight = Math.max(3, peak * halfHeight);
+    const barHeight = waveformBarHalfHeight(peak, halfHeight);
+    if (barHeight <= 0) {
+      continue;
+    }
     const roundedX = Math.round(x) + 0.5;
 
     context.strokeStyle = waveformColor;

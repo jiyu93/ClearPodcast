@@ -318,18 +318,36 @@
 
 .waveform-playhead {
   position: absolute;
-  top: 17px;
-  bottom: 0;
-  width: 3px;
+  top: 14px;
+  bottom: 14px;
+  width: 2px;
   background: var(--coral);
   box-shadow:
     -1px 0 0 var(--ink),
     1px 0 0 var(--ink),
-    3px 0 0 rgba(20, 33, 31, 0.28);
+    2px 0 0 rgba(20, 33, 31, 0.2);
   left: 0;
   transform: translateX(-50%);
   pointer-events: none;
   will-change: transform;
+}
+
+.waveform-playhead::before,
+.waveform-playhead::after {
+  position: absolute;
+  right: -1px;
+  left: -1px;
+  height: 1px;
+  background: var(--ink);
+  content: "";
+}
+
+.waveform-playhead::before {
+  top: 0;
+}
+
+.waveform-playhead::after {
+  bottom: 0;
 }
 
 .waveform-range {

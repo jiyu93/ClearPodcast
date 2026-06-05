@@ -48,6 +48,11 @@ export function getFixtureAudioSrc() {
       durationSeconds: 6,
       frequency: 440,
       sampleRate: 16_000,
+      silentRanges: [
+        [0, 0.7],
+        [2.8, 3.4],
+        [5.1, 6],
+      ],
     });
   }
 
@@ -159,7 +164,7 @@ function jobForFixture(
     preview_wav: "/var/folders/clearpodcast/remote-call-before-edit.enhanced.wav",
     exported_wav:
       name === "exported"
-        ? "/Users/creator/Desktop/remote-call-before-edit.enhanced.wav"
+        ? "/Users/creator/Desktop/enhanced-remote-call-before-edit.wav"
         : undefined,
     output_metadata: outputMetadata,
     device_info: cudaDevice,
@@ -182,10 +187,12 @@ function createToneWavObjectUrl({
   durationSeconds,
   frequency,
   sampleRate,
+  silentRanges = [],
 }: {
   durationSeconds: number;
   frequency: number;
   sampleRate: number;
+  silentRanges?: Array<[number, number]>;
 }) {
   const sampleCount = Math.floor(durationSeconds * sampleRate);
   const bytesPerSample = 2;
@@ -209,6 +216,14 @@ function createToneWavObjectUrl({
 
   for (let index = 0; index < sampleCount; index += 1) {
     const time = index / sampleRate;
+    const isSilent = silentRanges.some(
+      ([start, end]) => time >= start && time < end,
+    );
+    if (isSilent) {
+      view.setInt16(44 + index * bytesPerSample, 0, true);
+      continue;
+    }
+
     const envelope =
       Math.min(1, index / 500) * Math.min(1, (sampleCount - index) / 500);
     const sample = Math.round(

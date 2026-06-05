@@ -75,7 +75,7 @@ export function fileNameFromPath(path: string) {
 export function suggestedExportName(path: string) {
   const fileName = fileNameFromPath(path);
   const stem = fileName.replace(/\.[^.]+$/, "") || "clearpodcast-output";
-  return `${stem}.enhanced.wav`;
+  return `enhanced-${stem}.wav`;
 }
 
 export function formatDuration(duration?: number) {
