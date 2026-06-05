@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 
 import {
+  createWaveformColumns,
   normalizeWaveformPeaks,
   waveformBarHalfHeight,
 } from "../src/components/audioWaveform.ts";
@@ -29,3 +30,29 @@ assert.equal(
   0,
   "the visual silence threshold includes boundary values",
 );
+
+assert.equal(
+  createWaveformColumns(Array.from({ length: 1024 }, () => 0), 1707, 120)
+    .length,
+  0,
+  "silent waveform columns do not draw phantom bars",
+);
+
+for (const width of [720, 1385, 1707, 1964]) {
+  const columns = createWaveformColumns(
+    Array.from({ length: 1024 }, () => 0.6),
+    width,
+    120,
+  );
+
+  assert.equal(
+    columns.length,
+    Math.round(width),
+    `audible waveform covers every display column at ${width}px`,
+  );
+
+  for (const [index, column] of columns.entries()) {
+    assert.equal(column.x, index, `waveform column ${index} is not skipped`);
+    assert.equal(column.width, 1, `waveform column ${index} keeps unit width`);
+  }
+}

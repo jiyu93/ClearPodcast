@@ -1,6 +1,12 @@
 export const WAVEFORM_PEAK_COUNT = 1024;
 const VISUAL_SILENCE_THRESHOLD = 0.01;
 
+export type WaveformColumn = {
+  halfHeight: number;
+  width: number;
+  x: number;
+};
+
 export function createFallbackPeaks(seed: string) {
   const seedValue = Array.from(seed).reduce(
     (sum, character) => sum + character.charCodeAt(0),
@@ -51,4 +57,47 @@ export function waveformBarHalfHeight(peak: number, halfHeight: number) {
   }
 
   return Math.max(1, peak * halfHeight);
+}
+
+export function createWaveformColumns(
+  peaks: number[],
+  width: number,
+  halfHeight: number,
+): WaveformColumn[] {
+  if (peaks.length === 0 || width <= 0 || halfHeight <= 0) {
+    return [];
+  }
+
+  const columnCount = Math.max(1, Math.round(width));
+  const peakCount = peaks.length;
+  const columns: WaveformColumn[] = [];
+
+  for (let columnIndex = 0; columnIndex < columnCount; columnIndex += 1) {
+    const startPeak = Math.floor((columnIndex / columnCount) * peakCount);
+    const endPeak = Math.min(
+      peakCount,
+      Math.max(
+        startPeak + 1,
+        Math.ceil(((columnIndex + 1) / columnCount) * peakCount),
+      ),
+    );
+    let peak = 0;
+
+    for (let peakIndex = startPeak; peakIndex < endPeak; peakIndex += 1) {
+      peak = Math.max(peak, peaks[peakIndex] ?? 0);
+    }
+
+    const columnHalfHeight = waveformBarHalfHeight(peak, halfHeight);
+    if (columnHalfHeight <= 0) {
+      continue;
+    }
+
+    columns.push({
+      halfHeight: columnHalfHeight,
+      width: 1,
+      x: columnIndex,
+    });
+  }
+
+  return columns;
 }

@@ -22,8 +22,8 @@ import {
 } from "./audioPlaybackTiming";
 import {
   createFallbackPeaks,
+  createWaveformColumns,
   createPeaksFromAudioBuffer,
-  waveformBarHalfHeight,
 } from "./audioWaveform";
 
 const SEEK_MAX = 10000;
@@ -636,23 +636,13 @@ function drawWaveform({
     }
   }
 
-  const columnWidth = Math.max(1, width / peaks.length);
-  const sampleStep = Math.max(1, Math.floor(peaks.length / Math.max(width / 1.8, 1)));
-
-  for (let index = 0; index < peaks.length; index += sampleStep) {
-    const peak = peaks[index] ?? 0;
-    const x = (index / (peaks.length - 1)) * width;
-    const barHeight = waveformBarHalfHeight(peak, halfHeight);
-    if (barHeight <= 0) {
-      continue;
-    }
-    const roundedX = Math.round(x) + 0.5;
-
-    context.strokeStyle = waveformColor;
-    context.lineWidth = Math.max(1, Math.min(2, columnWidth * sampleStep));
-    context.beginPath();
-    context.moveTo(roundedX, centerY - barHeight);
-    context.lineTo(roundedX, centerY + barHeight);
-    context.stroke();
+  context.fillStyle = waveformColor;
+  for (const column of createWaveformColumns(peaks, width, halfHeight)) {
+    context.fillRect(
+      column.x,
+      centerY - column.halfHeight,
+      column.width,
+      column.halfHeight * 2,
+    );
   }
 }
