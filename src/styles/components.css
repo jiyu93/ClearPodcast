@@ -320,11 +320,12 @@
   background: var(--surface-raised);
 }
 
-.lane-header span {
-  color: var(--slate);
-  font-size: 0.64rem;
+.lane-header > span:not(.player-clock) {
+  color: rgba(20, 33, 31, 0.68);
+  font-size: 0.8rem;
   font-weight: 900;
   letter-spacing: 0;
+  line-height: 1;
   text-transform: uppercase;
 }
 
@@ -362,6 +363,7 @@
 }
 
 .lane-header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -371,8 +373,10 @@
 
 .lane-header strong {
   overflow: hidden;
-  color: var(--ink);
+  color: rgba(20, 33, 31, 0.68);
   font-size: 0.8rem;
+  font-weight: 900;
+  line-height: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -549,6 +553,7 @@
 .transport-cluster {
   display: inline-flex;
   align-items: center;
+  grid-column: 2;
   justify-self: center;
   gap: 7px;
 }
@@ -593,6 +598,20 @@
   box-shadow: 0 2px 0 rgba(20, 33, 31, 0.16);
 }
 
+.lane-header-clock {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
 .clock-value {
   display: inline-flex;
   align-items: baseline;
@@ -605,7 +624,7 @@
 }
 
 .clock-value-duration {
-  color: rgba(20, 33, 31, 0.68);
+  color: #1f86b5;
 }
 
 .clock-main {
@@ -632,6 +651,7 @@
   display: inline-grid;
   grid-template-columns: auto 58px;
   align-items: center;
+  grid-column: 3;
   justify-self: start;
   gap: 5px;
   min-width: 0;
@@ -1017,7 +1037,12 @@
 
   .player-clock,
   .volume-control {
+    grid-column: auto;
     justify-self: center;
+  }
+
+  .transport-cluster {
+    grid-column: auto;
   }
 
   .waveform-scrubber,

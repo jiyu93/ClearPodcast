@@ -392,6 +392,19 @@ export function AudioPreviewLane({
       {showHeader ? (
         <div className="lane-header">
           <span>{title}</span>
+          <span className="player-clock lane-header-clock" aria-label={t.audio.playbackTime(title)}>
+            <ClockText
+              elementRef={currentClockRef}
+              kind="current"
+              seconds={currentTime}
+            />
+            <span className="clock-separator" aria-hidden="true" />
+            <ClockText
+              elementRef={durationClockRef}
+              kind="duration"
+              seconds={durationForDisplay}
+            />
+          </span>
           {showMetadata ? (
             <strong>{formatMetadataShortLocalized(metadata, t.common)}</strong>
           ) : null}
@@ -519,19 +532,21 @@ export function AudioPreviewLane({
             {startAction}
           </div>
           <div className="player-controls">
-            <span className="player-clock" aria-label={t.audio.playbackTime(title)}>
-              <ClockText
-                elementRef={currentClockRef}
-                kind="current"
-                seconds={currentTime}
-              />
-              <span className="clock-separator" aria-hidden="true" />
-              <ClockText
-                elementRef={durationClockRef}
-                kind="duration"
-                seconds={durationForDisplay}
-              />
-            </span>
+            {!showHeader ? (
+              <span className="player-clock" aria-label={t.audio.playbackTime(title)}>
+                <ClockText
+                  elementRef={currentClockRef}
+                  kind="current"
+                  seconds={currentTime}
+                />
+                <span className="clock-separator" aria-hidden="true" />
+                <ClockText
+                  elementRef={durationClockRef}
+                  kind="duration"
+                  seconds={durationForDisplay}
+                />
+              </span>
+            ) : null}
             <div
               className="transport-cluster"
               aria-label={t.audio.transportControls(title)}
