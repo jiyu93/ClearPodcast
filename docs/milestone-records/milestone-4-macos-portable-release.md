@@ -121,19 +121,17 @@ All smoke outputs are 44.1 kHz mono WAV files.
 
 ## Asset Protocol Scope
 
-The packaged Tauri asset protocol scope remains:
+The current packaged Tauri asset protocol scope is:
 
 ```json
-["$HOME/**", "$TEMP/**"]
+["$TEMP/**"]
 ```
 
-This supports typical user-selected files under the user's home directory and
-job-managed enhanced previews under the system temp directory. Files selected
-from external volumes or other system locations can still be decoded and
-processed by Rust, but original-audio playback may require expanding the asset
-scope or copying selected originals into an app-managed temp preview location.
-That is the preferred future direction if external-drive preview support becomes
-a release blocker.
+Rust prepares app-managed temporary preview copies for selected originals, and
+completed jobs provide enhanced preview WAVs under ClearPodcast-managed temp
+storage. Processing still uses the selected source path directly. This gives the
+webview a narrow media-read surface while preserving normal file selection and
+drag/drop behavior.
 
 ## Windows Handoff For Milestone 5
 

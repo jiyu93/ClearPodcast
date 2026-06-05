@@ -12,6 +12,15 @@ The repo uses the default five-label triage vocabulary. See `docs/agents/triage-
 
 This is a single-context repo with `CONTEXT.md` at the root and ADRs in `docs/adr/`. See `docs/agents/domain.md`.
 
+### Current baseline
+
+ClearPodcast v0.1 is the current release baseline: a polished one-file
+Restoration Desk workflow with local Resemble Enhance processing, before/after
+comparison, WAV export, secondary exact model parameters, secondary diagnostics,
+and portable macOS/Windows packaging. Historical milestone records explain how
+the baseline was reached; current behavior lives in `CONTEXT.md`,
+`docs/roadmap.md`, `docs/development.md`, and `docs/release-workflow.md`.
+
 ### Documentation hygiene
 
 During development, actively judge whether each meaningful code, architecture, packaging, or product-scope change should update the project docs. Keep `README.md`, `CONTEXT.md`, `docs/development.md`, `docs/roadmap.md`, `docs/implementation-plan.md`, ADRs, and `docs/agents/` aligned with the current state of the project.

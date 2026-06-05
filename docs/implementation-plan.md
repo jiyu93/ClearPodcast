@@ -2,13 +2,19 @@
 
 ## Role
 
-This document is the executable milestone plan for ClearPodcast. Use
-`docs/roadmap.md` for the broader product phase map and future themes.
+This document records the completed v0.1 milestone baseline and holds future
+executable milestones for ClearPodcast. Use `docs/roadmap.md` for the broader
+product phase map and future themes.
 
-Milestones 1 through 5 record the completed MVP and portable packaging
-foundation. Milestone 6 and later are post-MVP productization work. Keep each
-future milestone scoped enough to execute and verify without absorbing every
-future product idea.
+Milestones 1 through 7 are completed v0.1 history. The current product baseline
+is the release-ready Restoration Desk workflow: one source file, one active
+restoration, local Resemble Enhance processing, before/after comparison, WAV
+export, secondary exact model parameters, secondary diagnostics, and portable
+macOS/Windows packaging.
+
+Future milestone sections are the executable home for new productization work.
+Keep each future milestone scoped enough to execute and verify without absorbing
+every future product idea.
 
 ## Product Goal
 
@@ -44,9 +50,9 @@ little room noise. Resemble Enhance is a better first model choice than a pure
 noise suppressor because its enhancer is designed for speech enhancement,
 distortion repair, and bandwidth improvement.
 
-The first implementation should not spend time evaluating multiple model
-families. The product decision is to make Resemble Enhance work well as a
-packaged offline dependency.
+The v0.1 model route is Resemble Enhance as a packaged offline dependency. Audio
+quality exploration can evaluate additional processing layers when it is framed
+as a future milestone, issue, PRD, or ADR.
 
 ## High-Level Architecture
 
@@ -60,9 +66,9 @@ Desktop UI
   -> UI result preview/export state
 ```
 
-The Python sidecar should not own general audio file compatibility. It should
-receive normalized audio data or a temporary WAV produced by Rust, run model
-inference, and return enhanced PCM/WAV output.
+Rust owns user-facing audio file compatibility. The Python sidecar receives a
+normalized temporary WAV produced by Rust, runs model inference, and returns
+enhanced WAV output.
 
 ## Audio Pipeline
 
@@ -70,16 +76,17 @@ inference, and return enhanced PCM/WAV output.
 User selects .wav, .mp3, or .m4a
 -> Rust validates extension and probes audio metadata
 -> Rust decodes to mono f32 PCM
--> Rust writes a temporary normalized WAV or streams PCM to sidecar
+-> Rust writes a temporary normalized WAV for the sidecar
 -> Python sidecar loads Resemble Enhance model from bundled local path
 -> Sidecar enhances speech and returns 44.1 kHz mono audio
 -> Rust applies output safety processing if needed
 -> Rust writes 44.1 kHz mono WAV
 ```
 
-For the first implementation, using a temporary WAV as the sidecar boundary is
-acceptable because it reduces protocol complexity. A later version can switch to
-streaming PCM if performance or disk usage requires it.
+The v0.1 sidecar boundary is a normalized temporary WAV. This keeps codec
+ownership in Rust, keeps the Python process focused on inference, and gives
+release smoke tests a stable artifact contract. Direct PCM IPC belongs to a
+future performance milestone if measurements show the boundary needs to change.
 
 ## Audio Format Policy
 
@@ -98,7 +105,7 @@ Internal representation:
 Output:
 
 - WAV only.
-- Recommended first output: standard 44.1 kHz mono PCM16 WAV.
+- v0.1 output: standard 44.1 kHz mono PCM16 WAV.
 - Standard PCM16 WAV headers keep mono speech center-routed in native players
   and align with the sidecar's PCM16 output.
 
@@ -114,7 +121,7 @@ Avoid:
 
 - FFmpeg and FFmpeg wrappers.
 - `torchaudio.load/save` as the product format boundary.
-- MP3 encoders in the first release.
+- MP3 encoders in v0.1.
 
 Rationale:
 
@@ -683,10 +690,11 @@ Completion state as of June 3, 2026:
   resource layout and produce 44.1 kHz mono WAV outputs.
 - A no-network smoke test passed under macOS `sandbox-exec` with
   `(deny network*)`.
-- The asset protocol scope remains `$HOME/**` and `$TEMP/**`. This supports
-  typical home-directory source files and temp preview WAVs. External-volume
-  original playback is documented as a future preview-path improvement if it
-  becomes a release blocker.
+- The asset protocol scope is `$TEMP/**`. Original playback uses app-managed
+  temporary preview copies prepared by Rust, and enhanced playback uses
+  app-managed job preview WAVs. This keeps webview media access scoped to
+  ClearPodcast-managed temp files while processing still uses the selected
+  source path.
 - Windows handoff requirements for Milestone 5 are documented in
   `docs/milestone-records/milestone-4-macos-portable-release.md`.
 - Milestone 4 has no deferred exit criteria. See
@@ -1136,6 +1144,8 @@ Completion state as of June 3, 2026:
 - Browser visual fixtures cover empty, selected, running, cancelled, failed,
   completed, and exported workflow states for frontend-only QA; model settings
   and diagnostics are verified through the workspace tool buttons.
+- Native Tauri GUI acceptance covered file dialogs, drag/drop, audio playback,
+  cancellation, and export for the redesigned workflow.
 - Milestone 7 preserved backend processing, packaged resource lookup,
   cancellation, device detection, and WAV export semantics. Release artifact
   rebuilds remain owned by the release workflow.
@@ -1145,8 +1155,7 @@ Completion state as of June 3, 2026:
 ## Open Questions
 
 - Model weight storage and release-cache policy.
-- Long-term sidecar audio handoff strategy: temporary WAV boundary or direct PCM
-  IPC.
+- Measured performance envelope for the v0.1 temporary WAV sidecar boundary.
 - Final loudness target for exported podcast WAV.
 - Deterministic preprocessing and post-processing strategy for future
   audio-quality exploration.

@@ -10,9 +10,8 @@ This is a single-context repo.
 Read these files before planning or editing code:
 
 - `CONTEXT.md` at the repo root.
+- `docs/roadmap.md` for the current v0.1 release baseline and product phase.
 - Relevant ADRs under `docs/adr/`.
-- `docs/roadmap.md` when planning post-MVP product direction or deciding which
-  broad theme a request belongs to.
 - `docs/implementation-plan.md` when executing a concrete milestone or changing
   milestone scope, exit criteria, or verification.
 - `docs/milestone-records/` when historical milestone evidence or packaging
@@ -43,8 +42,10 @@ explicitly before implementing.
 
 Current accepted decisions:
 
-- Resemble Enhance is the only first AI model.
-- FFmpeg is excluded; first release supports WAV/MP3/M4A input and WAV output.
+- ClearPodcast v0.1 is the release baseline for the completed one-file
+  Restoration Desk workflow.
+- Resemble Enhance is the v0.1 AI model family.
+- FFmpeg is excluded; v0.1 supports WAV/MP3/M4A input and WAV output.
 - AI inference runs through a bundled Python sidecar.
 - Windows and macOS are the first supported platforms; Windows 11 x64 is the
   primary NVIDIA CUDA validation target.
@@ -52,6 +53,8 @@ Current accepted decisions:
   not separate CPU and CUDA release downloads.
 - Distribution is portable-first; installers are optional future artifacts, not
   the default first release surface.
+- Asset-protocol media playback uses app-managed temporary preview files under
+  `$TEMP/**`; Rust still processes the selected source path directly.
 
 Goal-mode work:
 

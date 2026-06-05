@@ -127,6 +127,11 @@ The desktop workflow is the product runtime for native file dialogs, drag/drop,
 audio playback, enhancement, cancellation, export, runtime diagnostics, and app
 logs.
 
+Original playback uses an app-managed temporary preview copy prepared by Rust.
+Enhanced playback uses the completed job preview WAV. The Tauri asset protocol
+is scoped to `$TEMP/**`, while processing continues to use the selected source
+path directly.
+
 App logs are appended to `clearpodcast.log` in the platform app log directory.
 The in-app Log view shows only entries written during the current app session,
 polls while open, and leaves the persistent file as plain text. The active log

@@ -255,6 +255,8 @@ Palette:
 - `npm run build`
 - `cargo test --manifest-path src-tauri/Cargo.toml`
 - `git diff --check`
+- Native Tauri GUI acceptance for file dialogs, drag/drop, audio playback,
+  cancellation, and export.
 - Browser visual QA for empty, selected, running, cancelled, failed, completed,
   exported, model-parameters, and diagnostics states at supported desktop sizes.
   The M7 visual QA evidence used Browser DOM/layout inspection: no horizontal
@@ -268,9 +270,8 @@ Palette:
   by horizontal rules. Both player lanes use the same waveform and transport
   dimensions, with no native `audio[controls]` elements or horizontal overflow.
 
-## Deferred Items
+## Release Workflow Handoff
 
-- Real macOS and Windows Tauri GUI smoke with native file dialogs, drag/drop,
-  audio playback, cancellation, and export remains the next practical manual
-  acceptance pass.
 - Release artifact rebuilds remain owned by the release workflow.
+- macOS and Windows release packaging should use the accepted Restoration Desk
+  workflow as the manual smoke surface after each fresh extraction.

@@ -1,13 +1,13 @@
 # ClearPodcast Roadmap
 
-This document describes the broad product phases after the MVP. It should stay
-short and directional. Use `docs/implementation-plan.md` for executable
-milestone scope, exit criteria, and verification.
+This document describes the product phase after the completed v0.1 baseline. It
+stays short and directional. Use `docs/implementation-plan.md` when a future
+theme becomes an executable milestone with scope, exit criteria, and
+verification.
 
 ## Current State
 
-ClearPodcast has completed its MVP, portable packaging foundation, residual
-cleanup pass, and first design-led UI/UX redesign:
+ClearPodcast v0.1 is the current release baseline:
 
 - Offline one-file speech restoration works through the desktop app.
 - WAV, MP3, and M4A inputs are supported.
@@ -23,10 +23,11 @@ cleanup pass, and first design-led UI/UX redesign:
   export, secondary exact model parameters, and secondary diagnostics.
 - The frontend is split into focused state, backend command, presentation, and
   styling modules.
+- Native Tauri GUI acceptance for the redesigned workflow is complete.
 
 ## Active Productization
 
-The active post-MVP phase is productization. The current product baseline is:
+The active productization phase starts from the v0.1 release baseline:
 
 - A one-file, one-active-restoration desktop workflow.
 - A cel-shaded-inspired Restoration Desk visual system with aligned product
@@ -36,9 +37,9 @@ The active post-MVP phase is productization. The current product baseline is:
 - Diagnostics and developer overrides preserved as secondary surfaces.
 - Browser visual fixtures for state QA of the redesigned surface.
 
-Milestone 7, UI/UX Redesign, is complete. The next executable productization
-work should be written as a new milestone, issue, PRD, or ADR before it becomes
-implementation scope.
+Milestone 7, UI/UX Redesign, is complete and accepted. The next executable
+productization work becomes implementation scope when it is written as a new
+milestone, issue, PRD, or ADR.
 
 ## Future Themes
 
@@ -50,16 +51,18 @@ new milestone, issue, PRD, or ADR needs them.
   improve practical listening results.
 - Quality evaluation: define how subjective listening checks, fixtures, notes,
   and regression evidence should support audio decisions.
-- Release readiness: harden distribution, signing, platform messaging,
-  packaging verification, and user-facing release materials.
+- Release operations: distribution, signing, platform messaging, packaging
+  verification, checksums, and user-facing release materials.
 - Product expansion: consider workflow additions only after the one-file
   restoration path feels solid.
 
 ## Document Roles
 
-- `CONTEXT.md`: product problem, domain language, constraints, and non-goals.
+- `CONTEXT.md`: v0.1 release baseline, product problem, domain language,
+  constraints, product boundaries, and quality bar.
 - `docs/roadmap.md`: broad phase map and future themes.
-- `docs/implementation-plan.md`: concrete milestone execution plan.
+- `docs/implementation-plan.md`: completed v0.1 milestone baseline and future
+  executable milestone plan.
 - `docs/development.md`: local setup, smoke testing, fixtures, and generated
   resource hygiene.
 - `docs/milestone-records/`: historical records for completed milestones.

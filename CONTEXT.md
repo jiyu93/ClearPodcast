@@ -3,6 +3,18 @@
 ClearPodcast is an offline desktop application for restoring poor spoken-word
 podcast recordings.
 
+## Current Release Baseline
+
+ClearPodcast v0.1 is the release baseline for the completed one-file speech
+restoration product surface. The app imports WAV, MP3, or M4A speech recordings,
+runs Resemble Enhance locally, supports before/after comparison, exports a
+standard WAV file, and ships as portable macOS and Windows archives.
+
+The active product identity is a polished offline restoration desk for the
+current file and current run. Milestone records document how that baseline was
+reached; current behavior is described in this context document, the roadmap,
+the development guide, and the release workflow.
+
 ## Product Problem
 
 Many independent podcasters record through Bluetooth headsets, laptop
@@ -52,24 +64,24 @@ session and follows new entries as they arrive.
 
 ## Product Constraints
 
-- The app must run as a desktop app and be usable offline.
-- The first supported platforms are Windows and macOS.
+- The app runs as a desktop app and is usable offline.
+- The supported v0.1 platforms are Windows and macOS.
 - macOS arm64 is the daily development baseline.
 - Windows 11 x64 is the primary NVIDIA CUDA validation and acceleration target.
 - Distribution is portable-first. Prefer self-contained app folders or app
   bundles over mandatory system installers.
-- The first macOS portable wrapper is a zip archive containing a self-contained
-  `.app` bundle. DMG is deferred until it solves a concrete release problem.
-- Resemble Enhance is the single AI model family for the first implementation.
+- The macOS portable wrapper is a zip archive containing a self-contained
+  `.app` bundle.
+- Resemble Enhance is the single AI model family for v0.1.
 - Runtime, Python environment, PyTorch dependencies, and model weights are
   bundled into the app distribution.
 - FFmpeg must not be introduced.
-- First release supports WAV, MP3, and M4A input.
-- First release exports WAV only.
+- v0.1 supports WAV, MP3, and M4A input.
+- v0.1 exports WAV only.
 - Audio file decoding and WAV writing should be handled outside the Python model
   layer so the inference boundary remains clean.
 
-## Non-Goals For The First Release
+## Product Boundaries For v0.1
 
 - Full DAW editing.
 - Multitrack podcast editing.

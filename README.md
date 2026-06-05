@@ -6,6 +6,10 @@ ClearPodcast is an offline desktop app for restoring damaged spoken-word podcast
 recordings from Bluetooth headsets, meeting apps, remote calls, phone recordings,
 and ordinary computer microphones.
 
+The v0.1 release baseline is a polished one-file Restoration Desk workflow:
+choose a supported speech recording, run local restoration, compare before and
+after, and export a WAV from a portable desktop app.
+
 ## Features
 
 - Restores one WAV, MP3, or M4A spoken-word recording at a time.
@@ -87,8 +91,8 @@ artifact.
 
 ## Documentation
 
-- [Domain context](CONTEXT.md): product problem, users, language, constraints,
-  non-goals, and quality bar.
+- [Domain context](CONTEXT.md): v0.1 release baseline, product problem, users,
+  language, constraints, product boundaries, and quality bar.
 - [Roadmap](docs/roadmap.md): product phase map and future themes.
 - [Implementation plan](docs/implementation-plan.md): executable milestone
   scope, architecture, and verification expectations.

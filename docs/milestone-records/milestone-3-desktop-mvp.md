@@ -101,10 +101,10 @@ which maps to `lambd=0.1` for enhancement.
 
 ## Local Preview Access
 
-The Tauri asset protocol is enabled so the webview can play selected source
-files and completed temporary WAV previews through normal `<audio>` controls.
-The current scope allows files under `$HOME/**` and `$TEMP/**`, matching user
-audio selection plus temporary enhanced previews.
+The Tauri asset protocol is enabled so the webview can play audio previews. The
+current release baseline scopes asset access to `$TEMP/**`: Rust prepares
+app-managed temporary preview copies for selected originals, and completed jobs
+provide app-managed enhanced preview WAVs.
 
 ## Verification Notes
 
@@ -180,10 +180,9 @@ Milestone 3 has no deferred exit criteria.
 
 Milestone 4 should keep the job-manager command surface and UI workflow intact
 while replacing development-only runtime/model defaults with packaged resource
-lookup. Packaging work should also review whether the current asset protocol
-scope should remain broad for arbitrary user-selected audio or be paired with a
-narrower allowlist strategy after file selection. The first packaging task
-should also resolve the DMG wrapper timeout or intentionally use a zip wrapper
-for the macOS arm64 CPU artifact. The single Windows CUDA-capable portable
-artifact with CPU fallback is now a separate Milestone 5 handoff for the Windows
-validation machine.
+lookup. Packaging work should preserve the app-managed preview-copy lifecycle
+when validating native playback from user-selected files. The first packaging
+task should also resolve the DMG wrapper timeout or intentionally use a zip
+wrapper for the macOS arm64 CPU artifact. The single Windows CUDA-capable
+portable artifact with CPU fallback is now a separate Milestone 5 handoff for
+the Windows validation machine.

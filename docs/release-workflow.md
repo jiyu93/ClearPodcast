@@ -7,7 +7,7 @@ asking for a release build.
 ## Release Command Guard
 
 Release builds are intentionally separate from development checks. Do not run
-`npm run package:macos-cpu`, future Windows package commands, fresh-extract
+`npm run package:macos-cpu`, `npm run package:windows-x64`, fresh-extract
 smoke tests, or no-network release smoke tests unless the user explicitly asks
 for a release artifact, portable archive, zip, or packaged app.
 
