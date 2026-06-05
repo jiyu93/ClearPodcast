@@ -108,7 +108,7 @@ export function useWorkspaceController(): WorkspaceController {
     () =>
       fixtureMode && selectedPath
         ? getFixtureAudioSrc()
-        : toAssetSrc(originalPreviewPath || selectedPath),
+        : toAssetSrc(originalPreviewPath),
     [fixtureMode, originalPreviewPath, selectedPath],
   );
   const enhancedAudioSrc = useMemo(
