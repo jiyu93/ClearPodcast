@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { FileText, FolderOpen, Save, WandSparkles } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { FolderOpen, RotateCw, Save, WandSparkles } from "lucide-react";
 
 import { AudioPreviewLane } from "./AudioPreviewLane";
 import { ButtonHitArea } from "./ButtonHitArea";
@@ -55,7 +55,7 @@ export function WorkspaceContent({
   const [logSnapshot, setLogSnapshot] = useState<AppLogSnapshot | undefined>();
   const [logError, setLogError] = useState("");
 
-  const showLog = async () => {
+  const showLog = useCallback(async () => {
     setLogError("");
 
     if (!tauriAvailable()) {
@@ -71,13 +71,31 @@ export function WorkspaceContent({
     } catch (error) {
       setLogError(String(error));
     }
-  };
+  }, []);
 
   useEffect(() => {
-    if (mode === "log" && !logSnapshot && !logError) {
-      void showLog();
+    if (mode !== "log") {
+      return;
     }
-  }, [logError, logSnapshot, mode]);
+
+    let cancelled = false;
+    const loadLog = async () => {
+      if (cancelled) {
+        return;
+      }
+      await showLog();
+    };
+
+    void loadLog();
+    const intervalId = window.setInterval(() => {
+      void loadLog();
+    }, 1200);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [mode, showLog]);
 
   const actionIsCancel = canCancel;
   const actionLabel = actionIsCancel ? "Cancel" : "Enhance";
@@ -185,6 +203,17 @@ function LogView({
   error: string;
   onRefresh: () => void;
 }) {
+  const viewerRef = useRef<HTMLDivElement>(null);
+  const text = error || snapshot?.text || "";
+
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer) {
+      return;
+    }
+    viewer.scrollTop = viewer.scrollHeight;
+  }, [text]);
+
   return (
     <div className="panel-mode log-mode">
       <div className="log-toolbar">
@@ -198,14 +227,61 @@ function LogView({
             className="icon-button secondary-action reset-action"
             onClick={onRefresh}
           >
-            <FileText className="button-icon lucide-button-icon" strokeWidth={3} />
+            <RotateCw className="button-icon lucide-button-icon" strokeWidth={3} />
             <span>Refresh</span>
           </button>
         </ButtonHitArea>
       </div>
-      <pre className="log-viewer">
-        {error || snapshot?.text || "No log entries yet."}
-      </pre>
+      <div className="log-viewer" ref={viewerRef} role="log" aria-live="polite">
+        {text ? renderLogLines(text, Boolean(error)) : "No log entries yet."}
+      </div>
     </div>
   );
+}
+
+function renderLogLines(text: string, error: boolean) {
+  if (error) {
+    return <span className="log-line log-line-error">{text}</span>;
+  }
+
+  return text.split("\n").map((line, index, lines) => {
+    if (!line && index === lines.length - 1) {
+      return null;
+    }
+
+    const level = line.match(/\blevel=(INFO|WARN|ERROR)\b/)?.[1].toLowerCase();
+    const event = line.match(/\bevent=([^\s]+)/)?.[1];
+    const className = `log-line ${level ? `log-line-${level}` : ""}`;
+
+    return (
+      <span className={className} key={`${index}-${line}`}>
+        {renderLogLineTokens(line, event)}
+        {index < lines.length - 1 ? "\n" : null}
+      </span>
+    );
+  });
+}
+
+function renderLogLineTokens(line: string, event?: string) {
+  const parts = line.match(/(?:[^\s"]+|"[^"\\]*(?:\\.[^"\\]*)*")+/g) ?? [line];
+  return parts.map((part, index) => {
+    const [key] = part.split("=", 1);
+    const isEvent = key === "event";
+    const isLevel = key === "level";
+    const className = [
+      "log-token",
+      isEvent ? "log-token-event" : "",
+      isLevel ? "log-token-level" : "",
+      event && part === `event=${event}` ? `log-event-${event}` : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    return (
+      <span className={className} key={`${index}-${part}`}>
+        {part}
+        {index < parts.length - 1 ? " " : null}
+      </span>
+    );
+  });
 }

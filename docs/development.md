@@ -127,6 +127,11 @@ The desktop workflow is the product runtime for native file dialogs, drag/drop,
 audio playback, enhancement, cancellation, export, runtime diagnostics, and app
 logs.
 
+App logs are appended to `clearpodcast.log` in the platform app log directory.
+The in-app Log view shows only entries written during the current app session,
+polls while open, and leaves the persistent file as plain text. The active log
+rotates at 500KB and keeps up to three historical files.
+
 ## Browser Visual Fixtures
 
 For browser-only visual QA of the React surface, run the Vite dev server:

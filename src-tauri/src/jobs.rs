@@ -170,14 +170,50 @@ impl EnhancementJobManager {
             );
         }
 
-        app_log.info(
+        app_log.info_fields(
             "job_queued",
-            format!(
-                "job_id={} input={} output={}",
-                job_id,
-                runtime::resolve_repo_relative_path(request.input_audio.clone()).display(),
-                preview_wav.display()
-            ),
+            &[
+                ("job_id", job_id.clone()),
+                (
+                    "input",
+                    runtime::resolve_repo_relative_path(request.input_audio.clone())
+                        .display()
+                        .to_string(),
+                ),
+                ("preview", preview_wav.display().to_string()),
+                (
+                    "requested_device",
+                    request.device.clone().unwrap_or_else(|| "auto".to_string()),
+                ),
+                (
+                    "solver",
+                    request
+                        .solver
+                        .clone()
+                        .unwrap_or_else(|| "default".to_string()),
+                ),
+                (
+                    "nfe",
+                    request
+                        .nfe
+                        .map(|value| value.to_string())
+                        .unwrap_or_else(|| "default".to_string()),
+                ),
+                (
+                    "lambda",
+                    request
+                        .lambd
+                        .map(|value| value.to_string())
+                        .unwrap_or_else(|| "default".to_string()),
+                ),
+                (
+                    "tau",
+                    request
+                        .tau
+                        .map(|value| value.to_string())
+                        .unwrap_or_else(|| "default".to_string()),
+                ),
+            ],
         );
 
         let manager = self.clone();
@@ -302,7 +338,7 @@ impl EnhancementJobManager {
         app_log: AppLog,
     ) {
         if cancellation.is_cancelled() {
-            app_log.info("job_cancelled_before_start", format!("job_id={job_id}"));
+            app_log.info_fields("job_cancelled_before_start", &[("job_id", job_id.clone())]);
             self.finish_cancelled(&job_id, &job_dir);
             return;
         }
@@ -316,7 +352,45 @@ impl EnhancementJobManager {
             snapshot.message = "Processing".to_string();
             snapshot.input_metadata = input_metadata;
         });
-        app_log.info("job_running", format!("job_id={job_id}"));
+        let input_metadata = self
+            .snapshot(&job_id)
+            .ok()
+            .and_then(|snapshot| snapshot.input_metadata);
+        app_log.info_fields(
+            "job_running",
+            &[
+                ("job_id", job_id.clone()),
+                (
+                    "input_format",
+                    input_metadata
+                        .as_ref()
+                        .map(|metadata| format!("{:?}", metadata.format))
+                        .unwrap_or_default(),
+                ),
+                (
+                    "input_sample_rate",
+                    input_metadata
+                        .as_ref()
+                        .map(|metadata| metadata.source_sample_rate.to_string())
+                        .unwrap_or_default(),
+                ),
+                (
+                    "input_channels",
+                    input_metadata
+                        .as_ref()
+                        .map(|metadata| metadata.channels.to_string())
+                        .unwrap_or_default(),
+                ),
+                (
+                    "input_duration_seconds",
+                    input_metadata
+                        .as_ref()
+                        .and_then(|metadata| metadata.duration_seconds)
+                        .map(|duration| format!("{duration:.3}"))
+                        .unwrap_or_default(),
+                ),
+            ],
+        );
 
         let result = runtime::enhance_audio_with_cancellation(
             request.into_enhance_request(preview_wav.clone(), &packaged_resources),
@@ -326,7 +400,7 @@ impl EnhancementJobManager {
         match result {
             Ok(result) => self.finish_completed(&job_id, result, &app_log),
             Err(RuntimeError::Cancelled) => {
-                app_log.info("job_cancelled", format!("job_id={job_id}"));
+                app_log.info_fields("job_cancelled", &[("job_id", job_id.clone())]);
                 self.finish_cancelled(&job_id, &job_dir);
             }
             Err(error) => self.finish_failed(&job_id, &job_dir, error.to_string(), &app_log),
@@ -334,20 +408,45 @@ impl EnhancementJobManager {
     }
 
     fn finish_completed(&self, job_id: &str, result: EnhancementResult, app_log: &AppLog) {
-        app_log.info(
+        let elapsed_ms = self
+            .snapshot(job_id)
+            .ok()
+            .map(|snapshot| timestamp_ms().saturating_sub(snapshot.created_at_ms))
+            .unwrap_or_default();
+        app_log.info_fields(
             "job_completed",
-            format!(
-                "job_id={} output={} device={} exit_code={} sidecar_stderr={}",
-                job_id,
-                result.output_wav.display(),
-                result
-                    .device_info
-                    .as_ref()
-                    .map(|device| device.selected_device.as_str())
-                    .unwrap_or("unknown"),
-                result.exit_code,
-                truncate_log_field(&result.stderr)
-            ),
+            &[
+                ("job_id", job_id.to_string()),
+                ("preview", result.output_wav.display().to_string()),
+                (
+                    "selected_device",
+                    result
+                        .device_info
+                        .as_ref()
+                        .map(|device| device.selected_device.clone())
+                        .unwrap_or_else(|| "unknown".to_string()),
+                ),
+                (
+                    "cuda_available",
+                    result
+                        .device_info
+                        .as_ref()
+                        .and_then(|device| device.cuda_available)
+                        .map(|available| available.to_string())
+                        .unwrap_or_default(),
+                ),
+                ("exit_code", result.exit_code.to_string()),
+                ("elapsed_ms", elapsed_ms.to_string()),
+                (
+                    "output_sample_rate",
+                    result.output_metadata.source_sample_rate.to_string(),
+                ),
+                (
+                    "output_channels",
+                    result.output_metadata.channels.to_string(),
+                ),
+                ("sidecar_stderr_bytes", result.stderr.len().to_string()),
+            ],
         );
         self.update_snapshot(job_id, |snapshot| {
             snapshot.state = EnhancementJobState::Completed;
@@ -361,9 +460,18 @@ impl EnhancementJobManager {
     }
 
     fn finish_failed(&self, job_id: &str, job_dir: &Path, error: String, app_log: &AppLog) {
-        app_log.error(
+        let elapsed_ms = self
+            .snapshot(job_id)
+            .ok()
+            .map(|snapshot| timestamp_ms().saturating_sub(snapshot.created_at_ms))
+            .unwrap_or_default();
+        app_log.error_fields(
             "job_failed",
-            format!("job_id={} error={}", job_id, truncate_log_field(&error)),
+            &[
+                ("job_id", job_id.to_string()),
+                ("elapsed_ms", elapsed_ms.to_string()),
+                ("error", truncate_log_field(&error)),
+            ],
         );
         let _ = fs::remove_dir_all(job_dir);
         self.update_snapshot(job_id, |snapshot| {

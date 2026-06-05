@@ -768,6 +768,41 @@
   font-weight: 750;
   line-height: 1.45;
   white-space: pre-wrap;
+  font-variant-ligatures: none;
+}
+
+.log-line {
+  color: color-mix(in srgb, var(--ink) 88%, var(--slate));
+}
+
+.log-line-info .log-token-level {
+  color: #0d7a66;
+}
+
+.log-line-warn {
+  color: #6f4d00;
+}
+
+.log-line-warn .log-token-level {
+  color: #9a6500;
+}
+
+.log-line-error {
+  color: #9f1d2a;
+}
+
+.log-token {
+  color: inherit;
+}
+
+.log-token-event {
+  color: #165d92;
+}
+
+.log-event-job_failed,
+.log-event-export_failed,
+.log-event-prepare_audio_preview_failed {
+  color: #9f1d2a;
 }
 
 @media (max-width: 760px) {

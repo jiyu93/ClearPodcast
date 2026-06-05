@@ -26,8 +26,9 @@ further publishing or distribution.
 
 Run controls, model parameters, and run logs are three mutually exclusive views of
 the current enhancement workspace. Runtime events are written to a local
-`clearpodcast.log` text file in the app log directory and can be reviewed from
-the Log view in the second panel.
+`clearpodcast.log` text file in the app log directory, with bounded rotation for
+older files. The Log view in the second panel displays only the current app
+session and follows new entries as they arrive.
 
 ## Core Domain Language
 

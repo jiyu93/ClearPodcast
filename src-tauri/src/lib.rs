@@ -40,22 +40,32 @@ fn prepare_audio_preview_command(
     app_log: State<AppLog>,
     path: PathBuf,
 ) -> Result<PreparedAudioPreview, String> {
-    app_log.info(
+    app_log.info_fields(
         "prepare_audio_preview_start",
-        format!("input={}", path.display()),
+        &[("input", path.display().to_string())],
     );
     match previews::prepare_audio_preview(path) {
         Ok(preview) => {
-            app_log.info(
+            app_log.info_fields(
                 "prepare_audio_preview_completed",
-                format!(
-                    "input={} preview={} format={:?} sample_rate={} channels={}",
-                    preview.input_audio.display(),
-                    preview.preview_audio.display(),
-                    preview.metadata.format,
-                    preview.metadata.source_sample_rate,
-                    preview.metadata.channels
-                ),
+                &[
+                    ("input", preview.input_audio.display().to_string()),
+                    ("preview", preview.preview_audio.display().to_string()),
+                    ("format", format!("{:?}", preview.metadata.format)),
+                    (
+                        "sample_rate",
+                        preview.metadata.source_sample_rate.to_string(),
+                    ),
+                    ("channels", preview.metadata.channels.to_string()),
+                    (
+                        "duration_seconds",
+                        preview
+                            .metadata
+                            .duration_seconds
+                            .map(|duration| format!("{duration:.3}"))
+                            .unwrap_or_default(),
+                    ),
+                ],
             );
             Ok(preview)
         }
@@ -73,16 +83,19 @@ fn cleanup_audio_preview_command(
 ) -> Result<(), String> {
     match previews::cleanup_audio_preview(preview_audio.clone()) {
         Ok(()) => {
-            app_log.info(
+            app_log.info_fields(
                 "cleanup_audio_preview_completed",
-                format!("preview={}", preview_audio.display()),
+                &[("preview", preview_audio.display().to_string())],
             );
             Ok(())
         }
         Err(error) => {
-            app_log.warn(
+            app_log.warn_fields(
                 "cleanup_audio_preview_failed",
-                format!("preview={} error={}", preview_audio.display(), error),
+                &[
+                    ("preview", preview_audio.display().to_string()),
+                    ("error", error.to_string()),
+                ],
             );
             Err(error.to_string())
         }
@@ -123,20 +136,30 @@ async fn detect_processing_device_command(
         .map(runtime::resolve_repo_relative_path)
         .unwrap_or_else(|| packaged_resources.python.clone());
 
-    app_log.info(
-        "device_detection_start",
-        format!("python={}", python.display()),
-    );
+    app_log.info_fields("device_detection_start", &[]);
     tauri::async_runtime::spawn_blocking(move || runtime::detect_processing_device(python))
         .await
         .map_err(|error| format!("processing device detection task failed: {error}"))?
         .map(|info| {
-            app_log.info(
+            app_log.info_fields(
                 "device_detection_completed",
-                format!(
-                    "selected_device={} cuda_available={:?} cuda_device_name={:?}",
-                    info.selected_device, info.cuda_available, info.cuda_device_name
-                ),
+                &[
+                    ("selected_device", info.selected_device.clone()),
+                    (
+                        "cuda_available",
+                        info.cuda_available
+                            .map(|available| available.to_string())
+                            .unwrap_or_default(),
+                    ),
+                    (
+                        "torch_cuda_version",
+                        info.torch_cuda_version.clone().unwrap_or_default(),
+                    ),
+                    (
+                        "cuda_device_name",
+                        info.cuda_device_name.clone().unwrap_or_default(),
+                    ),
+                ],
             );
             info
         })
@@ -160,7 +183,7 @@ fn cancel_enhancement_job_command(
     app_log: State<AppLog>,
     job_id: String,
 ) -> Result<EnhancementJobSnapshot, String> {
-    app_log.info("cancel_job_requested", format!("job_id={job_id}"));
+    app_log.info_fields("cancel_job_requested", &[("job_id", job_id.clone())]);
     manager
         .cancel_job(&job_id)
         .map_err(|error| error.to_string())
@@ -173,33 +196,37 @@ fn export_enhanced_wav_command(
     job_id: String,
     destination: PathBuf,
 ) -> Result<ExportResult, String> {
-    app_log.info(
+    app_log.info_fields(
         "export_requested",
-        format!("job_id={} destination={}", job_id, destination.display()),
+        &[
+            ("job_id", job_id.clone()),
+            ("destination", destination.display().to_string()),
+        ],
     );
     match manager.export_job(&job_id, destination.clone()) {
         Ok(result) => {
-            app_log.info(
+            app_log.info_fields(
                 "export_completed",
-                format!(
-                    "job_id={} destination={} sample_rate={} channels={}",
-                    job_id,
-                    result.exported_wav.display(),
-                    result.output_metadata.source_sample_rate,
-                    result.output_metadata.channels
-                ),
+                &[
+                    ("job_id", job_id.clone()),
+                    ("destination", result.exported_wav.display().to_string()),
+                    (
+                        "sample_rate",
+                        result.output_metadata.source_sample_rate.to_string(),
+                    ),
+                    ("channels", result.output_metadata.channels.to_string()),
+                ],
             );
             Ok(result)
         }
         Err(error) => {
-            app_log.error(
+            app_log.error_fields(
                 "export_failed",
-                format!(
-                    "job_id={} destination={} error={}",
-                    job_id,
-                    destination.display(),
-                    error
-                ),
+                &[
+                    ("job_id", job_id),
+                    ("destination", destination.display().to_string()),
+                    ("error", error.to_string()),
+                ],
             );
             Err(error.to_string())
         }
@@ -228,7 +255,13 @@ pub fn run() {
         .setup(|app| {
             let resource_dir = app.path().resource_dir()?;
             let app_log = AppLog::new(app.path().app_log_dir()?.join("clearpodcast.log"))?;
-            app_log.info("app_start", "ClearPodcast started");
+            app_log.info_fields(
+                "app_started",
+                &[
+                    ("app", "ClearPodcast".to_string()),
+                    ("version", env!("CARGO_PKG_VERSION").to_string()),
+                ],
+            );
             app.manage(PackagedResourcePaths::from_resource_dir(resource_dir));
             app.manage(app_log);
             Ok(())
