@@ -12,9 +12,9 @@ restoration, local Resemble Enhance processing, before/after comparison, WAV
 export, secondary exact model parameters, secondary diagnostics, and portable
 macOS/Windows packaging.
 
-Future milestone sections are the executable home for new productization work.
-Keep each future milestone scoped enough to execute and verify without absorbing
-every future product idea.
+All currently planned milestones are complete. Future milestone sections are the
+executable home for new productization work. Keep each future milestone scoped
+enough to execute and verify without absorbing every future product idea.
 
 ## Product Goal
 

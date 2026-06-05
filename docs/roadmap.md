@@ -41,6 +41,10 @@ Milestone 7, UI/UX Redesign, is complete and accepted. The next executable
 productization work becomes implementation scope when it is written as a new
 milestone, issue, PRD, or ADR.
 
+All currently planned milestones are complete. Routine v0.1 packaging and
+publication work uses `docs/release-workflow.md` and does not reopen milestone
+scope.
+
 ## Future Themes
 
 These themes are intentionally broad. They should become concrete only when a

@@ -270,8 +270,9 @@ Palette:
   by horizontal rules. Both player lanes use the same waveform and transport
   dimensions, with no native `audio[controls]` elements or horizontal overflow.
 
-## Release Workflow Handoff
+## Completion State
 
-- Release artifact rebuilds remain owned by the release workflow.
-- macOS and Windows release packaging should use the accepted Restoration Desk
-  workflow as the manual smoke surface after each fresh extraction.
+- Milestone 7 is complete and accepted.
+- The redesigned Restoration Desk workflow is the v0.1 manual smoke surface for
+  macOS and Windows release packaging.
+- Release artifact rebuilds are routine release workflow operations.
