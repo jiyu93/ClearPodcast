@@ -924,9 +924,9 @@ Completion state as of June 3, 2026:
   while the selected source remains the processing input. Preview cleanup
   rejects unmanaged paths and only removes managed ClearPodcast preview
   directories.
-- `README.md` and `docs/release-workflow.md` document the current diagnostic
-  boundary, generated-resource boundary, ordinary-check expectations, and shared
-  macOS/Windows staging maintenance points.
+- `README.md`, `docs/development.md`, and `docs/release-workflow.md` document
+  the current diagnostic boundary, generated-resource boundary, ordinary-check
+  expectations, and shared macOS/Windows staging maintenance points.
 - Browser smoke covers the frontend-only M6 changes: product language,
   Diagnostics, Advanced settings, default values, and button states.
 - Rust tests cover the preview-copy lifecycle, job manager, export behavior,

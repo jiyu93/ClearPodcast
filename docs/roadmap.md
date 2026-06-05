@@ -60,6 +60,8 @@ new milestone, issue, PRD, or ADR needs them.
 - `CONTEXT.md`: product problem, domain language, constraints, and non-goals.
 - `docs/roadmap.md`: broad phase map and future themes.
 - `docs/implementation-plan.md`: concrete milestone execution plan.
+- `docs/development.md`: local setup, smoke testing, fixtures, and generated
+  resource hygiene.
 - `docs/milestone-records/`: historical records for completed milestones.
 - `docs/release-workflow.md`: release build and verification entry point.
 - `docs/adr/`: accepted decisions and tradeoffs.

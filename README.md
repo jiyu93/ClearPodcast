@@ -1,152 +1,117 @@
 # ClearPodcast
 
-ClearPodcast is an offline desktop audio restoration application for podcasters
-who already have low-quality recordings from Bluetooth headsets, meeting apps,
-remote calls, or ordinary computer microphones.
+English | [简体中文](README.zh-CN.md)
 
-The product goal is not generic audio editing. It is a focused one-click workflow
-that turns damaged spoken-word recordings into publishable podcast WAV files.
+ClearPodcast is an offline desktop app for restoring damaged spoken-word podcast
+recordings.
 
-First-release input formats are WAV, MP3, and M4A. Output is WAV.
+It is built for podcasters who already have low-quality audio from Bluetooth
+headsets, meeting apps, remote calls, phone recordings, or ordinary computer
+microphones. The app keeps the first product workflow narrow: import one
+recording, restore it locally, compare the result, and export a publishable WAV.
 
-The first supported desktop platforms are Windows and macOS. macOS arm64 is the
-daily development baseline; Windows 11 x64 is the NVIDIA CUDA validation and
-performance target.
+ClearPodcast is not a DAW, multitrack editor, cloud processing service, or music
+mastering tool.
 
-Distribution is portable-first: Windows ships as a self-contained folder
-archive, and macOS currently ships as a self-contained `.app` bundle wrapped in
-a zip archive.
+## Product Surface
 
-Start here:
+- Restores one WAV, MP3, or M4A spoken-word recording at a time.
+- Runs Resemble Enhance locally through a bundled Python + PyTorch sidecar.
+- Keeps audio decoding and final WAV writing in Rust.
+- Shows source metadata, current run state, before/after playback, export, model
+  settings, and local diagnostics in the desktop app.
+- Exports standard WAV only.
+- Runs offline from self-contained release artifacts after extraction.
 
-- [Roadmap](docs/roadmap.md)
-- [Implementation plan](docs/implementation-plan.md)
-- [Milestone records](docs/milestone-records/)
-- [Release workflow](docs/release-workflow.md)
-- [Domain context](CONTEXT.md)
-- [Architecture decisions](docs/adr/)
+## Platform And Format Support
 
-## Local Development
+| Area | Current support |
+| --- | --- |
+| Desktop platforms | macOS and Windows |
+| Development baseline | macOS arm64 |
+| Windows acceleration target | Windows 11 x64 with NVIDIA CUDA and CPU fallback |
+| Input formats | WAV, MP3, M4A |
+| Export format | WAV |
+| Distribution | Portable-first archives |
 
-Install the desktop scaffold dependencies:
+macOS packaging produces a zip containing a self-contained `ClearPodcast.app`.
+Windows packaging produces one x64 portable zip that uses CUDA automatically when
+available and falls back to CPU otherwise.
+
+## Quick Start From Source
+
+Install the JavaScript dependencies:
 
 ```sh
 npm install
 ```
 
-Bootstrap the local macOS CPU Python runtime with a Python 3.10+ interpreter:
+Bootstrap a local macOS CPU runtime when developing or smoke-testing on macOS:
 
 ```sh
 PYTHON_BIN=/path/to/python3.12 scripts/bootstrap-macos-cpu-runtime.sh
 ```
 
-On Windows, create a local CUDA-capable Python runtime for smoke tests,
-packaging, or the desktop app's optional developer override. The packaged app uses
-CUDA automatically when available and falls back to CPU when CUDA is unavailable
-or disabled:
+Model weights and local runtimes are private local inputs under `localfiles/`;
+they are not committed to the repository. See [Development](docs/development.md)
+for local runtime setup, model layout, smoke commands, Windows notes, and visual
+fixtures.
 
-```powershell
-uv venv --python 3.12 localfiles\runtime\windows-x64
-localfiles\runtime\windows-x64\Scripts\python.exe -m ensurepip --upgrade
-localfiles\runtime\windows-x64\Scripts\python.exe -m pip install --upgrade pip
-localfiles\runtime\windows-x64\Scripts\python.exe -m pip install -r sidecars\resemble\requirements-windows-x64-cuda.txt
-localfiles\runtime\windows-x64\Scripts\python.exe -m pip install --no-deps resemble-enhance==0.0.1
-```
-
-As of June 3, 2026, the Windows CUDA runtime pins the PyTorch CUDA 13.0
-(`cu130`) wheel line for RTX 5070 Ti validation. Users do not need the CUDA
-Toolkit installed; CUDA acceleration requires a compatible NVIDIA driver.
-
-Run the documented audio -> enhanced WAV smoke path. The `enhance_wav` binary
-name is kept for compatibility, but `--input` accepts `.wav`, `.mp3`, and
-`.m4a`:
-
-```sh
-cargo run --manifest-path src-tauri/Cargo.toml --bin enhance_wav -- \
-  --python localfiles/runtime/macos-arm64/bin/python3 \
-  --model-dir localfiles/models/resemble-enhance/enhancer_stage2 \
-  --input localfiles/samples/low_quality_voice_sample_1.mp3 \
-  --output localfiles/outputs/low_quality_voice_sample_1.mp3.enhanced.wav \
-  --expected-checkpoint-sha256 f9d035f318de3e6d919bc70cf7ad7d32b4fe92ec5cbe0b30029a27f5db07d9d6
-```
-
-Start the Tauri dev app:
+Start the desktop app in Tauri dev mode:
 
 ```sh
 npm run tauri dev
 ```
 
-The desktop workflow is a compact enhancement workspace: choose or drop a
-WAV/MP3/M4A source, confirm metadata, run one local enhancement, monitor the
-current run, compare original/enhanced audio, and export the enhanced WAV.
-
-The primary desktop surface uses product-facing enhancement language. The
-second panel switches between the active run, model controls, and the local text
-log so those mutually exclusive tasks stay close to the current enhancement.
-The app copies selected originals into managed temp preview storage for playback
-while keeping the original selected file as the processing input.
-
-For browser-only visual QA of the redesigned React surface, run the Vite dev
-server and append a fixture state:
+Run the normal source checks:
 
 ```sh
-npm run dev
+npm run check
+cargo test --manifest-path src-tauri/Cargo.toml
+git diff --check
 ```
 
-Examples:
+Release packaging is intentionally separate from ordinary development. Use the
+[release workflow](docs/release-workflow.md) only when building a portable
+artifact.
 
-- `http://localhost:5173/?fixture=empty`
-- `http://localhost:5173/?fixture=running`
-- `http://localhost:5173/?fixture=completed`
+## Repository Map
 
-The fixture mode is for frontend visual inspection only; the Tauri desktop app
-remains the product runtime for file dialogs, drag/drop, audio playback, enhancement,
-cancel, and export.
+- `src/`: React + TypeScript desktop UI.
+- `src-tauri/`: Tauri shell, Rust commands, job management, audio I/O, app logs,
+  and packaging resource lookup.
+- `sidecars/resemble/`: ClearPodcast-owned Resemble Enhance inference sidecar.
+- `packaging/`: artifact manifests, license notice generation, and release
+  packaging metadata.
+- `scripts/`: development, verification, staging, and portable packaging
+  scripts.
+- `docs/`: roadmap, implementation plan, release workflow, ADRs, development
+  notes, and milestone records.
+- `localfiles/`: private samples, runtimes, model weights, experiments, release
+  zips, extracted artifacts, and generated smoke outputs.
 
-## Local Files And Generated Resources
+## Documentation
 
-Private samples, runtimes, model weights, release zips, extracted artifacts,
-smoke outputs, and runtime experiments belong under `localfiles/`. The staged
-Tauri resource tree under `src-tauri/resources/clearpodcast/` is generated by
-the packaging scripts and remains ignored except for `.gitkeep`.
+- [Domain context](CONTEXT.md): product problem, users, language, constraints,
+  non-goals, and quality bar.
+- [Roadmap](docs/roadmap.md): current productization phase and future themes.
+- [Implementation plan](docs/implementation-plan.md): executable milestone
+  scope, architecture, and verification expectations.
+- [Development](docs/development.md): local setup, smoke testing, fixtures, and
+  generated-file hygiene.
+- [Release workflow](docs/release-workflow.md): macOS and Windows portable
+  release commands and verification.
+- [Architecture decisions](docs/adr/): accepted technical and product tradeoffs.
+- [Milestone records](docs/milestone-records/): historical completion records
+  for completed milestones.
 
-Ordinary development checks run from source code and committed manifests. Staged
-runtimes, model weights, `dist/`, `node_modules/`, and `src-tauri/target/` stay
-private or generated.
+## Issues And Contributions
 
-## macOS Portable Packaging
+Issues and PRDs are tracked in this repository's GitHub Issues.
 
-Stage the macOS arm64 CPU runtime, sidecar, model, and license notices into the
-Tauri resource layout:
-
-```sh
-npm run package:stage:macos-cpu
-```
-
-Build the self-contained `.app` and zip artifact:
-
-```sh
-npm run package:macos-cpu
-```
-
-The local artifact is written to `localfiles/releases/`. Use the
-[release workflow](docs/release-workflow.md) for routine release builds; see the
-[Milestone 4 record](docs/milestone-records/milestone-4-macos-portable-release.md)
-for the original macOS packaging contract and deeper resource-layout details.
-
-## Windows Portable Packaging
-
-Build the single Windows x64 CUDA-capable portable archive with CPU fallback:
-
-```powershell
-npm run package:windows-x64
-```
-
-The local artifact is written to `localfiles/releases/`. The Windows package
-bundles PyTorch CUDA runtime files and selects CUDA automatically when a
-compatible NVIDIA GPU is available; otherwise the same app runs on CPU. See the
-[Milestone 5 record](docs/milestone-records/milestone-5-windows-portable-cuda.md)
-for the validation record and Windows resource layout.
+Keep user-facing product changes, packaging changes, architecture decisions, and
+release workflow changes reflected in the relevant docs when they change the
+current project shape.
 
 ## License
 
