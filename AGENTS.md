@@ -14,7 +14,7 @@ This is a single-context repo with `CONTEXT.md` at the root and ADRs in `docs/ad
 
 ### Documentation hygiene
 
-During development, actively judge whether each meaningful code, architecture, packaging, or product-scope change should update the project docs. Keep `README.md`, `CONTEXT.md`, `docs/roadmap.md`, `docs/implementation-plan.md`, ADRs, and `docs/agents/` aligned with the current state of the project.
+During development, actively judge whether each meaningful code, architecture, packaging, or product-scope change should update the project docs. Keep `README.md`, `CONTEXT.md`, `docs/development.md`, `docs/roadmap.md`, `docs/implementation-plan.md`, ADRs, and `docs/agents/` aligned with the current state of the project.
 
 ### Release workflow
 

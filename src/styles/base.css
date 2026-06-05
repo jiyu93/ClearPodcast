@@ -21,7 +21,7 @@
   --file-action-width: 96px;
   --file-action-height: 38px;
   --section-divider-color: var(--neutral);
-  --section-divider-height: 3px;
+  --section-divider-height: 2px;
   --section-divider-width: 100%;
 
   color: var(--ink);

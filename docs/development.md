@@ -143,6 +143,13 @@ Fixture states:
 
 Fixture mode is for frontend visual inspection only.
 
+## UI Iconography
+
+Prefer `lucide-react` for in-app utility icons. When a screen or control needs
+an icon, first look for a suitable Lucide icon and use it with the shared button
+icon styles. Only use a hand-drawn SVG when Lucide has no fitting option; ask
+the developer before adding AI-drawn or custom SVG icon artwork.
+
 ## Checks
 
 Run the normal source checks before handing off code or docs changes:

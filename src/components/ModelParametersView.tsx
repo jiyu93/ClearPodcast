@@ -2,12 +2,12 @@ import {
   ENHANCEMENT_HELP,
   SOLVER_HELP,
 } from "../domain/enhancement";
+import { RotateCcw } from "lucide-react";
 import type {
   EnhancementParameters,
   EnhancementSolver,
 } from "../domain/types";
 import { ButtonHitArea } from "./ButtonHitArea";
-import { ResetIcon } from "./icons";
 
 export function ModelParametersView({
   enhancementParameters,
@@ -26,8 +26,7 @@ export function ModelParametersView({
   return (
     <div className="panel-mode parameters-mode">
       <div className="model-copy">
-        <strong>Resemble Enhance parameters</strong>
-        <span>Defaults are set for one-click cleanup.</span>
+        <strong>Enhancement Model Parameters</strong>
       </div>
       <ButtonHitArea>
         <button
@@ -36,42 +35,41 @@ export function ModelParametersView({
           onClick={onReset}
           disabled={controlsLocked}
         >
-          <ResetIcon className="button-icon" />
-          <span>Reset defaults</span>
+          <RotateCcw className="button-icon lucide-button-icon" strokeWidth={3} />
+          <span>Reset</span>
         </button>
       </ButtonHitArea>
 
-      <label className="solver-select" title={ENHANCEMENT_HELP.solver}>
-        <span>Solver</span>
-        <select
-          value={enhancementParameters.solver}
-          onChange={(event) =>
-            onUpdate("solver", event.target.value as EnhancementSolver)
-          }
+      <fieldset className="solver-options" title={ENHANCEMENT_HELP.solver}>
+        <legend>Solver</legend>
+        <SolverOption
+          value="midpoint"
+          label="Midpoint"
+          help={SOLVER_HELP.midpoint}
+          selected={enhancementParameters.solver}
           disabled={controlsLocked}
-        >
-          <option value="midpoint">Midpoint</option>
-          <option value="rk4">RK4</option>
-          <option value="euler">Euler</option>
-        </select>
-      </label>
+          onChange={(value) => onUpdate("solver", value)}
+        />
+        <SolverOption
+          value="rk4"
+          label="RK4"
+          help={SOLVER_HELP.rk4}
+          selected={enhancementParameters.solver}
+          disabled={controlsLocked}
+          onChange={(value) => onUpdate("solver", value)}
+        />
+        <SolverOption
+          value="euler"
+          label="Euler"
+          help={SOLVER_HELP.euler}
+          selected={enhancementParameters.solver}
+          disabled={controlsLocked}
+          onChange={(value) => onUpdate("solver", value)}
+        />
+      </fieldset>
 
-      <dl className="solver-notes" aria-label="Solver differences">
-        <div>
-          <dt>Midpoint</dt>
-          <dd>{SOLVER_HELP.midpoint}</dd>
-        </div>
-        <div>
-          <dt>RK4</dt>
-          <dd>{SOLVER_HELP.rk4}</dd>
-        </div>
-        <div>
-          <dt>Euler</dt>
-          <dd>{SOLVER_HELP.euler}</dd>
-        </div>
-      </dl>
-
-      <div className="slider-grid">
+      <fieldset className="parameter-controls">
+        <legend>Enhancement Settings</legend>
         <SliderControl
           label="CFM steps"
           value={enhancementParameters.nfe}
@@ -105,8 +103,41 @@ export function ModelParametersView({
           disabled={controlsLocked}
           onChange={(value) => onUpdate("lambd", value)}
         />
-      </div>
+      </fieldset>
     </div>
+  );
+}
+
+function SolverOption({
+  value,
+  label,
+  help,
+  selected,
+  disabled,
+  onChange,
+}: {
+  value: EnhancementSolver;
+  label: string;
+  help: string;
+  selected: EnhancementSolver;
+  disabled: boolean;
+  onChange: (value: EnhancementSolver) => void;
+}) {
+  return (
+    <label className="solver-option">
+      <input
+        type="radio"
+        name="enhancement-solver"
+        value={value}
+        checked={selected === value}
+        disabled={disabled}
+        onChange={() => onChange(value)}
+      />
+      <span>
+        <strong>{label}</strong>
+        <small>{help}</small>
+      </span>
+    </label>
   );
 }
 

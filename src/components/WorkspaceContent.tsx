@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FileText, FolderOpen, Save, WandSparkles } from "lucide-react";
 
 import { AudioPreviewLane } from "./AudioPreviewLane";
 import { ButtonHitArea } from "./ButtonHitArea";
@@ -9,7 +10,7 @@ import type {
   AudioMetadata,
   EnhancementParameters,
 } from "../domain/types";
-import { EnhanceIcon, LogIcon, OpenIcon, SaveIcon, StopIcon } from "./icons";
+import { StopIcon } from "./icons";
 
 export type WorkspaceMode = "audio" | "parameters" | "log";
 
@@ -79,7 +80,6 @@ export function WorkspaceContent({
   }, [logError, logSnapshot, mode]);
 
   const actionIsCancel = canCancel;
-  const ActionIcon = actionIsCancel ? StopIcon : EnhanceIcon;
   const actionLabel = actionIsCancel ? "Cancel" : "Enhance";
   const actionClass = actionIsCancel ? "secondary-action" : "primary-action";
 
@@ -106,7 +106,7 @@ export function WorkspaceContent({
                   className="icon-button secondary-action source-open-action file-action-button"
                   onClick={onOpenAudio}
                 >
-                  <OpenIcon className="button-icon" />
+                  <FolderOpen className="button-icon lucide-button-icon" strokeWidth={3} />
                   <span>Open</span>
                 </button>
               </ButtonHitArea>
@@ -119,7 +119,14 @@ export function WorkspaceContent({
                   onClick={actionIsCancel ? onCancel : onRun}
                   disabled={actionIsCancel ? !canCancel : !canRun}
                 >
-                  <ActionIcon className="button-icon" />
+                  {actionIsCancel ? (
+                    <StopIcon className="button-icon" />
+                  ) : (
+                    <WandSparkles
+                      className="button-icon lucide-button-icon"
+                      strokeWidth={3}
+                    />
+                  )}
                   <span>{actionLabel}</span>
                 </button>
               </ButtonHitArea>
@@ -138,7 +145,7 @@ export function WorkspaceContent({
                   onClick={onExport}
                   disabled={!canExport}
                 >
-                  <SaveIcon className="button-icon" />
+                  <Save className="button-icon lucide-button-icon" strokeWidth={3} />
                   <span>Save</span>
                 </button>
               </ButtonHitArea>
@@ -191,7 +198,7 @@ function LogView({
             className="icon-button secondary-action reset-action"
             onClick={onRefresh}
           >
-            <LogIcon className="button-icon" />
+            <FileText className="button-icon lucide-button-icon" strokeWidth={3} />
             <span>Refresh</span>
           </button>
         </ButtonHitArea>

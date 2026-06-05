@@ -12,7 +12,6 @@
   font-size: 0.84rem;
   font-weight: 900;
   text-align: center;
-  box-shadow: 3px 3px 0 var(--ink);
 }
 
 .status-pill {
@@ -147,6 +146,11 @@
   white-space: nowrap;
 }
 
+.source-file-display.empty strong {
+  color: var(--slate);
+  font-weight: 700;
+}
+
 .icon-button {
   display: inline-flex;
   align-items: center;
@@ -167,6 +171,10 @@
   height: 20px;
   flex: 0 0 auto;
   fill: currentColor;
+}
+
+.lucide-button-icon {
+  fill: none;
 }
 
 .primary-action {
@@ -201,7 +209,7 @@
 }
 
 .playback-lane,
-.solver-notes,
+.solver-option,
 .slider-card {
   border: 2px solid var(--ink);
   border-radius: 8px;
@@ -564,7 +572,10 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  gap: 12px;
+  gap: 18px 14px;
+  align-content: start;
+  overflow: auto;
+  padding: 2px 2px 0 0;
 }
 
 .log-mode {
@@ -578,9 +589,8 @@
   gap: 4px;
 }
 
-.model-copy span,
 .field-hint,
-.solver-notes dd {
+.solver-option small {
   color: var(--slate);
   font-size: 0.8rem;
   font-weight: 750;
@@ -591,35 +601,95 @@
   min-height: 38px;
 }
 
-.solver-select {
-  grid-column: 1 / -1;
-  grid-template-columns: 120px minmax(150px, 220px);
-  align-items: center;
-}
-
-.slider-grid,
-.solver-notes {
+.solver-options,
+.parameter-controls {
   grid-column: 1 / -1;
 }
 
-.solver-notes {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  padding: 12px;
-}
-
-.solver-notes dt {
-  margin: 0 0 4px;
-  color: var(--ink);
-  font-size: 0.84rem;
-  font-weight: 900;
-}
-
-.slider-grid {
+.solver-options {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.solver-options legend {
+  grid-column: 1 / -1;
+  margin: 0 0 8px;
+  padding: 0;
+  color: var(--slate);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.parameter-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  min-width: 0;
+  margin: 4px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.parameter-controls legend {
+  margin: 0 0 8px;
+  padding: 0;
+  color: var(--slate);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.solver-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.solver-option input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  margin: 3px 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  accent-color: var(--teal);
+}
+
+.solver-option:has(input:checked) {
+  background: var(--surface-muted);
+}
+
+.solver-option:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.solver-option input[type="radio"]:disabled {
+  cursor: not-allowed;
+}
+
+.solver-option span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.solver-option strong {
+  color: var(--ink);
+  font-size: 0.84rem;
+  font-weight: 900;
 }
 
 .slider-card {
@@ -627,6 +697,12 @@
   gap: 8px;
   min-width: 0;
   padding: 12px;
+}
+
+.slider-control {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
 }
 
 .slider-control > span {
@@ -696,9 +772,8 @@
 
 @media (max-width: 760px) {
   .parameters-mode,
-  .solver-select,
-  .slider-grid,
-  .solver-notes,
+  .parameter-controls,
+  .solver-options,
   .log-toolbar {
     grid-template-columns: 1fr;
   }
