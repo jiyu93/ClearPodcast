@@ -8,19 +8,12 @@ import {
   type Ref,
   type ReactNode,
 } from "react";
+import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 
 import { formatMetadataShortLocalized } from "../domain/enhancement";
 import type { AudioMetadata } from "../domain/types";
 import { useI18n } from "../i18n/I18nProvider";
 import { ButtonHitArea } from "./ButtonHitArea";
-import {
-  MutedIcon,
-  PauseIcon,
-  PlayIcon,
-  SkipBackIcon,
-  SkipForwardIcon,
-  VolumeIcon,
-} from "./icons";
 import {
   resolvePauseAnchor,
   shouldRestorePlaybackTime,
@@ -348,19 +341,6 @@ export function AudioPreviewLane({
     seekToTime((value / SEEK_MAX) * durationForDisplay);
   };
 
-  const seekBy = (deltaSeconds: number) => {
-    const audio = audioRef.current;
-    if (!audio || !durationForDisplay) {
-      return;
-    }
-
-    const nextTime = Math.min(
-      Math.max(audio.currentTime + deltaSeconds, 0),
-      durationForDisplay,
-    );
-    seekToTime(nextTime);
-  };
-
   const seekFromPointer = (event: PointerEvent<HTMLDivElement>) => {
     if (!durationForDisplay) {
       return;
@@ -380,8 +360,8 @@ export function AudioPreviewLane({
     seekToTime(nextProgress * durationForDisplay);
   };
 
-  const PlayPauseIcon = isPlaying ? PauseIcon : PlayIcon;
-  const VolumeModeIcon = isMuted ? MutedIcon : VolumeIcon;
+  const PlayPauseIcon = isPlaying ? Pause : Play;
+  const VolumeModeIcon = isMuted ? VolumeX : Volume2;
 
   return (
     <div
@@ -554,19 +534,9 @@ export function AudioPreviewLane({
               <ButtonHitArea>
                 <button
                   type="button"
-                  className="icon-button player-icon-button transport-side-button"
-                  onClick={() => seekBy(-5)}
-                  aria-label={t.audio.skipBackAriaLabel(title)}
-                  title={t.audio.back5Title}
-                  disabled={!src}
-                >
-                  <SkipBackIcon className="button-icon" />
-                </button>
-              </ButtonHitArea>
-              <ButtonHitArea>
-                <button
-                  type="button"
-                  className="icon-button player-icon-button transport-play-button"
+                  className={`icon-button player-icon-button transport-play-button ${
+                    isPlaying ? "is-pausing" : "is-playing"
+                  }`}
                   onClick={() => {
                     onActivate?.();
                     void togglePlayback();
@@ -579,19 +549,10 @@ export function AudioPreviewLane({
                   title={isPlaying ? t.audio.pauseTitle : t.audio.playTitle}
                   disabled={!src}
                 >
-                  <PlayPauseIcon className="button-icon" />
-                </button>
-              </ButtonHitArea>
-              <ButtonHitArea>
-                <button
-                  type="button"
-                  className="icon-button player-icon-button transport-side-button"
-                  onClick={() => seekBy(5)}
-                  aria-label={t.audio.skipForwardAriaLabel(title)}
-                  title={t.audio.forward5Title}
-                  disabled={!src}
-                >
-                  <SkipForwardIcon className="button-icon" />
+                  <PlayPauseIcon
+                    className="button-icon lucide-button-icon"
+                    strokeWidth={3}
+                  />
                 </button>
               </ButtonHitArea>
             </div>
@@ -609,22 +570,27 @@ export function AudioPreviewLane({
                   title={isMuted ? t.audio.unmuteTitle : t.audio.muteTitle}
                   disabled={!src}
                 >
-                  <VolumeModeIcon className="button-icon" />
+                  <VolumeModeIcon
+                    className="button-icon lucide-button-icon"
+                    strokeWidth={3}
+                  />
                 </button>
               </ButtonHitArea>
-              <input
-                aria-label={`${title} volume`}
-                className="volume-slider"
-                disabled={!src}
-                max={1}
-                min={0}
-                step={0.01}
-                type="range"
-                value={isMuted ? 0 : volume}
-                onChange={(event) =>
-                  updateVolume(Number(event.currentTarget.value))
-                }
-              />
+              <div className="volume-slider-popover">
+                <input
+                  aria-label={`${title} volume`}
+                  className="volume-slider"
+                  disabled={!src}
+                  max={1}
+                  min={0}
+                  step={0.01}
+                  type="range"
+                  value={isMuted ? 0 : volume}
+                  onChange={(event) =>
+                    updateVolume(Number(event.currentTarget.value))
+                  }
+                />
+              </div>
             </div>
           </div>
           <div className="lane-footer-action lane-footer-action-end">
