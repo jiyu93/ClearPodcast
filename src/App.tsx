@@ -31,8 +31,10 @@ export default function App() {
           >
             <ControlsPanel
               selectedPath={workspace.selectedPath}
+              mode={workspaceMode}
               onOpenModelParameters={() => toggleWorkspaceMode("parameters")}
               onOpenLog={() => toggleWorkspaceMode("log")}
+              onBack={showAudioWorkspace}
             />
 
             <WorkspaceContent
