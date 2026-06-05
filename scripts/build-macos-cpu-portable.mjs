@@ -35,7 +35,7 @@ if (!fs.existsSync(appPath)) {
 
 fs.mkdirSync(releaseDir, { recursive: true });
 fs.rmSync(zipPath, { force: true });
-run("ditto", ["-c", "-k", "--keepParent", appPath, zipPath], {
+run("ditto", ["-c", "-k", "--norsrc", "--keepParent", appPath, zipPath], {
   cwd: path.dirname(appPath),
 });
 

@@ -201,6 +201,8 @@ runtime.
 - Do not commit staged runtimes, model weights, generated zips, extracted apps,
   smoke outputs, or private samples.
 - Keep third-party license notices in the packaged artifact.
+- macOS zip creation omits resource forks and AppleDouble metadata so the
+  bundled Python runtime contains only real runtime files.
 - The macOS and Windows staging scripts intentionally share the same manifest,
   resource-root, directory digest, model validation, and license-notice shape,
   while keeping platform-specific Python runtime copying separate.

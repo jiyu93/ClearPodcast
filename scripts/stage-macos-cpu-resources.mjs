@@ -290,7 +290,11 @@ function readPyvenvConfig(filePath) {
 }
 
 function shouldSkip(name) {
-  return skipNames.has(name) || skipExtensions.has(path.extname(name));
+  return (
+    skipNames.has(name) ||
+    name.startsWith("._") ||
+    skipExtensions.has(path.extname(name))
+  );
 }
 
 function readJson(filePath) {
