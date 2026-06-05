@@ -4,7 +4,7 @@ import type {
   EnhancementDeviceInfo,
   EnhancementJobSnapshot,
   EnhancementJobState,
-  EnhancementSettings,
+  EnhancementParameters,
   EnhancementSolver,
   ErrorContext,
   RuntimeSettings,
@@ -15,7 +15,7 @@ export const DEFAULT_RUNTIME: RuntimeSettings = {
   model_dir: "",
 };
 
-export const DEFAULT_ENHANCEMENT_SETTINGS: EnhancementSettings = {
+export const DEFAULT_ENHANCEMENT_PARAMETERS: EnhancementParameters = {
   solver: "midpoint",
   nfe: 64,
   lambd: 0.1,

@@ -1,11 +1,11 @@
-import { DEFAULT_ENHANCEMENT_SETTINGS, DEFAULT_RUNTIME } from "../domain/enhancement";
+import { DEFAULT_ENHANCEMENT_PARAMETERS, DEFAULT_RUNTIME } from "../domain/enhancement";
 import type {
   AudioMetadata,
   DeviceDetectionStatus,
   DisplayError,
   EnhancementDeviceInfo,
   EnhancementJobSnapshot,
-  EnhancementSettings,
+  EnhancementParameters,
   RuntimeSettings,
 } from "../domain/types";
 
@@ -24,7 +24,7 @@ export type VisualFixtureState = {
   originalPreviewPath: string;
   metadata?: AudioMetadata;
   runtimeSettings: RuntimeSettings;
-  enhancementSettings: EnhancementSettings;
+  enhancementParameters: EnhancementParameters;
   job?: EnhancementJobSnapshot;
   notice: string;
   appError?: DisplayError;
@@ -101,7 +101,7 @@ function createVisualFixture(name: VisualFixtureName): VisualFixtureState {
     originalPreviewPath: selectedPath,
     metadata: selectedPath ? fixtureMetadata : undefined,
     runtimeSettings: DEFAULT_RUNTIME,
-    enhancementSettings: DEFAULT_ENHANCEMENT_SETTINGS,
+    enhancementParameters: DEFAULT_ENHANCEMENT_PARAMETERS,
     job,
     notice: selectedPath ? "Ready to enhance" : "Choose a WAV, MP3, or M4A file",
     appError:

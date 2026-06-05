@@ -155,7 +155,7 @@ export function BackIcon({ className }: IconProps) {
   );
 }
 
-export function TuningIcon({ className }: IconProps) {
+export function ParametersIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
       <path

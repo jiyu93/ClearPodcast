@@ -20,7 +20,7 @@ cleanup pass, and first design-led UI/UX redesign:
   current app shape.
 - The primary desktop surface is now a redesigned Restoration Desk workspace
   for source selection, current-run restoration, before/after comparison, WAV
-  export, secondary exact model tuning, and secondary diagnostics.
+  export, secondary exact model parameters, and secondary diagnostics.
 - The frontend is split into focused state, backend command, presentation, and
   styling modules.
 
@@ -32,7 +32,7 @@ The active post-MVP phase is productization. The current product baseline is:
 - A cel-shaded-inspired Restoration Desk visual system with aligned product
   mark, app icon assets, in-app iconography, empty-state artwork, and
   audio/status motifs.
-- Exact Resemble Enhance controls preserved in secondary Model Tuning.
+- Exact Resemble Enhance parameters preserved in secondary Model Parameters.
 - Diagnostics and developer overrides preserved as secondary surfaces.
 - Browser visual fixtures for state QA of the redesigned surface.
 

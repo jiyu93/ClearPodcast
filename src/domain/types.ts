@@ -64,7 +64,7 @@ export type AppLogSnapshot = {
 
 export type EnhancementSolver = "midpoint" | "rk4" | "euler";
 
-export type EnhancementSettings = {
+export type EnhancementParameters = {
   solver: EnhancementSolver;
   nfe: number;
   lambd: number;

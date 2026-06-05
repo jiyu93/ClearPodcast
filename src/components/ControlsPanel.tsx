@@ -1,14 +1,14 @@
 import { fileNameFromPath } from "../domain/enhancement";
 import { ButtonHitArea } from "./ButtonHitArea";
-import { LogIcon, TuningIcon } from "./icons";
+import { LogIcon, ParametersIcon } from "./icons";
 
 export function ControlsPanel({
   selectedPath,
-  onOpenModelTuning,
+  onOpenModelParameters,
   onOpenLog,
 }: {
   selectedPath: string;
-  onOpenModelTuning: () => void;
+  onOpenModelParameters: () => void;
   onOpenLog: () => void;
 }) {
   const sourceFileName = selectedPath
@@ -27,11 +27,11 @@ export function ControlsPanel({
           <button
             type="button"
             className="icon-button tool-action"
-            onClick={onOpenModelTuning}
-            aria-label="Open model tuning"
-            title="Model tuning"
+            onClick={onOpenModelParameters}
+            aria-label="Open model parameters"
+            title="Model parameters"
           >
-            <TuningIcon className="button-icon" />
+            <ParametersIcon className="button-icon" />
           </button>
         </ButtonHitArea>
         <ButtonHitArea>

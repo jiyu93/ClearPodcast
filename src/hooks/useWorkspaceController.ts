@@ -15,7 +15,7 @@ import {
   toAssetSrc,
 } from "../backend/tauriCommands";
 import {
-  DEFAULT_ENHANCEMENT_SETTINGS,
+  DEFAULT_ENHANCEMENT_PARAMETERS,
   DEFAULT_RUNTIME,
   EXPECTED_CHECKPOINT_SHA256,
   TERMINAL_STATES,
@@ -31,7 +31,7 @@ import type {
   DisplayError,
   EnhancementDeviceInfo,
   EnhancementJobSnapshot,
-  EnhancementSettings,
+  EnhancementParameters,
   ErrorContext,
   RuntimeSettings,
 } from "../domain/types";
@@ -41,7 +41,7 @@ export type WorkspaceController = {
   selectedPath: string;
   originalPreviewPath: string;
   metadata?: AudioMetadata;
-  enhancementSettings: EnhancementSettings;
+  enhancementParameters: EnhancementParameters;
   job?: EnhancementJobSnapshot;
   isDragActive: boolean;
   notice: string;
@@ -59,11 +59,11 @@ export type WorkspaceController = {
   runEnhancement: () => Promise<void>;
   cancelJob: () => Promise<void>;
   exportEnhancedWav: () => Promise<void>;
-  updateEnhancementField: <K extends keyof EnhancementSettings>(
+  updateEnhancementParameter: <K extends keyof EnhancementParameters>(
     field: K,
-    value: EnhancementSettings[K],
+    value: EnhancementParameters[K],
   ) => void;
-  resetEnhancementSettings: () => void;
+  resetEnhancementParameters: () => void;
 };
 
 export function useWorkspaceController(): WorkspaceController {
@@ -80,9 +80,9 @@ export function useWorkspaceController(): WorkspaceController {
   const [runtimeSettings, setRuntimeSettings] = useState<RuntimeSettings>(
     fixture?.runtimeSettings ?? DEFAULT_RUNTIME,
   );
-  const [enhancementSettings, setEnhancementSettings] =
-    useState<EnhancementSettings>(
-      fixture?.enhancementSettings ?? DEFAULT_ENHANCEMENT_SETTINGS,
+  const [enhancementParameters, setEnhancementParameters] =
+    useState<EnhancementParameters>(
+      fixture?.enhancementParameters ?? DEFAULT_ENHANCEMENT_PARAMETERS,
     );
   const [job, setJob] = useState<EnhancementJobSnapshot | undefined>(
     fixture?.job,
@@ -286,7 +286,7 @@ export function useWorkspaceController(): WorkspaceController {
     try {
       const snapshot = await startEnhancementJob({
         ...runtimeOverrides(runtimeSettings),
-        ...enhancementSettings,
+        ...enhancementParameters,
         input_audio: selectedPath,
         device: "auto",
         expected_checkpoint_sha256: EXPECTED_CHECKPOINT_SHA256,
@@ -295,7 +295,7 @@ export function useWorkspaceController(): WorkspaceController {
     } catch (error) {
       showError(error, "enhancement");
     }
-  }, [enhancementSettings, runtimeSettings, selectedPath, showError]);
+  }, [enhancementParameters, runtimeSettings, selectedPath, showError]);
 
   const cancelJob = useCallback(async () => {
     if (!job) {
@@ -330,25 +330,25 @@ export function useWorkspaceController(): WorkspaceController {
     }
   }, [canExport, job, refreshJob, selectedPath, showError]);
 
-  const updateEnhancementField = useCallback(
-    <K extends keyof EnhancementSettings>(
+  const updateEnhancementParameter = useCallback(
+    <K extends keyof EnhancementParameters>(
       field: K,
-      value: EnhancementSettings[K],
+      value: EnhancementParameters[K],
     ) => {
-      setEnhancementSettings((current) => ({ ...current, [field]: value }));
+      setEnhancementParameters((current) => ({ ...current, [field]: value }));
     },
     [],
   );
 
-  const resetEnhancementSettings = useCallback(() => {
-    setEnhancementSettings(DEFAULT_ENHANCEMENT_SETTINGS);
+  const resetEnhancementParameters = useCallback(() => {
+    setEnhancementParameters(DEFAULT_ENHANCEMENT_PARAMETERS);
   }, []);
 
   return {
     selectedPath,
     originalPreviewPath,
     metadata,
-    enhancementSettings,
+    enhancementParameters,
     job,
     isDragActive,
     notice,
@@ -366,7 +366,7 @@ export function useWorkspaceController(): WorkspaceController {
     runEnhancement,
     cancelJob,
     exportEnhancedWav: exportCurrentEnhancedWav,
-    updateEnhancementField,
-    resetEnhancementSettings,
+    updateEnhancementParameter,
+    resetEnhancementParameters,
   };
 }

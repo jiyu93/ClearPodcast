@@ -3,31 +3,31 @@ import {
   SOLVER_HELP,
 } from "../domain/enhancement";
 import type {
-  EnhancementSettings,
+  EnhancementParameters,
   EnhancementSolver,
 } from "../domain/types";
 import { ButtonHitArea } from "./ButtonHitArea";
 import { ResetIcon } from "./icons";
 
-export function ModelTuningView({
-  enhancementSettings,
+export function ModelParametersView({
+  enhancementParameters,
   controlsLocked,
   onUpdate,
   onReset,
 }: {
-  enhancementSettings: EnhancementSettings;
+  enhancementParameters: EnhancementParameters;
   controlsLocked: boolean;
-  onUpdate: <K extends keyof EnhancementSettings>(
+  onUpdate: <K extends keyof EnhancementParameters>(
     field: K,
-    value: EnhancementSettings[K],
+    value: EnhancementParameters[K],
   ) => void;
   onReset: () => void;
 }) {
   return (
-    <div className="panel-mode tuning-mode">
+    <div className="panel-mode parameters-mode">
       <div className="model-copy">
-        <strong>Resemble Enhance controls</strong>
-        <span>Defaults are tuned for one-click cleanup.</span>
+        <strong>Resemble Enhance parameters</strong>
+        <span>Defaults are set for one-click cleanup.</span>
       </div>
       <ButtonHitArea>
         <button
@@ -44,7 +44,7 @@ export function ModelTuningView({
       <label className="solver-select" title={ENHANCEMENT_HELP.solver}>
         <span>Solver</span>
         <select
-          value={enhancementSettings.solver}
+          value={enhancementParameters.solver}
           onChange={(event) =>
             onUpdate("solver", event.target.value as EnhancementSolver)
           }
@@ -74,8 +74,8 @@ export function ModelTuningView({
       <div className="slider-grid">
         <SliderControl
           label="CFM steps"
-          value={enhancementSettings.nfe}
-          display={String(enhancementSettings.nfe)}
+          value={enhancementParameters.nfe}
+          display={String(enhancementParameters.nfe)}
           min={1}
           max={128}
           step={1}
@@ -85,8 +85,8 @@ export function ModelTuningView({
         />
         <SliderControl
           label="Prior temperature"
-          value={enhancementSettings.tau}
-          display={enhancementSettings.tau.toFixed(2)}
+          value={enhancementParameters.tau}
+          display={enhancementParameters.tau.toFixed(2)}
           min={0}
           max={1}
           step={0.01}
@@ -96,8 +96,8 @@ export function ModelTuningView({
         />
         <SliderControl
           label="Denoising"
-          value={enhancementSettings.lambd}
-          display={enhancementSettings.lambd.toFixed(2)}
+          value={enhancementParameters.lambd}
+          display={enhancementParameters.lambd.toFixed(2)}
           min={0}
           max={1}
           step={0.01}

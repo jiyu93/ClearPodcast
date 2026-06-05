@@ -31,7 +31,7 @@ export default function App() {
           >
             <ControlsPanel
               selectedPath={workspace.selectedPath}
-              onOpenModelTuning={() => toggleWorkspaceMode("tuning")}
+              onOpenModelParameters={() => toggleWorkspaceMode("parameters")}
               onOpenLog={() => toggleWorkspaceMode("log")}
             />
 
@@ -41,7 +41,7 @@ export default function App() {
               enhancedSrc={workspace.enhancedAudioSrc}
               enhancedMetadata={workspace.job?.output_metadata}
               mode={workspaceMode}
-              enhancementSettings={workspace.enhancementSettings}
+              enhancementParameters={workspace.enhancementParameters}
               enhancementControlsLocked={workspace.enhancementControlsLocked}
               canRun={workspace.canRun}
               canCancel={workspace.canCancel}
@@ -62,8 +62,8 @@ export default function App() {
                 showAudioWorkspace();
                 void workspace.exportEnhancedWav();
               }}
-              onUpdateTuning={workspace.updateEnhancementField}
-              onResetTuning={workspace.resetEnhancementSettings}
+              onUpdateParameters={workspace.updateEnhancementParameter}
+              onResetParameters={workspace.resetEnhancementParameters}
             />
           </section>
         </div>

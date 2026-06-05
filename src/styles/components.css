@@ -560,7 +560,7 @@
   min-height: 0;
 }
 
-.tuning-mode {
+.parameters-mode {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
@@ -695,7 +695,7 @@
 }
 
 @media (max-width: 760px) {
-  .tuning-mode,
+  .parameters-mode,
   .solver-select,
   .slider-grid,
   .solver-notes,

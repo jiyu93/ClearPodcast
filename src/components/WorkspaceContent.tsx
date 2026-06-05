@@ -2,16 +2,16 @@ import { useEffect, useState } from "react";
 
 import { AudioPreviewLane } from "./AudioPreviewLane";
 import { ButtonHitArea } from "./ButtonHitArea";
-import { ModelTuningView } from "./ModelTuningView";
+import { ModelParametersView } from "./ModelParametersView";
 import { readAppLog, tauriAvailable } from "../backend/tauriCommands";
 import type {
   AppLogSnapshot,
   AudioMetadata,
-  EnhancementSettings,
+  EnhancementParameters,
 } from "../domain/types";
 import { EnhanceIcon, LogIcon, OpenIcon, SaveIcon, StopIcon } from "./icons";
 
-export type WorkspaceMode = "audio" | "tuning" | "log";
+export type WorkspaceMode = "audio" | "parameters" | "log";
 
 export function WorkspaceContent({
   originalSrc,
@@ -19,7 +19,7 @@ export function WorkspaceContent({
   enhancedSrc,
   enhancedMetadata,
   mode,
-  enhancementSettings,
+  enhancementParameters,
   enhancementControlsLocked,
   canRun,
   canCancel,
@@ -28,15 +28,15 @@ export function WorkspaceContent({
   onRun,
   onCancel,
   onExport,
-  onUpdateTuning,
-  onResetTuning,
+  onUpdateParameters,
+  onResetParameters,
 }: {
   originalSrc?: string;
   originalMetadata?: AudioMetadata;
   enhancedSrc?: string;
   enhancedMetadata?: AudioMetadata;
   mode: WorkspaceMode;
-  enhancementSettings: EnhancementSettings;
+  enhancementParameters: EnhancementParameters;
   enhancementControlsLocked: boolean;
   canRun: boolean;
   canCancel: boolean;
@@ -45,11 +45,11 @@ export function WorkspaceContent({
   onRun: () => void;
   onCancel: () => void;
   onExport: () => void;
-  onUpdateTuning: <K extends keyof EnhancementSettings>(
+  onUpdateParameters: <K extends keyof EnhancementParameters>(
     field: K,
-    value: EnhancementSettings[K],
+    value: EnhancementParameters[K],
   ) => void;
-  onResetTuning: () => void;
+  onResetParameters: () => void;
 }) {
   const [logSnapshot, setLogSnapshot] = useState<AppLogSnapshot | undefined>();
   const [logError, setLogError] = useState("");
@@ -147,12 +147,12 @@ export function WorkspaceContent({
         </div>
       ) : null}
 
-      {mode === "tuning" ? (
-        <ModelTuningView
-          enhancementSettings={enhancementSettings}
+      {mode === "parameters" ? (
+        <ModelParametersView
+          enhancementParameters={enhancementParameters}
           controlsLocked={enhancementControlsLocked}
-          onUpdate={onUpdateTuning}
-          onReset={onResetTuning}
+          onUpdate={onUpdateParameters}
+          onReset={onResetParameters}
         />
       ) : null}
 
