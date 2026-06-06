@@ -7,6 +7,8 @@ It bundles the model and runtime so it can be used without installation or deplo
 
 The current enhancement model is [Resemble Enhance](https://github.com/resemble-ai/resemble-enhance), with model parameter controls exposed in the app.
 
+![ClearPodcast Restoration Desk input screen](docs/assets/screenshot-1-en.png)
+
 ## Features
 
 - Restores one WAV, MP3, or M4A spoken-word recording at a time.
@@ -34,7 +36,14 @@ macOS packaging produces a zip containing a self-contained `ClearPodcast.app`.
 Windows packaging produces one x64 portable zip that uses CUDA automatically when
 available and falls back to CPU otherwise.
 
-## Quick Start From Source
+## Quick Start
+
+To try ClearPodcast first, download the packaged v0.1.0 desktop app from
+[GitHub Releases](https://github.com/jiyu93/ClearPodcast/releases/tag/v0.1.0).
+The release artifacts bundle the app runtime and model files, so no local
+development environment is needed.
+
+### Run From Source
 
 Install the JavaScript dependencies:
 
