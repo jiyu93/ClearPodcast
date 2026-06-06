@@ -60,6 +60,10 @@ pub struct EnhancementJobSnapshot {
     pub message: String,
     pub error: Option<String>,
     pub created_at_ms: u128,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub started_at_ms: Option<u128>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub finished_at_ms: Option<u128>,
     pub updated_at_ms: u128,
 }
 
@@ -156,6 +160,8 @@ impl EnhancementJobManager {
             message: "Queued".to_string(),
             error: None,
             created_at_ms: now,
+            started_at_ms: None,
+            finished_at_ms: None,
             updated_at_ms: now,
         };
 
@@ -253,6 +259,7 @@ impl EnhancementJobManager {
                     record.snapshot.state = EnhancementJobState::Cancelled;
                     record.snapshot.message = "Cancelling".to_string();
                     record.snapshot.error = None;
+                    record.snapshot.finished_at_ms = Some(timestamp_ms());
                     record.snapshot.updated_at_ms = timestamp_ms();
                     record.cancellation.clone()
                 }
@@ -351,6 +358,9 @@ impl EnhancementJobManager {
             snapshot.state = EnhancementJobState::Running;
             snapshot.message = "Processing".to_string();
             snapshot.input_metadata = input_metadata;
+            if snapshot.started_at_ms.is_none() {
+                snapshot.started_at_ms = Some(timestamp_ms());
+            }
         });
         let input_metadata = self
             .snapshot(&job_id)
@@ -411,7 +421,10 @@ impl EnhancementJobManager {
         let elapsed_ms = self
             .snapshot(job_id)
             .ok()
-            .map(|snapshot| timestamp_ms().saturating_sub(snapshot.created_at_ms))
+            .map(|snapshot| {
+                timestamp_ms()
+                    .saturating_sub(snapshot.started_at_ms.unwrap_or(snapshot.created_at_ms))
+            })
             .unwrap_or_default();
         app_log.info_fields(
             "job_completed",
@@ -456,6 +469,7 @@ impl EnhancementJobManager {
             snapshot.device_info = result.device_info;
             snapshot.message = "Completed".to_string();
             snapshot.error = None;
+            snapshot.finished_at_ms = Some(timestamp_ms());
         });
     }
 
@@ -463,7 +477,10 @@ impl EnhancementJobManager {
         let elapsed_ms = self
             .snapshot(job_id)
             .ok()
-            .map(|snapshot| timestamp_ms().saturating_sub(snapshot.created_at_ms))
+            .map(|snapshot| {
+                timestamp_ms()
+                    .saturating_sub(snapshot.started_at_ms.unwrap_or(snapshot.created_at_ms))
+            })
             .unwrap_or_default();
         app_log.error_fields(
             "job_failed",
@@ -481,6 +498,7 @@ impl EnhancementJobManager {
             snapshot.device_info = None;
             snapshot.message = "Failed".to_string();
             snapshot.error = Some(error);
+            snapshot.finished_at_ms = Some(timestamp_ms());
         });
     }
 
@@ -493,6 +511,9 @@ impl EnhancementJobManager {
             snapshot.device_info = None;
             snapshot.message = "Cancelled".to_string();
             snapshot.error = None;
+            if snapshot.finished_at_ms.is_none() {
+                snapshot.finished_at_ms = Some(timestamp_ms());
+            }
         });
     }
 

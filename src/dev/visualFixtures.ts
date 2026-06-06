@@ -127,13 +127,17 @@ function jobForFixture(
     return undefined;
   }
 
+  const now = Date.now();
+  const startedAt = now - 12_400;
+  const finishedAt = startedAt + 120_000;
   const common = {
     job_id: `visual-${name}`,
     input_audio: basePath,
     input_metadata: fixtureMetadata,
     message: "Fixture state loaded",
-    created_at_ms: 1780491000000,
-    updated_at_ms: 1780491120000,
+    created_at_ms: startedAt,
+    started_at_ms: startedAt,
+    updated_at_ms: finishedAt,
   };
 
   if (name === "running") {
@@ -141,6 +145,7 @@ function jobForFixture(
       ...common,
       state: "running",
       device_info: cudaDevice,
+      updated_at_ms: now,
     };
   }
 
@@ -149,6 +154,7 @@ function jobForFixture(
       ...common,
       state: "cancelled",
       device_info: cpuDevice,
+      finished_at_ms: finishedAt,
     };
   }
 
@@ -158,6 +164,7 @@ function jobForFixture(
       state: "failed",
       error: "visual_fixture_sidecar_error: model output was not produced",
       device_info: cpuDevice,
+      finished_at_ms: finishedAt,
     };
   }
 
@@ -171,6 +178,7 @@ function jobForFixture(
         : undefined,
     output_metadata: outputMetadata,
     device_info: cudaDevice,
+    finished_at_ms: finishedAt,
   };
 }
 

@@ -52,6 +52,10 @@ the current enhancement workspace. Runtime events are written to a local
 older files. The Log view in the second panel displays only the current app
 session and follows new entries as they arrive.
 
+The audio workspace shows elapsed time for the current or most recent local
+enhancement run. It does not show estimated completion percentages unless the
+model runtime exposes real progress.
+
 ## Core Domain Language
 
 - Bad recording: A real-world speech recording with noise, codec damage,

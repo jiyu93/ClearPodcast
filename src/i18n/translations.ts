@@ -53,6 +53,7 @@ const english = {
     enhance: "Clarify",
     cancel: "Cancel",
     save: "Save",
+    elapsedAriaLabel: (elapsed: string) => `Enhancement run elapsed time ${elapsed}`,
   },
   audio: {
     seek: (title: string) => `Seek ${title} audio`,
@@ -192,6 +193,7 @@ const chinese: Translation = {
     enhance: "清晰化",
     cancel: "取消",
     save: "保存",
+    elapsedAriaLabel: (elapsed) => `本次增强运行耗时 ${elapsed}`,
   },
   audio: {
     seek: (title) => `定位${title}`,
@@ -329,6 +331,7 @@ const japanese: Translation = {
     enhance: "クリアにする",
     cancel: "キャンセル",
     save: "保存",
+    elapsedAriaLabel: (elapsed) => `今回の強化実行の経過時間 ${elapsed}`,
   },
   audio: {
     seek: (title) => `${title}をシーク`,
@@ -466,6 +469,7 @@ const korean: Translation = {
     enhance: "선명하게",
     cancel: "취소",
     save: "저장",
+    elapsedAriaLabel: (elapsed) => `이번 향상 실행 경과 시간 ${elapsed}`,
   },
   audio: {
     seek: (title) => `${title} 오디오 탐색`,

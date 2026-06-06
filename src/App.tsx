@@ -60,6 +60,7 @@ export default function App() {
               originalMetadata={workspace.metadata}
               enhancedSrc={workspace.enhancedAudioSrc}
               enhancedMetadata={workspace.job?.output_metadata}
+              job={workspace.job}
               mode={workspaceMode}
               enhancementParameters={workspace.enhancementParameters}
               enhancementControlsLocked={workspace.enhancementControlsLocked}

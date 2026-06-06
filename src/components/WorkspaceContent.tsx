@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FolderOpen, RotateCw, Save, WandSparkles } from "lucide-react";
+import { FolderOpen, RotateCw, Save, Timer, WandSparkles } from "lucide-react";
 
 import { AudioPreviewLane } from "./AudioPreviewLane";
 import { ButtonHitArea } from "./ButtonHitArea";
@@ -8,6 +8,7 @@ import { readAppLog, tauriAvailable } from "../backend/tauriCommands";
 import type {
   AppLogSnapshot,
   AudioMetadata,
+  EnhancementJobSnapshot,
   EnhancementParameters,
 } from "../domain/types";
 import { useI18n } from "../i18n/I18nProvider";
@@ -21,6 +22,7 @@ export function WorkspaceContent({
   originalMetadata,
   enhancedSrc,
   enhancedMetadata,
+  job,
   mode,
   enhancementParameters,
   enhancementControlsLocked,
@@ -38,6 +40,7 @@ export function WorkspaceContent({
   originalMetadata?: AudioMetadata;
   enhancedSrc?: string;
   enhancedMetadata?: AudioMetadata;
+  job?: EnhancementJobSnapshot;
   mode: WorkspaceMode;
   enhancementParameters: EnhancementParameters;
   enhancementControlsLocked: boolean;
@@ -198,6 +201,7 @@ export function WorkspaceContent({
                 </button>
               </ButtonHitArea>
             }
+            endAction={<RunElapsedMeter job={job} />}
           />
         </div>
       ) : null}
@@ -222,6 +226,60 @@ export function WorkspaceContent({
       ) : null}
     </div>
   );
+}
+
+function RunElapsedMeter({ job }: { job?: EnhancementJobSnapshot }) {
+  const { t } = useI18n();
+  const isActive = job?.state === "queued" || job?.state === "running";
+  const [nowMs, setNowMs] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!isActive) {
+      return;
+    }
+
+    setNowMs(Date.now());
+    const intervalId = window.setInterval(() => setNowMs(Date.now()), 1000);
+    return () => window.clearInterval(intervalId);
+  }, [isActive, job?.job_id]);
+
+  if (!job) {
+    return null;
+  }
+
+  const startedAtMs = job.started_at_ms ?? job.created_at_ms;
+  const finishedAtMs = isActive
+    ? nowMs
+    : job.finished_at_ms ?? job.updated_at_ms;
+  const elapsed = formatRunElapsed(
+    Math.max(0, (finishedAtMs - startedAtMs) / 1000),
+  );
+
+  return (
+    <span
+      className={`run-elapsed-meter ${isActive ? "is-active" : "is-final"}`}
+      aria-label={t.workspace.elapsedAriaLabel(elapsed)}
+    >
+      <Timer className="run-elapsed-icon lucide-button-icon" strokeWidth={3} />
+      <span className="run-elapsed-value">{elapsed}</span>
+    </span>
+  );
+}
+
+function formatRunElapsed(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return "00:00:00";
+  }
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const wholeSeconds = Math.floor(seconds % 60);
+
+  return [
+    hours.toString().padStart(2, "0"),
+    minutes.toString().padStart(2, "0"),
+    wholeSeconds.toString().padStart(2, "0"),
+  ].join(":");
 }
 
 function LogView({

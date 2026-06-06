@@ -34,6 +34,8 @@ export type EnhancementJobSnapshot = {
   message: string;
   error?: string;
   created_at_ms: number;
+  started_at_ms?: number;
+  finished_at_ms?: number;
   updated_at_ms: number;
 };
 
