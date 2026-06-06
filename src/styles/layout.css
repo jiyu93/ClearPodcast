@@ -1,14 +1,105 @@
+.app-root {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(20, 33, 31, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(20, 33, 31, 0.045) 1px, transparent 1px),
+    var(--surface-canvas);
+  background-size: 28px 28px;
+}
+
+.app-root.custom-titlebar {
+  grid-template-rows: 32px minmax(0, 1fr);
+}
+
+.app-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  min-height: 32px;
+  border-bottom: 1px solid rgba(20, 33, 31, 0.1);
+  background: rgba(248, 247, 240, 0.94);
+  color: rgba(20, 33, 31, 0.72);
+  padding-inline: 10px 0;
+  user-select: none;
+  -webkit-app-region: drag;
+}
+
+.app-titlebar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.app-titlebar-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.app-window-controls {
+  display: flex;
+  align-items: stretch;
+  justify-self: end;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.app-window-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  height: 32px;
+  min-height: 32px;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  color: rgba(20, 33, 31, 0.72);
+  background: transparent;
+  box-shadow: none;
+}
+
+.app-window-control svg {
+  width: 14px;
+  height: 14px;
+}
+
+.app-window-control:hover {
+  color: var(--ink);
+  background: rgba(20, 33, 31, 0.08);
+  transform: none;
+  box-shadow: none;
+}
+
+.app-window-control:active {
+  background: rgba(20, 33, 31, 0.12);
+}
+
+.app-window-control-close:hover {
+  color: #ffffff;
+  background: #d84f43;
+}
+
 .app-shell {
   width: 100%;
   height: 100%;
   min-height: 0;
   overflow: hidden;
   padding: 10px 22px 22px;
-  background:
-    linear-gradient(90deg, rgba(20, 33, 31, 0.045) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(20, 33, 31, 0.045) 1px, transparent 1px),
-    var(--surface-canvas);
-  background-size: 28px 28px;
+  background: transparent;
 }
 
 .workspace {
@@ -157,6 +248,16 @@
     min-height: 100%;
     overflow: visible;
     padding: 6px 8px 8px;
+  }
+
+  .app-root {
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+  }
+
+  .app-root.custom-titlebar {
+    grid-template-rows: 32px auto;
   }
 
   .workspace,

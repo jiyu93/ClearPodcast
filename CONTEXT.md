@@ -41,6 +41,9 @@ language switching in the app header. The selected language is persisted locally
 and used for controls, status labels, model parameter help, logs, and processing
 error summaries.
 
+The Windows desktop shell uses a ClearPodcast-styled in-app title bar with
+window controls so it visually matches the light macOS title bar treatment.
+
 On machines where CUDA and CPU processing are both available, the processing
 mode defaults to GPU Mode. The header mode capsule becomes a button that can
 switch future runs between GPU Mode and CPU Mode while no enhancement is
