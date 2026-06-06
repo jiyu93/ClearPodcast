@@ -88,7 +88,7 @@ Completed verification:
 - `npm run check`
 - `cargo test --manifest-path src-tauri/Cargo.toml`
 - `git diff --check`
-- Browser smoke against `http://127.0.0.1:5173/`
+- Browser smoke against `http://127.0.0.1:15621/`
   - product-language eyebrow and restoration panel present
   - Diagnostics owns runtime/model overrides
   - primary workflow shows restoration controls and status

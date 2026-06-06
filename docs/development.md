@@ -160,9 +160,9 @@ npm run dev
 
 Fixture states:
 
-- `http://localhost:5173/?fixture=empty`
-- `http://localhost:5173/?fixture=running`
-- `http://localhost:5173/?fixture=completed`
+- `http://localhost:15621/?fixture=empty`
+- `http://localhost:15621/?fixture=running`
+- `http://localhost:15621/?fixture=completed`
 
 Fixture mode is for frontend visual inspection only.
 

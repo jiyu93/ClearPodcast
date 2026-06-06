@@ -7,7 +7,9 @@
 }
 
 .brand-title {
-  display: block;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.16em;
   margin: 0;
   min-width: 0;
   line-height: 1;
@@ -36,4 +38,14 @@
 
 .brand-wordmark-podcast {
   color: var(--ink);
+}
+
+.brand-version {
+  flex: 0 0 auto;
+  transform: translateY(-0.08em);
+  color: #7f8785;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
 }

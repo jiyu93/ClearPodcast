@@ -5,7 +5,7 @@
   "identifier": "com.clearpodcast.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
-    "devUrl": "http://localhost:5173",
+    "devUrl": "http://localhost:15621",
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },

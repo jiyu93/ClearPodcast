@@ -141,7 +141,7 @@ cargo test --manifest-path src-tauri/Cargo.toml
   - WAV-only export destination enforcement.
 - Existing audio contract tests still cover WAV/MP3/M4A decode, sidecar handoff,
   final WAV writing, and temp cleanup.
-- Browser visual verification of the Vite app at `http://127.0.0.1:5173/`
+- Browser visual verification of the Vite app at `http://127.0.0.1:15621/`
   showed no horizontal overflow at a 767 px wide viewport.
 - Full local model smoke checks pass with:
   - `localfiles/samples/low_quality_voice_sample_1.wav`

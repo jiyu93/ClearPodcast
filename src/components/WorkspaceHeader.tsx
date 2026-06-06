@@ -12,6 +12,8 @@ import type {
 import { useI18n } from "../i18n/I18nProvider";
 import type { AppLanguage } from "../i18n/translations";
 
+const appVersion = import.meta.env.VITE_APP_VERSION;
+
 export function WorkspaceHeader({
   state,
   deviceInfo,
@@ -54,10 +56,13 @@ export function WorkspaceHeader({
     <header className="workspace-header">
       <div className="brand-lockup">
         <AppMark />
-        <h1 className="brand-title" aria-label="ClearPodcast">
+        <h1 className="brand-title" aria-label={`ClearPodcast ${appVersion}`}>
           <span className="brand-wordmark" aria-hidden="true">
             <span className="brand-wordmark-clear">Clear</span>
             <span className="brand-wordmark-podcast">Podcast</span>
+          </span>
+          <span className="brand-version" aria-hidden="true">
+            v{appVersion}
           </span>
         </h1>
       </div>

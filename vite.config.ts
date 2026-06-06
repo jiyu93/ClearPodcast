@@ -1,12 +1,20 @@
 import { defineConfig } from "vite";
 import type { Plugin } from "vite";
 import react from "@vitejs/plugin-react";
+import { readFileSync } from "node:fs";
+
+const packageMetadata = JSON.parse(
+  readFileSync(new URL("./package.json", import.meta.url), "utf8"),
+) as { version: string };
 
 export default defineConfig({
   plugins: [clearPodcastStartupGate(), react()],
   clearScreen: false,
+  define: {
+    "import.meta.env.VITE_APP_VERSION": JSON.stringify(packageMetadata.version),
+  },
   server: {
-    port: 5173,
+    port: 15621,
     strictPort: true,
     warmup: {
       clientFiles: [
