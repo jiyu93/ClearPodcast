@@ -25,9 +25,9 @@ export const DEFAULT_ENHANCEMENT_PARAMETERS: EnhancementParameters = {
 
 export const ENHANCEMENT_HELP = {
   solver: "Chooses the numerical solver used inside Resemble Enhance.",
-  nfe: "Higher values can improve quality and usually take longer to run.",
-  tau: "Higher values can add more variation and fullness, with less stability.",
-  lambd: "Higher values apply stronger denoising before enhancement.",
+  nfe: "CFM means Conditional Flow Matching. Higher steps give the model more chances to refine speech, but going too high can sound overly processed or slightly less natural.",
+  tau: "Higher values can add fullness and variation, but may also change the voice more or add an electronic, metallic shimmer.",
+  lambd: "Higher values remove more noise before enhancement, but can also thin the voice, dull detail, or create watery or electronic artifacts.",
 };
 
 export const SOLVER_HELP: Record<EnhancementSolver, string> = {

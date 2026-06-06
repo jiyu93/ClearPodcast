@@ -96,16 +96,16 @@ const english = {
     } satisfies Record<EnhancementSolver, { label: string; help: string }>,
     parameters: {
       nfe: {
-        label: "CFM steps",
-        help: "Higher values can improve quality and usually take longer to run.",
+        label: "CFM(Conditional Flow Matching) steps",
+        help: "Higher steps give the model more chances to refine speech, but going too high can sound overly processed or slightly less natural.",
       },
       tau: {
-        label: "Prior temperature",
-        help: "Higher values can add more variation and fullness, with less stability.",
+        label: "Temperature",
+        help: "Higher values can add fullness and variation, but may also change the voice more or add an electronic, metallic shimmer.",
       },
       lambd: {
         label: "Denoising",
-        help: "Higher values apply stronger denoising before enhancement.",
+        help: "Higher values remove more noise before enhancement, but can also thin the voice, dull detail, or create watery or electronic artifacts.",
       },
     },
   },
@@ -233,16 +233,16 @@ const chinese: Translation = {
     },
     parameters: {
       nfe: {
-        label: "CFM 步数",
-        help: "数值越高，音质可能越好，通常也需要更长时间。",
+        label: "CFM(Conditional Flow Matching) 步数",
+        help: "步数越高，模型会有更多机会细化语音；但过高可能让人声显得处理感更重，或稍微不够自然。",
       },
       tau: {
-        label: "先验温度",
-        help: "数值越高，声音可能更丰满、更有变化，但稳定性更低。",
+        label: "温度",
+        help: "数值越高，声音可能更丰满、更有变化；但也可能更改原本人声，出现电音感、金属感或闪烁感。",
       },
       lambd: {
         label: "降噪强度",
-        help: "数值越高，增强前应用的降噪越强。",
+        help: "数值越高，增强前降噪越强；但也可能削薄人声、抹掉细节，或带来水声、电音一样的处理痕迹。",
       },
     },
   },
@@ -368,16 +368,16 @@ const japanese: Translation = {
     },
     parameters: {
       nfe: {
-        label: "CFM ステップ",
-        help: "値を高くすると品質が向上する場合がありますが、通常は処理時間も長くなります。",
+        label: "CFM(Conditional Flow Matching) ステップ",
+        help: "ステップを高くすると音声をより細かく整えられますが、高すぎると処理感が強くなったり、少し不自然に聞こえることがあります。",
       },
       tau: {
-        label: "事前温度",
-        help: "値を高くすると変化や厚みが増す場合がありますが、安定性は下がります。",
+        label: "温度",
+        help: "値を高くすると厚みや変化が増す場合がありますが、声質が変わったり、電子音っぽさ、金属感、揺れた感じが出ることがあります。",
       },
       lambd: {
         label: "ノイズ除去",
-        help: "値を高くすると、強化前のノイズ除去が強くなります。",
+        help: "値を高くするとノイズ除去は強くなりますが、声が細くなったり、細部が失われたり、水っぽさや電子音っぽい処理感が出ることがあります。",
       },
     },
   },
@@ -503,16 +503,16 @@ const korean: Translation = {
     },
     parameters: {
       nfe: {
-        label: "CFM 단계",
-        help: "값이 높을수록 품질이 좋아질 수 있지만 보통 처리 시간이 길어집니다.",
+        label: "CFM(Conditional Flow Matching) 단계",
+        help: "단계가 높을수록 음성을 더 세밀하게 다듬을 수 있지만, 너무 높으면 처리한 느낌이 강하거나 조금 부자연스럽게 들릴 수 있습니다.",
       },
       tau: {
-        label: "사전 온도",
-        help: "값이 높을수록 변화와 풍성함이 늘 수 있지만 안정성은 낮아집니다.",
+        label: "온도",
+        help: "값이 높을수록 풍성함과 변화가 늘 수 있지만, 원래 목소리가 더 많이 바뀌거나 전자음, 금속성, 흔들림이 생길 수 있습니다.",
       },
       lambd: {
         label: "노이즈 제거",
-        help: "값이 높을수록 향상 전에 더 강한 노이즈 제거를 적용합니다.",
+        help: "값이 높을수록 노이즈를 더 많이 제거하지만, 목소리가 얇아지거나 세부가 사라지고 물먹은 듯하거나 전자음 같은 처리감이 생길 수 있습니다.",
       },
     },
   },
