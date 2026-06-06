@@ -486,7 +486,7 @@ listed in the Python package section above. Detected DLLs:
 - uv.dll
 - zlibwapi.dll
 
-Bundled npm runtime packages (4)
+Bundled npm runtime packages (5)
 --------------------------------
 
 The desktop web assets are built from these runtime npm packages. Build-only
@@ -496,6 +496,10 @@ the portable artifact.
 - @tauri-apps/api 2.11.0
   License: Apache-2.0 OR MIT
   Resolved package: https://registry.npmjs.org/@tauri-apps/api/-/api-2.11.0.tgz
+
+- lucide-react 1.17.0
+  License: ISC
+  Resolved package: https://registry.npmjs.org/lucide-react/-/lucide-react-1.17.0.tgz
 
 - react 19.2.7
   License: MIT
