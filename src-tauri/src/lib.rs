@@ -239,6 +239,14 @@ fn read_app_log_command(app_log: State<AppLog>) -> AppLogSnapshot {
 }
 
 #[tauri::command]
+fn frontend_ready_command(app_log: State<AppLog>, elapsed_ms: f64) {
+    app_log.info_fields(
+        "frontend_ready",
+        &[("elapsed_ms", format!("{elapsed_ms:.1}"))],
+    );
+}
+
+#[tauri::command]
 fn pick_audio_file_command() -> Option<PathBuf> {
     dialogs::pick_audio_file()
 }
@@ -262,7 +270,7 @@ pub fn run() {
                     ("version", env!("CARGO_PKG_VERSION").to_string()),
                 ],
             );
-            app.manage(PackagedResourcePaths::from_resource_dir(resource_dir));
+            app.manage(PackagedResourcePaths::from_app_resource_dir(resource_dir));
             app.manage(app_log);
             Ok(())
         })
@@ -279,6 +287,7 @@ pub fn run() {
             packaged_resource_paths_command,
             detect_processing_device_command,
             read_app_log_command,
+            frontend_ready_command,
             pick_audio_file_command,
             pick_export_wav_command
         ])

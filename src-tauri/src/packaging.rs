@@ -9,6 +9,8 @@ pub const RESEMBLE_SIDECAR_PATH: &str = "sidecars/resemble/clearpodcast_resemble
 pub const RESEMBLE_MODEL_DIR: &str = "models/resemble-enhance/enhancer_stage2";
 pub const THIRD_PARTY_NOTICES_PATH: &str = "licenses/THIRD_PARTY_NOTICES.txt";
 pub const ARTIFACT_MANIFEST_PATH: &str = "manifests/artifacts.json";
+const LOCAL_MODEL_DIR: &str = "localfiles/models/resemble-enhance/enhancer_stage2";
+const LOCAL_RESEMBLE_SIDECAR_PATH: &str = "sidecars/resemble/clearpodcast_resemble.py";
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct PackagedResourcePaths {
@@ -36,6 +38,18 @@ pub enum PackagedResourceError {
 }
 
 impl PackagedResourcePaths {
+    pub fn from_app_resource_dir(resource_dir: impl AsRef<Path>) -> Self {
+        #[cfg(debug_assertions)]
+        {
+            return Self::from_development_inputs(resource_dir);
+        }
+
+        #[cfg(not(debug_assertions))]
+        {
+            Self::from_resource_dir(resource_dir)
+        }
+    }
+
     pub fn from_resource_dir(resource_dir: impl AsRef<Path>) -> Self {
         let resource_dir = resource_dir.as_ref().to_path_buf();
         let resource_root = resource_dir.join(RESOURCE_ROOT_DIR);
@@ -49,6 +63,29 @@ impl PackagedResourcePaths {
             model_dir: resource_root.join(RESEMBLE_MODEL_DIR),
             third_party_notices: resource_root.join(THIRD_PARTY_NOTICES_PATH),
             artifact_manifest: resource_root.join(ARTIFACT_MANIFEST_PATH),
+        }
+    }
+
+    #[cfg(debug_assertions)]
+    fn from_development_inputs(resource_dir: impl AsRef<Path>) -> Self {
+        let resource_dir = resource_dir.as_ref().to_path_buf();
+        let repository_root = repository_root();
+
+        Self {
+            resource_dir,
+            resource_root: repository_root.clone(),
+            python: repository_root
+                .join(local_runtime_dir())
+                .join(local_python_executable_relpath()),
+            sidecar: repository_root.join(LOCAL_RESEMBLE_SIDECAR_PATH),
+            model_dir: repository_root.join(LOCAL_MODEL_DIR),
+            third_party_notices: repository_root
+                .join("packaging")
+                .join("licenses")
+                .join("THIRD_PARTY_NOTICES.txt"),
+            artifact_manifest: repository_root
+                .join("packaging")
+                .join(packaging_manifest_file()),
         }
     }
 
@@ -103,6 +140,41 @@ fn packaged_runtime_dir() -> &'static str {
     MACOS_CPU_RUNTIME_DIR
 }
 
+#[cfg(windows)]
+fn local_runtime_dir() -> &'static str {
+    "localfiles/runtime/windows-x64"
+}
+
+#[cfg(not(windows))]
+fn local_runtime_dir() -> &'static str {
+    "localfiles/runtime/macos-arm64"
+}
+
+#[cfg(windows)]
+fn local_python_executable_relpath() -> &'static str {
+    "Scripts/python.exe"
+}
+
+#[cfg(not(windows))]
+fn local_python_executable_relpath() -> &'static str {
+    python_executable_relpath()
+}
+
+#[cfg(windows)]
+fn packaging_manifest_file() -> &'static str {
+    "artifacts.windows-x64.json"
+}
+
+#[cfg(not(windows))]
+fn packaging_manifest_file() -> &'static str {
+    "artifacts.macos-arm64-cpu.json"
+}
+
+fn repository_root() -> PathBuf {
+    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    manifest_dir.parent().unwrap_or(&manifest_dir).to_path_buf()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -145,6 +217,25 @@ mod tests {
                 .join(RESOURCE_ROOT_DIR)
                 .join(ARTIFACT_MANIFEST_PATH)
         );
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
+    fn app_resource_paths_use_local_development_inputs_in_debug_builds() {
+        let paths = PackagedResourcePaths::from_app_resource_dir("dev-resources");
+        let repository_root = repository_root();
+
+        assert_eq!(
+            paths.python,
+            repository_root
+                .join(local_runtime_dir())
+                .join(local_python_executable_relpath())
+        );
+        assert_eq!(
+            paths.sidecar,
+            repository_root.join(LOCAL_RESEMBLE_SIDECAR_PATH)
+        );
+        assert_eq!(paths.model_dir, repository_root.join(LOCAL_MODEL_DIR));
     }
 
     #[cfg(windows)]

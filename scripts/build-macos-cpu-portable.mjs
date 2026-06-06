@@ -27,7 +27,16 @@ const zipPath = path.join(
 );
 
 run(process.execPath, [path.join(repoRoot, "scripts", "stage-macos-cpu-resources.mjs")]);
-run("npm", ["run", "tauri", "build", "--", "--bundles", "app"]);
+run("npm", [
+  "run",
+  "tauri",
+  "build",
+  "--",
+  "--bundles",
+  "app",
+  "--config",
+  path.join("src-tauri", "tauri.release.conf.json"),
+]);
 
 if (!fs.existsSync(appPath)) {
   throw new Error(`Tauri app bundle was not found after build: ${appPath}`);

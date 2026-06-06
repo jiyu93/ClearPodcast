@@ -88,6 +88,14 @@ export async function readAppLog() {
   return invoke<AppLogSnapshot>("read_app_log_command");
 }
 
+export async function markFrontendReady(elapsedMs: number) {
+  if (!tauriAvailable()) {
+    return;
+  }
+
+  await invoke("frontend_ready_command", { elapsedMs });
+}
+
 export async function listenForAudioDrop(callbacks: {
   onEnter: () => void;
   onLeave: () => void;

@@ -33,10 +33,13 @@ For a versioned release, keep these files in sync before building:
 ```text
 package.json
 src-tauri/tauri.conf.json
+src-tauri/tauri.release.conf.json
 ```
 
 Generated archives use the version from `package.json`; app bundle metadata uses
-the version from `src-tauri/tauri.conf.json`.
+the version from `src-tauri/tauri.conf.json`. Release-only resource bundling
+lives in `src-tauri/tauri.release.conf.json` so development launches do not load
+the staged multi-GB resource tree.
 
 ## Desktop Icon Assets
 

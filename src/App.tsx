@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { markFrontendReady } from "./backend/tauriCommands";
 import { ControlsPanel } from "./components/ControlsPanel";
 import { WorkspaceContent } from "./components/WorkspaceContent";
 import type { WorkspaceMode } from "./components/WorkspaceContent";
@@ -10,10 +11,22 @@ import { useI18n } from "./i18n/I18nProvider";
 export default function App() {
   const { t } = useI18n();
   const workspace = useWorkspaceController();
+  const frontendReadyLogged = useRef(false);
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>("audio");
   const showAudioWorkspace = () => setWorkspaceMode("audio");
   const toggleWorkspaceMode = (mode: Exclude<WorkspaceMode, "audio">) =>
     setWorkspaceMode((current) => (current === mode ? "audio" : mode));
+
+  useEffect(() => {
+    if (frontendReadyLogged.current) {
+      return;
+    }
+    frontendReadyLogged.current = true;
+
+    void markFrontendReady(performance.now()).catch(() => {
+      // Startup timing is diagnostic only; rendering should never depend on it.
+    });
+  }, []);
 
   return (
     <main className="app-shell">
