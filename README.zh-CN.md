@@ -2,11 +2,9 @@
 
 [English](README.md) | 简体中文
 
-ClearPodcast 是一款离线桌面应用，用于修复来自蓝牙耳机、会议软件、
-远程通话、手机录音和普通电脑麦克风的受损播客人声录音。
+ClearPodcast 是一个本地应用程序，用于增强人声对话音频音质。它打包了模型和运行环境，无需安装部署即可使用。
 
-v0.1 发布基线是一套完整的一文件 Restoration Desk 工作流：选择受支持的
-人声录音，本地运行修复，对比修复前后效果，并从便携桌面应用导出 WAV。
+目前使用的音质增强模型是[Resemble Enhance](https://github.com/resemble-ai/resemble-enhance)，并开放了参数调节选项。
 
 ## 功能
 

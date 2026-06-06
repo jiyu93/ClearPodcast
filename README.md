@@ -2,13 +2,10 @@
 
 English | [简体中文](README.zh-CN.md)
 
-ClearPodcast is an offline desktop app for restoring damaged spoken-word podcast
-recordings from Bluetooth headsets, meeting apps, remote calls, phone recordings,
-and ordinary computer microphones.
+ClearPodcast is a local desktop app for enhancing spoken dialogue audio quality.
+It bundles the model and runtime so it can be used without installation or deployment.
 
-The v0.1 release baseline is a polished one-file Restoration Desk workflow:
-choose a supported speech recording, run local restoration, compare before and
-after, and export a WAV from a portable desktop app.
+The current enhancement model is [Resemble Enhance](https://github.com/resemble-ai/resemble-enhance), with model parameter controls exposed in the app.
 
 ## Features
 
