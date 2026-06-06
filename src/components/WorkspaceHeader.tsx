@@ -16,10 +16,16 @@ export function WorkspaceHeader({
   state,
   deviceInfo,
   deviceStatus,
+  deviceModeToggleAvailable,
+  canToggleDeviceMode,
+  onToggleDeviceMode,
 }: {
   state: EnhancementJobState | "idle";
   deviceInfo?: EnhancementDeviceInfo;
   deviceStatus: DeviceDetectionStatus;
+  deviceModeToggleAvailable: boolean;
+  canToggleDeviceMode: boolean;
+  onToggleDeviceMode: () => void;
 }) {
   const { language, languages, setLanguage, t } = useI18n();
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
@@ -111,6 +117,9 @@ export function WorkspaceHeader({
         <ProcessingDeviceIndicator
           deviceInfo={deviceInfo}
           status={deviceStatus}
+          toggleAvailable={deviceModeToggleAvailable}
+          canToggle={canToggleDeviceMode}
+          onToggle={onToggleDeviceMode}
         />
       </div>
     </header>

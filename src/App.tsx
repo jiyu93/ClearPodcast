@@ -35,6 +35,9 @@ export default function App() {
           state={workspace.job?.state ?? "idle"}
           deviceInfo={workspace.displayedDeviceInfo}
           deviceStatus={workspace.deviceStatus}
+          deviceModeToggleAvailable={workspace.deviceModeToggleAvailable}
+          canToggleDeviceMode={workspace.canToggleDeviceMode}
+          onToggleDeviceMode={workspace.toggleDeviceMode}
         />
 
         <div className="workspace-body">

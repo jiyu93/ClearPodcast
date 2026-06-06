@@ -20,6 +20,8 @@ export type EnhancementDeviceInfo = {
   cuda_device_name?: string;
 };
 
+export type ProcessingDeviceMode = "cpu" | "cuda";
+
 export type EnhancementJobSnapshot = {
   job_id: string;
   state: EnhancementJobState;

@@ -41,6 +41,11 @@ language switching in the app header. The selected language is persisted locally
 and used for controls, status labels, model parameter help, logs, and processing
 error summaries.
 
+On machines where CUDA and CPU processing are both available, the processing
+mode defaults to GPU Mode. The header mode capsule becomes a button that can
+switch future runs between GPU Mode and CPU Mode while no enhancement is
+preparing or running.
+
 Run controls, model parameters, and run logs are three mutually exclusive views of
 the current enhancement workspace. Runtime events are written to a local
 `clearpodcast.log` text file in the app log directory, with bounded rotation for

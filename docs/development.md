@@ -83,9 +83,11 @@ localfiles\runtime\windows-x64\Scripts\python.exe -m pip install -r sidecars\res
 localfiles\runtime\windows-x64\Scripts\python.exe -m pip install --no-deps resemble-enhance==0.0.1
 ```
 
-The packaged Windows app uses CUDA automatically when available and falls back
-to CPU when CUDA is unavailable or disabled. Users do not need the CUDA Toolkit
-installed; CUDA acceleration requires a compatible NVIDIA driver.
+The packaged Windows app defaults to GPU Mode when CUDA is available and falls
+back to CPU when CUDA is unavailable or disabled. When CUDA is available, the
+header processing-mode capsule can switch future runs between GPU Mode and CPU
+Mode while no enhancement is preparing or running. Users do not need the CUDA
+Toolkit installed; CUDA acceleration requires a compatible NVIDIA driver.
 
 As of June 3, 2026, the Windows CUDA runtime uses the PyTorch CUDA 13.0
 (`cu130`) wheel line for RTX 5070 Ti validation.

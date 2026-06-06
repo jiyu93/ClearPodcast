@@ -111,7 +111,10 @@ function createVisualFixture(name: VisualFixtureName): VisualFixtureState {
             detail: "visual_fixture_sidecar_error: model output was not produced",
           }
         : undefined,
-    detectedDeviceInfo: name === "completed" || name === "exported" ? cudaDevice : cpuDevice,
+    detectedDeviceInfo:
+      name === "running" || name === "completed" || name === "exported"
+        ? cudaDevice
+        : cpuDevice,
     deviceStatus: "ready",
     deviceError: "",
   };
@@ -137,7 +140,7 @@ function jobForFixture(
     return {
       ...common,
       state: "running",
-      device_info: cpuDevice,
+      device_info: cudaDevice,
     };
   }
 

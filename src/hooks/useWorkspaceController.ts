@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   cancelEnhancementJob,
@@ -32,6 +32,7 @@ import type {
   EnhancementDeviceInfo,
   EnhancementJobSnapshot,
   EnhancementParameters,
+  ProcessingDeviceMode,
   ErrorContext,
   RuntimeSettings,
 } from "../domain/types";
@@ -50,6 +51,8 @@ export type WorkspaceController = {
   deviceStatus: DeviceDetectionStatus;
   deviceError: string;
   displayedDeviceInfo?: EnhancementDeviceInfo;
+  deviceModeToggleAvailable: boolean;
+  canToggleDeviceMode: boolean;
   originalAudioSrc?: string;
   enhancedAudioSrc?: string;
   canRun: boolean;
@@ -65,6 +68,7 @@ export type WorkspaceController = {
     value: EnhancementParameters[K],
   ) => void;
   resetEnhancementParameters: () => void;
+  toggleDeviceMode: () => void;
 };
 
 export function useWorkspaceController(): WorkspaceController {
@@ -103,6 +107,10 @@ export function useWorkspaceController(): WorkspaceController {
     fixture?.deviceStatus ?? "checking",
   );
   const [deviceError, setDeviceError] = useState(fixture?.deviceError ?? "");
+  const [requestedDeviceMode, setRequestedDeviceMode] = useState<
+    ProcessingDeviceMode | undefined
+  >(normalizeDeviceMode(fixture?.detectedDeviceInfo?.selected_device));
+  const deviceModeWasChosen = useRef(Boolean(fixture));
 
   const originalAudioSrc = useMemo(
     () =>
@@ -120,7 +128,17 @@ export function useWorkspaceController(): WorkspaceController {
   const canCancel = job?.state === "queued" || job?.state === "running";
   const canExport = job?.state === "completed" && Boolean(job.preview_wav);
   const enhancementControlsLocked = isActiveJob(job);
-  const displayedDeviceInfo = job?.device_info ?? detectedDeviceInfo;
+  const deviceModeToggleAvailable = detectedDeviceInfo?.cuda_available === true;
+  const requestedDeviceInfo = deviceInfoForRequestedMode(
+    detectedDeviceInfo,
+    requestedDeviceMode,
+  );
+  const displayedDeviceInfo =
+    enhancementControlsLocked && job?.device_info
+      ? job.device_info
+      : requestedDeviceInfo ?? job?.device_info ?? detectedDeviceInfo;
+  const canToggleDeviceMode =
+    deviceModeToggleAvailable && !enhancementControlsLocked;
 
   const showError = useCallback((error: unknown, context: ErrorContext) => {
     const display = describeError(error, context, t.errors);
@@ -235,6 +253,13 @@ export function useWorkspaceController(): WorkspaceController {
         const info = await detectProcessingDevice(request);
         if (!cancelled) {
           setDetectedDeviceInfo(info);
+          setRequestedDeviceMode((current) => {
+            if (info.cuda_available) {
+              return deviceModeWasChosen.current ? current ?? "cuda" : "cuda";
+            }
+
+            return "cpu";
+          });
           setDeviceStatus("ready");
         }
       } catch (error) {
@@ -290,7 +315,7 @@ export function useWorkspaceController(): WorkspaceController {
         ...runtimeOverrides(runtimeSettings),
         ...enhancementParameters,
         input_audio: selectedPath,
-        device: "auto",
+        device: requestedDeviceMode ?? "auto",
         expected_checkpoint_sha256: EXPECTED_CHECKPOINT_SHA256,
       });
       setJob(snapshot);
@@ -299,6 +324,7 @@ export function useWorkspaceController(): WorkspaceController {
     }
   }, [
     enhancementParameters,
+    requestedDeviceMode,
     runtimeSettings,
     selectedPath,
     showError,
@@ -353,6 +379,15 @@ export function useWorkspaceController(): WorkspaceController {
     setEnhancementParameters(DEFAULT_ENHANCEMENT_PARAMETERS);
   }, []);
 
+  const toggleDeviceMode = useCallback(() => {
+    if (!canToggleDeviceMode) {
+      return;
+    }
+
+    deviceModeWasChosen.current = true;
+    setRequestedDeviceMode((current) => (current === "cpu" ? "cuda" : "cpu"));
+  }, [canToggleDeviceMode]);
+
   return {
     selectedPath,
     originalPreviewPath,
@@ -365,6 +400,8 @@ export function useWorkspaceController(): WorkspaceController {
     deviceStatus,
     deviceError,
     displayedDeviceInfo,
+    deviceModeToggleAvailable,
+    canToggleDeviceMode,
     originalAudioSrc,
     enhancedAudioSrc,
     canRun,
@@ -377,5 +414,30 @@ export function useWorkspaceController(): WorkspaceController {
     exportEnhancedWav: exportCurrentEnhancedWav,
     updateEnhancementParameter,
     resetEnhancementParameters,
+    toggleDeviceMode,
+  };
+}
+
+function normalizeDeviceMode(value?: string): ProcessingDeviceMode | undefined {
+  const normalized = value?.toLowerCase();
+
+  if (normalized === "cuda" || normalized === "cpu") {
+    return normalized;
+  }
+
+  return undefined;
+}
+
+function deviceInfoForRequestedMode(
+  deviceInfo: EnhancementDeviceInfo | undefined,
+  requestedMode: ProcessingDeviceMode | undefined,
+) {
+  if (!deviceInfo || !requestedMode || deviceInfo.cuda_available !== true) {
+    return deviceInfo;
+  }
+
+  return {
+    ...deviceInfo,
+    selected_device: requestedMode,
   };
 }
